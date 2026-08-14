@@ -1,0 +1,184 @@
+{
+  "round": 1,
+  "round_label": "复审（R1 修复后，全文通读）",
+  "mode": "competition",
+  "paper_title": "红色警戒——战略节点攻防与撤退调度规划",
+  "review_date": "2026-08-14",
+  "total_score": 95.0,
+  "scores": {
+    "dim1_problem_understanding": {"score": 20, "max": 20, "pass_line": 12},
+    "dim2_model_construction": {"score": 23, "max": 25, "pass_line": 15},
+    "dim3_solving_validation": {
+      "score": 13.5, "max": 15, "pass_line": 9,
+      "sub_3a_optimality": {"score": 5, "max": 5},
+      "sub_3b_model_validation": {"score": 8.5, "max": 10}
+    },
+    "dim4_sensitivity_robustness": {"score": 19, "max": 20, "pass_line": 12},
+    "dim5_structure_expression": {
+      "score": 19, "max": 20, "pass_line": 12,
+      "sub_5a_structure": {"score": 7.5, "max": 8},
+      "sub_5b_abstract": {"score": 4, "max": 4},
+      "sub_5c_language": {"score": 4, "max": 4},
+      "sub_5d_figures": {"score": 3.5, "max": 4}
+    }
+  },
+  "issue_counts": {"high": 0, "medium": 2, "low": 4},
+  "fix_verification": {
+    "H-1_stackelberg_caliber": {
+      "verdict": "真修复，未引入跨节新错",
+      "five_location_consistency": "摘要 L83（50.83%/48.94% + 含人力 TC_total 主口径限定词）✓；表2 A-01 行 L175（109613.7→165334.7、145773.0→217114.0，含人力主口径）✓；5.2.4 Stackelberg 段 L579（TC_worst=165334.7/217114.0，footnote 披露不含人力参照 +63.31%/+60.68%）✓；fig13 解析段 L581（绝对增量 55721.0/71341.0）✓；abstract_candidates.md 版A/版B 同步 ✓。五处一致。",
+      "source_check": "solution.json q2_soviet/q2_allied.stackelberg_worst_case（TC_worst 165334.7/217114.0、delta_pct 50.83/48.94、caliber 字段、delta_pct_excl_labor_reference 63.31/60.68）与 sensitivity.baseline_vs_stackelberg_A01 逐项一致；project/问题2_求解.py L235-258 已改为 TC_total+extra_loss 并加 assert 口径守卫（A-3 主代码同步 ✓）。",
+      "independent_recompute": "109613.7+55721.0=165334.7 ✓；55721.0/109613.7=50.83% ✓；145773.0+71341.0=217114.0 ✓；71341.0/145773.0=48.94% ✓；不含人力 55721.0/88013.7=63.31% ✓、71341.0/117573.0=60.68% ✓。表6 偏离表额外损失 55721 元/日与 JSON 一致 ✓。"
+    },
+    "H-2_q3_personnel_caliber": {
+      "verdict": "真修复，未引入跨节新错",
+      "three_location_semantic_declaration": "摘要 L85（人员加权、0.7956/0.6730/差 0.1226）✓；5.3.2 节 L670-685 全段重写（决策量纲=人员、装备随建制伴随为报告口径、占用率 50% 松、裕度 39.2/28.7/32.2 万人、殿后 10 万人、7 条路线均长 13.405 km、MC 人员加权语义声明、式 surv、CI95 与 SEM/std 双口径）✓；fig8/fig10 caption 人员加权声明 ✓；另覆盖 6.3 风险敏感段、6.4 误差(5)、符号表 P_surv 行。",
+      "capacity_assertion": "'容量约束全部紧'断言已删除，改为如实报告占用率 50%（松）；solution.json active_constraints 三容量约束 active=false + slack 39.2/28.7/32.2 派生量齐全 ✓。",
+      "independent_recompute": "40.8+11.3+47.8=99.9≈100 ✓；80-40.8=39.2、40-11.3=28.7、80-47.8=32.2 ✓；0.7956-0.6730=0.1226 ✓；std/mean 1017/7956=12.78%、973/6730=14.46% ✓；SEM/mean 1017/√2000/7956=0.29%、973/√2000/6730=0.32% ✓；sensitivity 五点 0.8466→0.7506 / 0.7314→0.6248 与 JSON 一致 ✓。"
+    },
+    "rejected_adjudication": [
+      {"id": "M-3 k_def 无替代标定对照", "disposition": "rejected", "adjudication": "理由成立：数值补算属建模层操作，超出 R1 表达/一致性修复权限，符合修复回路铁律第 6 条；论文定性披露三处齐全（假设 5 单列声明关键敏感参数、6.4(3) 量化乐观方向与边界'相对排序不受影响'、7.2 局限性第一条）。维持 medium 遗留，不触发 R2；是否二次回退 modeling-solver 补做 k_def×1.5/×2 对照，提交 HG3 用户裁决。"},
+      {"id": "L-3 solver_backend.py 路径在 project/ 外", "disposition": "rejected", "adjudication": "理由基本成立：VerbatimInput 直引保证逐行一致（机查 PASS 11 文件），各求解脚本 sys.path.insert 显式加载且附录执行顺序说明已覆盖。但可复现性瑕疵客观存在（支撑材料若仅按 project/ 打包则缺该文件），维持 low 遗留，建议打包时随附 .trae/code_templates/ 目录或拷副本。"},
+      {"id": "M-4 术语表.json 本体（半条）", "disposition": "rejected", "adjudication": "理由成立：JSON 生产者为 modeling-solver，R1 权限外；论文侧已补算法术语表（表 tab:algo，9 条），B 题核查 #6 论文侧五类齐全。但 JSON 本体残留旧符号 α_u 与旧编号'假设 A-05'（与论文 λ_u/假设 5 不一致），新记 low（L-new-2），建议 R3/打包阶段同步。"}
+    ],
+    "old_value_residual_scan": "对旧值全集（31.13/29.59/143734/188914/34121/43141/0.7548/0.6276/0.1272/1584/8.479/0.811/0.7035/0.6893/0.5736/11.71/13.15/75432.3/97816.4/0.054/0.059）grep paper.tex 零残留 ✓；z_r/α_u/A-05 零残留 ✓；abstract_candidates.md 旧值仅存于'已废止'说明行（合法）。",
+    "full_section_recompute": {
+      "Q2_cost_adversarial": "表9 四分层加总自洽（3096.5+9485.0+75432.2+21600.0=109613.7；4664.4+15092.0+97816.6+28200.0=145773.0）✓；MC 偏差 74890.9/75432.2=0.72%、96310.9/97816.6=1.54% ✓；求解时间 0.391/0.07 s 与 JSON solve_time_s 一致 ✓；7.1 优势'0.4 s 以内'与 0.391 自洽 ✓；68.8%/67.1%/8.7%/10.4%/19.7%/19.3%/2.8%/3.2% 重算一致 ✓；33.0%（145773/109614-1）✓；7.18%/8.56% 线性化差距重算一致 ✓。",
+      "Q3_withdrawal": "见 H-2 重算，全部一致 ✓。",
+      "abstract_page": "摘要全部数值（0.7688/0.7732、109614/145773、68.8%/67.1%、50.83%/48.94%、0.72%/1.54%、0.8862、≥0.98、0.7956/0.6730/0.1226）与 solution.json 逐项一致 ✓。",
+      "sensitivity_section": "Tornado 需求率 ±20% 苏军 70411-105617（JSON 70411.0/105616.5 舍入 ✓）；破交 ×0.5 -27.02%/-31.46%、×1.5 +12.18%/+18.87% ✓；车载 ∓2.4%-3.6%（JSON 2.38/2.8/3.57/4.2 ✓）；护航临界点 85758/256358/114603/455800/205587/354259/72.3% 与 validation_result.json q2_escort_critical 一致 ✓；Q1 扫描 0.7372/0.8034/0.7418/0.8073/0.76829/0.76977/0.77309/0.77354/0.82465/0.82962 与 hg1_sweep/validation JSON 一致 ✓；Q3 翻转阈值 0.1638/0.0454/0.6254 初审已反解验证 ✓。"
+    },
+    "new_issues_introduced_by_fix": "0 个跨节数值新错；1 个表达层新瑕疵（M-new-1：fig13/fig8 图内标题含内部流程编号'H-1 裁决'/'H-2 修复'，见 issues）。",
+    "fix_failure_rate_warning": false
+  },
+  "issues": [
+    {
+      "id": "M-3（遗留，rejected 成立）",
+      "severity": "medium",
+      "location": "solution.json q3_soviet_attack.sensitivity；paper.tex 假设5/L799/L820",
+      "description": "k_def=0.5+0.3d 守军标定仍无替代标定数值对照。R1 以'超出权限'rejected 成立，论文定性披露三处齐全；维持 medium 遗留，提交 HG3 裁决是否二次回退 modeling-solver 补算。",
+      "suggested_fix": "HG3 裁决：若要求定量，回退 modeling-solver 做 k_def×1.5/×2 对照（R3 计数）；若接受现状，维持披露。"
+    },
+    {
+      "id": "M-new-1",
+      "severity": "medium",
+      "location": "result_bundle/figures/fig13_q2_a01_baseline_vs_stackelberg.png(pdf) 图内标题第二行'（含人力 TC_total 主口径，H-1 裁决）'；fig8_survival_comparison.png(pdf) 图内标题第二行'（人员加权口径，H-2 修复；…）'",
+      "description": "R1 重绘的两张图把内部流程编号（H-1 裁决/H-2 修复）写入图内标题，随 PDF 进入提交稿。属内部过程痕迹外泄：评审/组委会不应看到修复回路工单编号；形式上亦与匿名化'不出现过程性元信息'精神相悖。图内数值本身正确（+50.8%/+48.9%、0.796/0.673、差 0.123 与正文一致）。",
+      "impact": "合规/专业性瑕疵，非数值错误；不改不影响结论可信度，但提交稿带内部工单编号不专业。",
+      "suggested_fix": "将图内标题改为中性口径声明后重绘两图：fig13'（含人力 TC_total 主口径）'、fig8'（人员加权口径；装备随建制伴随不进入生存概率加权）'，同步更新 project/figures 与 result_bundle/figures。属表达层修复，R2 或 HG3 前快修均可。"
+    },
+    {
+      "id": "L-3（遗留，rejected 基本成立）",
+      "severity": "low",
+      "location": "paper.tex L878 \\VerbatimInput{.trae/code_templates/solver_backend.py}",
+      "description": "solver_backend.py 仍在 project/ 外。维持 low 遗留：打包支撑材料时须随附该目录（附录执行顺序说明已含 sys.path 说明）。",
+      "suggested_fix": "打包时附 .trae/code_templates/ 或拷副本入 project/ 并更新引用。"
+    },
+    {
+      "id": "L-new-2",
+      "severity": "low",
+      "location": "result_bundle/术语表.json L32（α_u 'Lanchester单位u火力系数'、cross_reference '假设A-05'）",
+      "description": "术语表.json 残留 R1 前旧符号 α_u 与旧假设编号 A-05，与论文符号表 λ_u/假设 5 不一致（论文侧已补代码映射注释，JSON 侧未同步，生产者权限外）。",
+      "suggested_fix": "R3/打包阶段将 JSON 该条改为 λ_u、'假设4'（战斗损耗规律）或由编排器裁决同步口径。"
+    },
+    {
+      "id": "L-new-3",
+      "severity": "low",
+      "location": "result_bundle/figures/fig5_tornado_q2.png；paper.tex 6.2 节 Tornado 解析段 L761",
+      "description": "Tornado 图条长口径不统一：需求率条取全范围 ±20%（约 40%），破交概率与车载容量条取单向 +20%（约 19.4/12.18 与 3.57/4.2），横轴标签'目标值变化（±20%参数扰动，%）'易误导；排序结论（需求率>破交>车载）正确且解析段有逐参数数值佐证。",
+      "suggested_fix": "重绘时统一为全范围 ±20% 条长，或在图题/解析段注明各参数条的扰动方向口径。"
+    },
+    {
+      "id": "L-MC（遗留，披露型）",
+      "severity": "low",
+      "location": "paper.tex L573",
+      "description": "Q2 重尾损失 2000 次仿真维持不变，已在 MC 验证段诚实披露'增至 10^4 列为后续工作'。偏差 0.72%/1.54% 达标，接受披露型处置，维持 low 观察。",
+      "suggested_fix": "如有余力复验 10^4 次报告偏差稳定性；否则维持现状。"
+    }
+  ],
+  "b_problem_checks": {
+    "1_algorithm_choice": {"pass": true, "deduct": 0, "evidence": "Q1 三候选对比(L343)+Q3 三候选对比附复杂度定量(L655)，R1 后贪心交叉验证承诺改为诚实披露(L657)"},
+    "2_convergence_visualization": {"pass": true, "deduct": 0, "evidence": "分支定界 MIPGap=0 求解器元数据透传；Q3 贪心以 std/mean=2.74% 统计评估并显式声明无最优保证"},
+    "3_tornado": {"pass": true, "deduct": 0, "evidence": "fig5_tornado_q2.pdf 存在且标注最敏感（需求率）/最不敏感（车载容量）；条长口径瑕疵记 L-new-3"},
+    "4_active_constraints": {"pass": true, "deduct": 0, "evidence": "Q1/Q2 紧约束+派生量齐全；Q3 容量约束改为松标注（active=false+slack 39.2/28.7/32.2），H-2 后断言与 JSON 一致"},
+    "5_multiobjective": {"pass": true, "deduct": 0, "evidence": "权重来源按题目语义论证+±20% 扰动检验"},
+    "6_glossary_five_categories": {"pass": true, "deduct": -0.5, "evidence": "论文侧五类齐全（表 tab:algo 9 条算法术语+符号表决策变量/参数/目标/派生量）；术语表.json 本体缺算法节且残留 α_u/A-05，记 L-new-2 扣 0.5"},
+    "7_optimality_gap": {"pass": true, "deduct": 0, "evidence": "MIPGap=0≤1%；Q3 启发式 std/mean=2.74%<5%"},
+    "8_compliance": {
+      "pass": true, "deduct": 0, "verdict": "PASS（无 COMPLIANCE-FAIL；M-new-1 为图内流程编号瑕疵，未达 COMPLIANCE-FAIL 级别，列入 issues 要求 HG3 前快修）",
+      "sub_checks": {
+        "anonymity": "PASS：机查全文无身份敏感词；图内'H-1 裁决/H-2 修复'为流程编号非身份信息，记 M-new-1",
+        "abstract_one_page": "PASS：PDF p1 单页摘要",
+        "no_toc": "PASS：机查无目录",
+        "body_pages": "PASS：正文 28 页（PDF p2-p29；paper.aux：问题重述 p1→模型评价 p27 起、p29 止；参考文献 p30；附录 p31 起），≤28 达标",
+        "appendix_code": "PASS（含瑕疵）：11 个源程序 VerbatimInput 直引逐行一致；solver_backend.py 路径瑕疵记 L-3",
+        "source_management": "PASS：无外部数据引用；参考文献 12 篇年份 1916-2018 均≤2026，正文 cite 全量对应、无闲置条目"
+      },
+      "machine_check": "本轮重跑 check_latex_compliance.py：0 ERROR/3 WARN/13 PASS（42 高频短语均实义术语；6 超长段落为假设列表误判+连贯论证段；89 页经页码映射核对正文 28 页）；check_solution_json.py 重跑：0 ERROR/2 WARN/41 PASS（2 WARN 为 Q1 monte_carlo=null 已附不适用说明）"
+    },
+    "9_geometric_degradation": {"pass": null, "deduct": 0, "evidence": "N/A：非定位/几何覆盖类问题"},
+    "10_precision_factor": {"pass": null, "deduct": 0, "evidence": "N/A：无 GDOP/DOP/条件数"},
+    "11_game_theory": {"pass": true, "deduct": 0, "evidence": "Q2 Stackelberg 零和：6d 落实（表6 单方偏离比较+帕累托区分显式标注 L476）；局限性披露'事后对照而非双层均衡'(L820)"},
+    "12_methodology_alternatives": {"pass": false, "deduct": -1, "evidence": "k_def 关键假设仍无替代标定数值对照（rejected 成立，维持 medium 遗留 M-3）"}
+  },
+  "mandatory_checklist_11": {
+    "1_symbol_consistency": "PASS：z/α 双重使用已修复（e_r/λ_u，符号表补代码映射 z[r]/FIREPOWER）；grep z_r/α_u 零残留；抽取 x/flow/φ/TC/risk_e/P_surv/λ_u/e_r 8 符号对比参数表/公式/附录/图表四处一致",
+    "2_objective_form": "PASS：Q1 无量纲 ratio、Q2 元/日、Q3 概率 0-1，各问内部统一；Q2 双口径换算关系显式（表9+footnote）",
+    "3_code_paper_consistency": "PASS：H-1/H-2 后代码-solution.json-论文三方一致（问题2_求解.py L235-258 assert 口径守卫；问题3_求解.py 人员口径）；source_parameters 20 项机查全匹配；残留瑕疵 L-new-2（JSON 术语表旧符号）",
+    "4_numeric_source": "PASS：本轮抽取 ≥18 个数值（50.83/48.94/165334.7/217114.0/55721/71341/63.31/60.68/0.7956/0.6730/0.1226/39.2/28.7/32.2/13.405/12.78/14.47/0.29/0.32/70411/105617/85758/256358/354259）逐个命中 solution.json 或 validation/hg1 JSON；派生数值重算（50.83%=55721/109613.7、12.78%=1017/7956、0.29%=SEM 公式、72.3%=354259/205587-1、33.0%）全部一致",
+    "5_monte_carlo": "PASS：convergence 字段按 std/mean 动态判定（46.70/54.61/12.78/14.47 报 not converged，2.74 报 converged），机查 4 项 PASS；双口径披露齐全；Q2 2000 次偏差达标+后续工作披露",
+    "6_derivation_inline": "PASS：无回避性表述，推导内联正文",
+    "7_cross_subproblem_no_borrow": "PASS：各子问题数值取自对应字段；跨问对比（33.0%）显式标注口径",
+    "8_indicator_dimension": "PASS：indicator_dimension_check 6 项全 ✓；H-2 后生存概率人员语义与题目原义一致（符号表 P_surv 行'人员加权'）",
+    "9_counterintuitive_cross_validation": "PASS：反直觉结论（盟军数量优势未转化为后勤优势）交叉验证与根因分析保留（L553）",
+    "10_result_magnitude": "PASS：Q1 量级专节+Q2/Q3 常识性讨论保留",
+    "11_data_preprocessing": "PASS：数据剖析进正文（L268，缺失值/异常点/重复边/空行清洗交代齐全）"
+  },
+  "tex_number_adjudication": {
+    "total_warn": 25,
+    "legitimate": 25,
+    "real_drift": 0,
+    "note": "较初审 29 条减少 4 条（75432.3/97816.4 舍入伪影已统一、0.26→0.29 等更新后命中）；25 条逐条裁定均合法：排版参数(2.54/3.18)、字体码位(2208/2605/2713)、题目参数(14000)、假设/数据剖析参数(1000/0.01/0.012/0.526/19.55/0.09)、派生阈值(0.045/0.0454/0.1638/0.0001/1e-05)、百分比表述(46.7/54.61/12.78/14.47/2.74/0.29/0.32)、变量计数(4360)",
+    "details": "见 decision_logs/review_scores.md round 1 节"
+  },
+  "latex_compliance_adjudication": [
+    {"warn": "内部高频短语 42 个", "verdict": "合法", "reason": "均为实义领域术语（指挥节点/部署节点/蒙特卡洛/最坏情形/人力成本/分支定界等），非 AI 填充短语"},
+    {"warn": "超长段落 6 处（L153/L573/L579/L675/L761/L770）", "verdict": "合法", "reason": "L153 为假设 enumerate 列表机查误判；其余 5 处为连贯论证段（MC 验证、Stackelberg、转移分配、Tornado 解析、护航临界点），论证完整，记录理由保留"},
+    {"warn": "PDF 89 页", "verdict": "合法（达标）", "reason": "页码映射核对：摘要 p1、正文 p2-p29（28 页≤28）、参考文献 p30、附录 p31-p89"}
+  ],
+  "contract_machine_check": {
+    "check_solution_json": "本轮重跑：0 ERROR / 2 WARN / 41 PASS；2 WARN（Q1 monte_carlo=null）裁定合法（已附'确定性 MIP 不适用'说明）",
+    "check_latex_compliance": "本轮重跑：0 ERROR / 3 WARN / 13 PASS，逐条裁定见上",
+    "check_tex_numbers": "本轮重跑：25 WARN，逐条裁定均合法，real_drift=0"
+  },
+  "abstract_verdict": {
+    "versions_reviewed": 3,
+    "version_A_score": "4/4",
+    "version_B_score": "4/4",
+    "final_abstract_score": "4/4",
+    "assessment": "版A/版B 数值已随 H-1/H-2 同步（50.83%/48.94% 含人力主口径、0.7956/0.6730/0.1226 人员加权），条件限定词保留齐全；paper.tex 定稿摘要=版A 措辞+问题三补平均剩余比 0.8862，信息量略优于版A。两版均按问题逐段、方法+算法定量结论齐全、关键词 5 个、≤1 页（669 字）。",
+    "final_recommendation": "维持 paper.tex 现定稿摘要，无需再改；若 HG3 前重绘图（M-new-1），摘要不受影响。"
+  },
+  "red_team": {
+    "high_count": 0,
+    "search_scope_and_evidence": "round 1 搜查对象与结论：(1) paper.tex 725 行全文通读（摘要/重述/分析/假设7条/符号+算法术语表/Q1/Q2/Q3/灵敏度/误差/评价/文献/附录）；(2) 旧值全集 21 项 grep 零残留 + z_r/α_u/A-05 零残留；(3) solution.json H-1/H-2 相关字段逐项回读（stackelberg_worst_case×2、baseline_vs_stackelberg_A01×2、q3_allied_withdrawal 全节 3171-3375 行）；(4) 独立重算 6 组（H-1 两口径增幅、H-2 分配/裕度/差值、std/mean 与 SEM/mean 公式、Tornado 与护航临界点 JSON 对照、Q1 扫描值对照、表9 加总）；(5) fig13/fig8/fig5/fig10 四图 PNG 逐图视觉核对——发现 M-new-1（图内流程编号）与 L-new-3（Tornado 条长口径）；(6) 三机查重跑（solution_json 0E/2W/41P、latex_compliance 0E/3W/13P、tex_numbers 25W 全合法）；(7) paper.aux 页码映射核对正文 28 页；(8) 术语表.json 抽查发现 L-new-2；(9) 问题2_求解.py L229-316 抽读确认主代码口径同步。",
+    "false_alarm_count": 0,
+    "note": "M-new-1 初判 high 候选，经自查降级为 medium：图内编号不改变任何数值与结论、不构成身份信息泄露，实际风险低于 high 级别 [虚惊标注：降级理由=数值正确且非身份信息，仅专业性瑕疵]。"
+  },
+  "independent_discovery_rate": {
+    "value": 0.5,
+    "note": "round 1 问题总数 6（遗留 M-3/L-3/L-MC + 新发现 M-new-1/L-new-2/L-new-3）；其中 reviewer 独立新发现 3 个（图内流程编号、术语表旧符号、Tornado 条长口径），上游 fix_round1.md 未识别 → 3/6=0.5，独立性充分"
+  },
+  "double_blind": {
+    "contestant_strongest_argument": "R1 修复链路完整可审计：H-1/H-2 由 modeling-solver 重算真源（代码+双 JSON+重绘图）后 paper-writer 全文同步，旧值零残留、五处口径一致、footnote 双口径披露；正文 28 页内验证项一项未删，诚实度（未做对照即声明未做）在参赛论文中罕见。",
+    "reviewer_three_fatal_questions": [
+      "（已关闭）H-1：31.13% 的分子分母口径为何混用？——复审重算确认已改为 50.83%/48.94% 含人力主口径，五处一致，footnote 披露不含人力参照值，问题关闭。",
+      "（已关闭）H-2：15840 混合兵力与容量 200 的'全部紧'断言？——复审确认已改人员口径、占用率 50% 如实报告、生存概率人员加权三处声明，问题关闭。",
+      "（遗留）k_def 决定 Q3 全部胜率却无替代标定对照：'乐观估计'乐观了多少？——R1 以权限外 rejected 成立，但问题本身未消解，提交 HG3 裁决。"
+    ],
+    "verdict": "接受（95.0≥70%，high severity=0）。M-new-1（图内流程编号）建议 HG3 前快修重绘两图；M-3 与 L-3/L-new-2/L-new-3/L-MC 作为遗留项提交 HG3 裁决，不阻塞进入 HG3。"
+  },
+  "fix_loop_trigger": false,
+  "r2_needed": false,
+  "next_action": "无 high severity，R2 不触发；进入 HG3 用户裁决：①M-new-1 是否快修重绘 fig13/fig8 图内标题；②M-3 是否二次回退 modeling-solver 补 k_def 对照；③L 级遗留项打包阶段处置。"
+}

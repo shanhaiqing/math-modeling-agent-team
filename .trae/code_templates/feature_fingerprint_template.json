@@ -1,0 +1,16 @@
+{
+  "problem_type": "LP | IP | MIP | NLP | MOO | DP | Network | Combinatorial | Queueing | Game | Other",
+  "variable_type": "continuous | discrete | mixed",
+  "variable_count_estimate": "small<10 | medium10-100 | large>100",
+  "objective_type": "linear | nonlinear_convex | nonlinear_nonconvex",
+  "objective_count": 1,
+  "constraint_type": "linear_only | nonlinear | mixed",
+  "constraint_count_estimate": "small<20 | medium20-100 | large>100",
+  "time_dependence": "static | multi_period | continuous_time",
+  "uncertainty": "none | stochastic | robust | fuzzy",
+  "data_role": "given | estimated | simulated | fitted",
+  "sub_problems": [],
+  "theoretical_challenge": "NP_hard | large_scale | nonconvex | multi_objective_tradeoff | none_obvious",
+  "confidence": "high | medium | low",
+  "data_quality": "阶段1大附件处理规范产出的数据质量结论（行列规模/缺失值/异常值/分布摘要）"
+}

@@ -1,0 +1,106 @@
+{
+  "target": "paper.tex",
+  "summary": {
+    "ERROR": 0,
+    "WARN": 3,
+    "PASS": 13
+  },
+  "findings": [
+    {
+      "level": "PASS",
+      "rule": "合规",
+      "location": "",
+      "message": "无目录、无 \\maketitle"
+    },
+    {
+      "level": "PASS",
+      "rule": "排版",
+      "location": "",
+      "message": "页码/标题体系已按国赛颜值惯例配置"
+    },
+    {
+      "level": "PASS",
+      "rule": "结构",
+      "location": "",
+      "message": "结构 10 项全部检出"
+    },
+    {
+      "level": "PASS",
+      "rule": "摘要",
+      "location": "",
+      "message": "关键词 5 个 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "摘要",
+      "location": "",
+      "message": "摘要正文约 669 字（400-800 区间内）"
+    },
+    {
+      "level": "PASS",
+      "rule": "参考文献",
+      "location": "",
+      "message": "参考文献 12 篇 ≥10 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "来源年份",
+      "location": "",
+      "message": "12 条可提取年份的文献均 ≤ 2026 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "图表",
+      "location": "",
+      "message": "\\includegraphics 14 处 ≥6 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "图表",
+      "location": "",
+      "message": "\\ref{} 43 处 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "推导",
+      "location": "",
+      "message": "无推导回避性表述"
+    },
+    {
+      "level": "PASS",
+      "rule": "AI味",
+      "location": "",
+      "message": "无 AI 高频词"
+    },
+    {
+      "level": "WARN",
+      "rule": "AI味",
+      "location": "",
+      "message": "内部高频短语（≥5 次，去AI味写作规范 第六节）: '指挥节点'×24; '部署节点'×15; '蒙特卡洛'×14; '防御强度'×13; '最坏情形'×12; '直射距离'×11; '人力成本'×10; '分支定界'×9 等 42 个——请人工判定是否需将部分实例替换为具体指代或近义表述"
+    },
+    {
+      "level": "WARN",
+      "rule": "AI味",
+      "location": "",
+      "message": "超长段落（>300 字，去AI味写作规范 第六节）: 第153行起约944字; 第573行起约304字; 第579行起约415字; 第675行起约328字; 第761行起约340字; 第770行起约400字——请拆分或记录理由"
+    },
+    {
+      "level": "PASS",
+      "rule": "匿名",
+      "location": "",
+      "message": "全文（除参考文献）无身份敏感词"
+    },
+    {
+      "level": "PASS",
+      "rule": "附录代码",
+      "location": "",
+      "message": "附录代码通过 \\lstinputlisting/\\VerbatimInput 直接引用 11 个文件 ✓"
+    },
+    {
+      "level": "WARN",
+      "rule": "页数",
+      "location": "",
+      "message": "PDF 共 88 页（含附录）。正文（摘要页后、附录前）须 ≥10 且尽量 ≤28——附录起止页需人工核对后判定"
+    }
+  ]
+}

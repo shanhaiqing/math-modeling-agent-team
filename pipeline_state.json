@@ -1,0 +1,50 @@
+{
+  "mode": "competition",
+  "project_root": "c:\\Users\\35399\\Desktop\\数模B题专家团",
+  "reference_paper_dir": null,
+  "current_stage": "COMPLIANCE",
+  "passed_gates": [
+    {"gate": "HG0", "time": "2026-08-13 18:37:02"},
+    {"gate": "HG1", "time": "2026-08-13 20:50:58"},
+    {"gate": "HG2", "time": "2026-08-14 00:32:22"}
+  ],
+  "fix_rounds_used": {"R1": true, "R2": false, "R3": false},
+  "stage_timestamps": {
+    "HG0_INTAKE": {"start": "2026-08-13 18:35:19", "end": "2026-08-13 18:37:02"},
+    "MODELING": {"start": "2026-08-13 18:37:02", "end": "2026-08-13 20:50:58"},
+    "WRITING": {"start": "2026-08-13 20:50:58", "end": "2026-08-14 00:32:22"},
+    "REVIEW_FIX": {"start": "2026-08-14 00:32:22", "end": "2026-08-14 02:10:00"},
+    "COMPLIANCE": {"start": "2026-08-14 02:10:00", "end": null}
+  },
+  "machine_checks": {
+    "check_solution_json": {"time": "2026-08-13 20:50:58", "result": "0 ERROR / 2 WARN / 41 PASS (HG1补执行后)", "report_path": "contract_check_report.json"},
+    "check_pipeline_manifest_modeling": {"time": "2026-08-13 20:50:58", "result": "0 ERROR / 0 WARN (13 checked, HG1补执行后)", "report_path": "manifest_check_report.json"},
+    "check_latex_compliance": {"time": "2026-08-13 23:15:48", "result": "0 ERROR / 3 WARN / 13 PASS", "report_path": "latex_compliance_report.json"},
+    "check_tex_numbers": {"time": "2026-08-13 23:15:48", "result": "WARN-only: 25 未命中（供 reviewer 裁定）", "report_path": "tex_number_check_report.json"},
+    "check_pipeline_manifest_writing": {"time": "2026-08-13 23:15:48", "result": "0 ERROR / 0 WARN (20 checked)", "report_path": "manifest_check_report.json"},
+    "review_round1_machine_checks": {"time": "2026-08-14 02:10:00", "result": "solution_json 0E/2W/41P; latex_compliance 0E/3W/13P; tex_numbers 25W(real_drift=0)", "report_path": "decision_logs/review_report.json"},
+    "supporting_materials_packaging": {"time": "2026-08-14 19:35:00", "result": "支撑材料.zip 3.61MB(<20MB) / 41条目(11脚本+2数据+28图) / py_compile全过 / 包内终扫零AI词零绝对路径零身份信息 / 无JSON契约文件", "report_path": "支撑材料.zip"}
+  },
+  "blocked_history": [
+    {"trigger": "independent-reviewer 初审 H-1/H-2", "reason": "Stackelberg 口径混用 + Q3 转移混合量纲，超 R1 修复权限", "retreat_target": "modeling-solver", "result": "已修复：H-1 含人力口径 +50.83%/+48.94%（与 reviewer 重算 0 偏差）；H-2 人员口径生存概率 0.7956/0.6730，容量紧断言删除", "time": "2026-08-14 01:00:00"}
+  ],
+  "redline_results": {
+    "modeling-solver": {"pass": true, "missing": [], "time": "2026-08-13 20:50:58"},
+    "paper-writer": {"pass": true, "missing": [], "time": "2026-08-13 23:15:48"},
+    "independent-reviewer": {"pass": true, "missing": [], "time": "2026-08-14 02:10:00"}
+  },
+  "user_cleanup": [
+    {
+      "time": "2026-08-14 20:30:00",
+      "instruction_source": "用户批准上一轮清理方案（项目根过程性文件杂乱问题）",
+      "actions": [
+        "删除一次性工具脚本：extract_pdf.py / ocr_extract.py / pdf_to_img.py",
+        "删除根目录重复文件：feature_fingerprint.json（result_bundle/ 内权威副本哈希相同）",
+        "删除编译副产物：paper.aux / paper.log / _minted/",
+        "temp_images/（参照论文页面截图，隔离违规）移入 decision_logs/_quarantine/temp_images/",
+        "review_report.json 移入 decision_logs/（与产物注册表登记路径对齐）"
+      ],
+      "result": "完成；项目根仅余设计内文件（paper.tex/pdf、project/、result_bundle/、decision_logs/、pipeline_state.json、handoff_notes_*、机查报告、支撑材料.zip、比赛题目/、论文示例/、.venv/）"
+    }
+  ]
+}

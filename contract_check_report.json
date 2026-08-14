@@ -1,0 +1,268 @@
+{
+  "target": "result_bundle\\solution.json",
+  "summary": {
+    "ERROR": 0,
+    "WARN": 2,
+    "PASS": 41
+  },
+  "findings": [
+    {
+      "level": "WARN",
+      "rule": "契约",
+      "location": "q1_soviet_deployment",
+      "message": "monte_carlo 为 null——需确认已附'不适用'说明（机查无法判定说明文字）"
+    },
+    {
+      "level": "WARN",
+      "rule": "契约",
+      "location": "q1_allied_deployment",
+      "message": "monte_carlo 为 null——需确认已附'不适用'说明（机查无法判定说明文字）"
+    },
+    {
+      "level": "PASS",
+      "rule": "契约",
+      "location": "",
+      "message": "q2_soviet_logistics: 必填字段齐全（8 项）"
+    },
+    {
+      "level": "PASS",
+      "rule": "契约",
+      "location": "",
+      "message": "q2_allied_logistics: 必填字段齐全（8 项）"
+    },
+    {
+      "level": "PASS",
+      "rule": "契约",
+      "location": "",
+      "message": "q3_soviet_attack: 必填字段齐全（8 项）"
+    },
+    {
+      "level": "PASS",
+      "rule": "契约",
+      "location": "",
+      "message": "q3_allied_withdrawal: 必填字段齐全（8 项）"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.1",
+      "location": "",
+      "message": "$.q2_soviet_logistics.monte_carlo: 正确报告未收敛（std/mean=46.70%）"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.1",
+      "location": "",
+      "message": "$.q2_allied_logistics.monte_carlo: 正确报告未收敛（std/mean=54.61%）"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.1",
+      "location": "",
+      "message": "$.q3_soviet_attack.monte_carlo: convergence 与 std/mean=2.74% 一致"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.1",
+      "location": "",
+      "message": "$.q3_allied_withdrawal.monte_carlo: 正确报告未收敛（std/mean=12.78%）"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.8",
+      "location": "",
+      "message": "命名四分类扫描 0 个分类字段"
+    },
+    {
+      "level": "PASS",
+      "rule": "P-1",
+      "location": "",
+      "message": "$.q1_soviet_deployment.active_constraints: 活跃约束派生量扫描 20 条（含派生量 20 条）"
+    },
+    {
+      "level": "PASS",
+      "rule": "P-1",
+      "location": "",
+      "message": "$.q1_allied_deployment.active_constraints: 活跃约束派生量扫描 20 条（含派生量 20 条）"
+    },
+    {
+      "level": "PASS",
+      "rule": "P-1",
+      "location": "",
+      "message": "$.q2_soviet_logistics.active_constraints: 活跃约束派生量扫描 10 条（含派生量 10 条）"
+    },
+    {
+      "level": "PASS",
+      "rule": "P-1",
+      "location": "",
+      "message": "$.q2_allied_logistics.active_constraints: 活跃约束派生量扫描 10 条（含派生量 10 条）"
+    },
+    {
+      "level": "PASS",
+      "rule": "P-1",
+      "location": "",
+      "message": "$.q3_soviet_attack.active_constraints: 活跃约束派生量扫描 1 条（含派生量 1 条）"
+    },
+    {
+      "level": "PASS",
+      "rule": "P-1",
+      "location": "",
+      "message": "$.q3_allied_withdrawal.active_constraints: 活跃约束派生量扫描 3 条（含派生量 3 条）"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.苏军动员兵_万人=125: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.苏军侦察机_架=500: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.苏军天启重型坦克_辆=180: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.苏军犀牛主战坦克_辆=300: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.苏军猎犬轻型战车_辆=420: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.苏军V3远程火箭车_辆=7000: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.盟军动员兵_万人=100: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.盟军侦察机_架=300: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.盟军光棱重型坦克_辆=340: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.盟军幻影中型坦克_辆=570: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.盟军灰熊轻型坦克_辆=800: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.盟军光棱自行火炮_辆=14000: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.每方防空据点数_个=10: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.V3最大射程_km=16.8: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.光棱自行火炮最大射程_km=13.0: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.盟军战略转移目标节点1=352: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.盟军战略转移目标节点2=144: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.盟军战略转移目标节点3=149: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.附件一节点行数=436: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters.附件一通路行数=603: 在代码中找到 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.11",
+      "location": "",
+      "message": "source_parameters 扫描完成：20 个匹配，0 个不一致"
+    },
+    {
+      "level": "PASS",
+      "rule": "一.13",
+      "location": "",
+      "message": "indicator_dimension_check: 6 个指标量纲一致 ✓"
+    },
+    {
+      "level": "PASS",
+      "rule": "P-3",
+      "location": "",
+      "message": "不确定性登记-传播映射计数一致（5 项，$.uncertainty_propagation_mapping）"
+    },
+    {
+      "level": "PASS",
+      "rule": "P-2",
+      "location": "",
+      "message": "solution.json: 34 个叙述性字符串字段内嵌数值均匹配结构化字段或已标注历史口径"
+    },
+    {
+      "level": "PASS",
+      "rule": "P-2",
+      "location": "",
+      "message": "modeling_plan.json: 17 个叙述性字符串字段内嵌数值均匹配结构化字段或已标注历史口径"
+    },
+    {
+      "level": "PASS",
+      "rule": "P-2",
+      "location": "",
+      "message": "代码注释数值声明扫描 12 处：均与同文件实现一致"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "mode": null,
+  "project_root": "",
+  "reference_paper_dir": null,
+  "current_stage": "HG0_INTAKE",
+  "passed_gates": [],
+  "fix_rounds_used": {"R1": false, "R2": false, "R3": false},
+  "stage_timestamps": {},
+  "machine_checks": {},
+  "blocked_history": [],
+  "redline_results": {}
+}

@@ -1,0 +1,277 @@
+{
+  "soviet_attack": {
+    "axes_ranked": [
+      {
+        "edge": [
+          55,
+          372
+        ],
+        "length_km": 0.567,
+        "enemy_defense": 0.58,
+        "score": 0.5133
+      },
+      {
+        "edge": [
+          251,
+          166
+        ],
+        "length_km": 1.289,
+        "enemy_defense": 0.45,
+        "score": 0.4906
+      },
+      {
+        "edge": [
+          39,
+          229
+        ],
+        "length_km": 1.101,
+        "enemy_defense": 0.67,
+        "score": 0.4556
+      },
+      {
+        "edge": [
+          366,
+          74
+        ],
+        "length_km": 0.334,
+        "enemy_defense": 0.6,
+        "score": 0.4537
+      },
+      {
+        "edge": [
+          193,
+          290
+        ],
+        "length_km": 1.982,
+        "enemy_defense": 0.67,
+        "score": 0.4475
+      },
+      {
+        "edge": [
+          54,
+          229
+        ],
+        "length_km": 0.802,
+        "enemy_defense": 0.67,
+        "score": 0.4359
+      },
+      {
+        "edge": [
+          216,
+          290
+        ],
+        "length_km": 1.204,
+        "enemy_defense": 0.67,
+        "score": 0.4077
+      },
+      {
+        "edge": [
+          424,
+          77
+        ],
+        "length_km": 2.045,
+        "enemy_defense": 0.87,
+        "score": 0.2833
+      }
+    ],
+    "main_axis": {
+      "edge": [
+        55,
+        372
+      ],
+      "length_km": 0.567,
+      "enemy_defense": 0.58,
+      "score": 0.5133
+    },
+    "capture_sequence": [
+      372,
+      328,
+      286,
+      256,
+      422,
+      33,
+      198
+    ],
+    "capture_assessment": [
+      {
+        "node": 328,
+        "defense": 0.08,
+        "win_rate": 1.0,
+        "att_remain_ratio": 0.9121
+      },
+      {
+        "node": 286,
+        "defense": 0.89,
+        "win_rate": 0.982,
+        "att_remain_ratio": 0.8451
+      },
+      {
+        "node": 256,
+        "defense": 0.41,
+        "win_rate": 1.0,
+        "att_remain_ratio": 0.8848
+      },
+      {
+        "node": 422,
+        "defense": 0.65,
+        "win_rate": 0.994,
+        "att_remain_ratio": 0.8649
+      },
+      {
+        "node": 33,
+        "defense": 0.19,
+        "win_rate": 1.0,
+        "att_remain_ratio": 0.903
+      },
+      {
+        "node": 198,
+        "defense": 0.14,
+        "win_rate": 1.0,
+        "att_remain_ratio": 0.9071
+      }
+    ],
+    "echelon_composition": {
+      "重型": 0.4,
+      "中型": 0.3,
+      "动员兵": 0.2,
+      "火炮": 0.1
+    },
+    "attack_force": {
+      "动员兵": 125.0,
+      "轻型": 420.0,
+      "中型": 300.0,
+      "重型": 180.0,
+      "火炮": 7000.0,
+      "空中": 50.0
+    }
+  },
+  "ally_withdrawal": {
+    "comm_ok": {
+      "plan": {
+        "caliber": "人员口径：决策量纲=动员兵万人；装备随建制伴随，容量单独核算",
+        "total_personnel_万人": 100.0,
+        "total_equipment_辆门": 15710.0,
+        "total_tonnage_吨": 126340.0,
+        "allocation_personnel_万人": {
+          "352": 40.8,
+          "144": 11.3,
+          "149": 47.8
+        },
+        "capacities_personnel_万人": {
+          "352": 80,
+          "144": 40,
+          "149": 80
+        },
+        "capacity_slack_personnel_万人": {
+          "352": 39.2,
+          "144": 28.7,
+          "149": 32.2
+        },
+        "personnel_capacity_utilization": 0.5,
+        "equipment_accompanies": {
+          "note": "装备随建制伴随转移，按各目标承接人员份额比例随迁（报告口径，非决策量）；目标节点车辆数/吨位容量题目未给，故不设车辆容量约束，占用强度以人员容量为基准如实报告",
+          "vehicles_total_辆门": 15710.0,
+          "tonnage_total_吨": 126340.0,
+          "vehicles_per_万人_personnel": 157.1,
+          "vehicles_by_target_辆门": {
+            "352": 6413.9,
+            "144": 1782.6,
+            "149": 7513.5
+          },
+          "tonnage_by_target_吨": {
+            "352": 51581.0,
+            "144": 14335.5,
+            "149": 60423.5
+          },
+          "vehicle_intensity_per_万人_capacity": 78.55,
+          "tonnage_intensity_per_万人_capacity": 631.7
+        },
+        "capacity_tight_assertion": "人员口径下总容量200万人 > 总人员100.0万人（占用率50%），容量约束为松；装备随建制伴随，占用强度见 equipment_accompanies",
+        "rearguard_fraction": 0.1,
+        "rearguard_size_万人": 10.0,
+        "n_routes": 7,
+        "avg_route_km": 13.405,
+        "sample_routes": [
+          {
+            "from": 134,
+            "to": 144,
+            "personnel_万人": 15.0,
+            "length_km": 6.71,
+            "path_hops": 4
+          },
+          {
+            "from": 140,
+            "to": 352,
+            "personnel_万人": 15.0,
+            "length_km": 13.886,
+            "path_hops": 10
+          },
+          {
+            "from": 150,
+            "to": 352,
+            "personnel_万人": 15.0,
+            "length_km": 12.24,
+            "path_hops": 15
+          },
+          {
+            "from": 247,
+            "to": 352,
+            "personnel_万人": 15.0,
+            "length_km": 9.867,
+            "path_hops": 10
+          },
+          {
+            "from": 255,
+            "to": 149,
+            "personnel_万人": 15.0,
+            "length_km": 16.45,
+            "path_hops": 14
+          },
+          {
+            "from": 384,
+            "to": 149,
+            "personnel_万人": 15.0,
+            "length_km": 16.565,
+            "path_hops": 14
+          },
+          {
+            "from": 218,
+            "to": 149,
+            "personnel_万人": 10.0,
+            "length_km": 18.118,
+            "path_hops": 12
+          }
+        ]
+      },
+      "monte_carlo": {
+        "mean_survival": 0.7956,
+        "std_survival": 0.1017,
+        "ci95_low": 0.5962,
+        "ci95_high": 1.0,
+        "std_mean_ratio": 0.1278,
+        "sem_mean_ratio": 0.002858,
+        "sem_note": "std/mean 为样本内在离散（拦截伯努利复合分布双峰性），均值估计标准误 SEM/mean 已收敛；论文须报告该区分",
+        "convergence": "not converged (std/mean=12.78% > 5% threshold)",
+        "weighting": "人员加权（各部署节点动员兵万人占比）",
+        "n_sim": 2000
+      }
+    },
+    "comm_lost": {
+      "monte_carlo": {
+        "mean_survival": 0.673,
+        "std_survival": 0.0973,
+        "ci95_low": 0.4809,
+        "ci95_high": 0.864,
+        "std_mean_ratio": 0.14465,
+        "sem_mean_ratio": 0.003235,
+        "sem_note": "std/mean 为样本内在离散（拦截伯努利复合分布双峰性），均值估计标准误 SEM/mean 已收敛；论文须报告该区分",
+        "convergence": "not converged (std/mean=14.47% > 5% threshold)",
+        "weighting": "人员加权（各部署节点动员兵万人占比）",
+        "n_sim": 2000
+      }
+    },
+    "survival_difference": 0.1226,
+    "comparison_note": "通信畅通集中调度人员生存概率 0.796 vs 通信中断分散 0.673，差 0.123（人员加权，各2000次MC，种子2026）"
+  },
+  "total_time_s": 2.0
+}

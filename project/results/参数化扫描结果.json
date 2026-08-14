@@ -1,0 +1,805 @@
+{
+  "metadata": {
+    "purpose": "显式未知参数化 sweep 扫描（不重建模型结构）",
+    "date": "2026-08-13",
+    "solver_backend": "pulp + HiGHS/CBC（开源，solver_backend.solve_mip）",
+    "baseline_reproduction_check": "苏军/盟军 Q1 指挥节点与Φ、Q2 TC 均复现基线（assert 通过）"
+  },
+  "a01_comparison": {
+    "苏军": {
+      "parameter": "A-01 破交拦截概率（内生未知参数：静态risk_e基线=主模型输入，Stackelberg最坏情形=鲁棒性成本量化）",
+      "caliber": "含人力 TC_total（主口径，与 objective_value 一致）",
+      "TC_baseline_total": 109613.7,
+      "TC_worst_total": 165334.7,
+      "extra_loss": 55721.0,
+      "delta_pct": 50.83,
+      "delta_pct_excl_labor_reference": 63.31,
+      "hit_routes": [
+        16,
+        7,
+        10,
+        13,
+        18
+      ],
+      "enemy_interdict_budget": 5,
+      "note": "对照口径为 TC_total（含人力成本，主口径）：TC_worst=基线TC_total+extra_loss（破交追加损失仅作用于货物损失项，人力成本不变）；敌方将破交预算集中投向流量×货值/护航强度最大的Top-5路径（Stackelberg follower 最优响应）",
+      "source": "q2_result.stackelberg_worst_case（含人力口径）"
+    },
+    "盟军": {
+      "parameter": "A-01 破交拦截概率（内生未知参数：静态risk_e基线=主模型输入，Stackelberg最坏情形=鲁棒性成本量化）",
+      "caliber": "含人力 TC_total（主口径，与 objective_value 一致）",
+      "TC_baseline_total": 145773.0,
+      "TC_worst_total": 217114.0,
+      "extra_loss": 71341.0,
+      "delta_pct": 48.94,
+      "delta_pct_excl_labor_reference": 60.68,
+      "hit_routes": [
+        18,
+        0,
+        3,
+        6,
+        12
+      ],
+      "enemy_interdict_budget": 5,
+      "note": "对照口径为 TC_total（含人力成本，主口径）：TC_worst=基线TC_total+extra_loss（破交追加损失仅作用于货物损失项，人力成本不变）；敌方将破交预算集中投向流量×货值/护航强度最大的Top-5路径（Stackelberg follower 最优响应）",
+      "source": "q2_result.stackelberg_worst_case（含人力口径）"
+    }
+  },
+  "a02": {
+    "苏军": {
+      "parameter": "A-02 坦克直射距离（等比缩放：轻型=1.5×(d/2)，中/重型=2.0×(d/2)）",
+      "baseline_d_km": 2.0,
+      "base_phi": 0.76879,
+      "base_command_node": 136,
+      "points": [
+        {
+          "d_km": 1.0,
+          "scale": 0.5,
+          "ranges_km": {
+            "轻型": 0.75,
+            "中型": 1.0,
+            "重型": 1.0
+          },
+          "phi": 0.76879,
+          "command_node": 136,
+          "flipped": false,
+          "deploy_jaccard": 1.0,
+          "deploy_node_count": 10,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.557
+        },
+        {
+          "d_km": 1.5,
+          "scale": 0.75,
+          "ranges_km": {
+            "轻型": 1.125,
+            "中型": 1.5,
+            "重型": 1.5
+          },
+          "phi": 0.76879,
+          "command_node": 136,
+          "flipped": false,
+          "deploy_jaccard": 1.0,
+          "deploy_node_count": 10,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.253
+        },
+        {
+          "d_km": 2.0,
+          "scale": 1.0,
+          "ranges_km": {
+            "轻型": 1.5,
+            "中型": 2.0,
+            "重型": 2.0
+          },
+          "phi": 0.76879,
+          "command_node": 136,
+          "flipped": false,
+          "deploy_jaccard": 1.0,
+          "deploy_node_count": 10,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.315
+        },
+        {
+          "d_km": 2.5,
+          "scale": 1.25,
+          "ranges_km": {
+            "轻型": 1.875,
+            "中型": 2.5,
+            "重型": 2.5
+          },
+          "phi": 0.76879,
+          "command_node": 136,
+          "flipped": false,
+          "deploy_jaccard": 1.0,
+          "deploy_node_count": 10,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.333
+        },
+        {
+          "d_km": 3.0,
+          "scale": 1.5,
+          "ranges_km": {
+            "轻型": 2.25,
+            "中型": 3.0,
+            "重型": 3.0
+          },
+          "phi": 0.76879,
+          "command_node": 136,
+          "flipped": false,
+          "deploy_jaccard": 1.0,
+          "deploy_node_count": 10,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.326
+        }
+      ],
+      "flip_count": 0,
+      "stability_interval_km": [
+        1.0,
+        3.0
+      ],
+      "stability_criterion": "指挥节点不翻转且部署结构Jaccard相似度≥0.8",
+      "conclusion": "d∈[1.0,3.0]km 内指挥节点0翻转且部署结构相似度≥0.8，全扫描[1.0,3.0]km 翻转计数=0，推荐部署稳健",
+      "solver_meta": {
+        "all_points_status_optimal": true,
+        "statuses": [
+          "optimal"
+        ],
+        "max_MIPGap": 0.0,
+        "max_solve_time_s": 0.557,
+        "source": "求解器原生元数据（solver_backend.solve_mip 透传）"
+      }
+    },
+    "盟军": {
+      "parameter": "A-02 坦克直射距离（等比缩放：轻型=1.5×(d/2)，中/重型=2.0×(d/2)）",
+      "baseline_d_km": 2.0,
+      "base_phi": 0.773242,
+      "base_command_node": 384,
+      "points": [
+        {
+          "d_km": 1.0,
+          "scale": 0.5,
+          "ranges_km": {
+            "轻型": 0.75,
+            "中型": 1.0,
+            "重型": 1.0
+          },
+          "phi": 0.77324,
+          "command_node": 384,
+          "flipped": false,
+          "deploy_jaccard": 1.0,
+          "deploy_node_count": 10,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.207
+        },
+        {
+          "d_km": 1.5,
+          "scale": 0.75,
+          "ranges_km": {
+            "轻型": 1.125,
+            "中型": 1.5,
+            "重型": 1.5
+          },
+          "phi": 0.77324,
+          "command_node": 384,
+          "flipped": false,
+          "deploy_jaccard": 1.0,
+          "deploy_node_count": 10,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.191
+        },
+        {
+          "d_km": 2.0,
+          "scale": 1.0,
+          "ranges_km": {
+            "轻型": 1.5,
+            "中型": 2.0,
+            "重型": 2.0
+          },
+          "phi": 0.77324,
+          "command_node": 384,
+          "flipped": false,
+          "deploy_jaccard": 1.0,
+          "deploy_node_count": 10,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.215
+        },
+        {
+          "d_km": 2.5,
+          "scale": 1.25,
+          "ranges_km": {
+            "轻型": 1.875,
+            "中型": 2.5,
+            "重型": 2.5
+          },
+          "phi": 0.77324,
+          "command_node": 384,
+          "flipped": false,
+          "deploy_jaccard": 1.0,
+          "deploy_node_count": 10,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.204
+        },
+        {
+          "d_km": 3.0,
+          "scale": 1.5,
+          "ranges_km": {
+            "轻型": 2.25,
+            "中型": 3.0,
+            "重型": 3.0
+          },
+          "phi": 0.77324,
+          "command_node": 384,
+          "flipped": false,
+          "deploy_jaccard": 1.0,
+          "deploy_node_count": 10,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.258
+        }
+      ],
+      "flip_count": 0,
+      "stability_interval_km": [
+        1.0,
+        3.0
+      ],
+      "stability_criterion": "指挥节点不翻转且部署结构Jaccard相似度≥0.8",
+      "conclusion": "d∈[1.0,3.0]km 内指挥节点0翻转且部署结构相似度≥0.8，全扫描[1.0,3.0]km 翻转计数=0，推荐部署稳健",
+      "solver_meta": {
+        "all_points_status_optimal": true,
+        "statuses": [
+          "optimal"
+        ],
+        "max_MIPGap": 0.0,
+        "max_solve_time_s": 0.258,
+        "source": "求解器原生元数据（solver_backend.solve_mip 透传）"
+      }
+    }
+  },
+  "a03": {
+    "苏军": {
+      "parameter": "A-03 防空炮阵地覆盖半径 R_aa（Stage B 防空重布置+生存加成重算）",
+      "baseline_r_km": 3.0,
+      "phi_mip_base": 0.76879,
+      "phi_with_aa_note": "phi_with_aa = Φ_MIP + 0.3×S_bonus/S_max（含防空生存加成的效能口径）",
+      "points": [
+        {
+          "r_km": 2.0,
+          "S_bonus": 803.5,
+          "phi_with_aa": 0.82465,
+          "aa_nodes": [
+            28,
+            86,
+            136,
+            137,
+            142,
+            283,
+            344,
+            358,
+            386,
+            413
+          ],
+          "aa_changed_count": 0,
+          "aa_jaccard": 1.0,
+          "covered_deploy_nodes": 140,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.044
+        },
+        {
+          "r_km": 2.5,
+          "S_bonus": 803.5,
+          "phi_with_aa": 0.82465,
+          "aa_nodes": [
+            28,
+            86,
+            136,
+            137,
+            142,
+            283,
+            344,
+            358,
+            386,
+            413
+          ],
+          "aa_changed_count": 0,
+          "aa_jaccard": 1.0,
+          "covered_deploy_nodes": 172,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.042
+        },
+        {
+          "r_km": 3.0,
+          "S_bonus": 803.5,
+          "phi_with_aa": 0.82465,
+          "aa_nodes": [
+            28,
+            86,
+            136,
+            137,
+            142,
+            283,
+            344,
+            358,
+            386,
+            413
+          ],
+          "aa_changed_count": 0,
+          "aa_jaccard": 1.0,
+          "covered_deploy_nodes": 180,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.028
+        },
+        {
+          "r_km": 3.5,
+          "S_bonus": 803.5,
+          "phi_with_aa": 0.82465,
+          "aa_nodes": [
+            28,
+            86,
+            136,
+            137,
+            142,
+            283,
+            344,
+            358,
+            386,
+            413
+          ],
+          "aa_changed_count": 0,
+          "aa_jaccard": 1.0,
+          "covered_deploy_nodes": 188,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.032
+        },
+        {
+          "r_km": 4.0,
+          "S_bonus": 803.5,
+          "phi_with_aa": 0.82465,
+          "aa_nodes": [
+            28,
+            86,
+            136,
+            137,
+            142,
+            283,
+            344,
+            358,
+            386,
+            413
+          ],
+          "aa_changed_count": 0,
+          "aa_jaccard": 1.0,
+          "covered_deploy_nodes": 197,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.04
+        }
+      ],
+      "stability_interval_km": [
+        2.0,
+        4.0
+      ],
+      "stability_criterion": "防空节点集与基线Jaccard相似度≥0.8",
+      "conclusion": "r∈[2.0,4.0]km 内防空节点布局与基线相似度≥0.8，全扫描[2.0,4.0]km 最大节点变化数=0，防空配置稳健",
+      "solver_meta": {
+        "all_points_status_optimal": true,
+        "statuses": [
+          "optimal"
+        ],
+        "max_MIPGap": 0.0,
+        "max_solve_time_s": 0.044,
+        "source": "求解器原生元数据（solver_backend.solve_mip 透传）"
+      }
+    },
+    "盟军": {
+      "parameter": "A-03 防空炮阵地覆盖半径 R_aa（Stage B 防空重布置+生存加成重算）",
+      "baseline_r_km": 3.0,
+      "phi_mip_base": 0.773242,
+      "phi_with_aa_note": "phi_with_aa = Φ_MIP + 0.3×S_bonus/S_max（含防空生存加成的效能口径）",
+      "points": [
+        {
+          "r_km": 2.0,
+          "S_bonus": 1559.4,
+          "phi_with_aa": 0.82962,
+          "aa_nodes": [
+            77,
+            134,
+            140,
+            150,
+            166,
+            218,
+            247,
+            255,
+            380,
+            384
+          ],
+          "aa_changed_count": 0,
+          "aa_jaccard": 1.0,
+          "covered_deploy_nodes": 77,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.03
+        },
+        {
+          "r_km": 2.5,
+          "S_bonus": 1559.4,
+          "phi_with_aa": 0.82962,
+          "aa_nodes": [
+            77,
+            134,
+            140,
+            150,
+            166,
+            218,
+            247,
+            255,
+            380,
+            384
+          ],
+          "aa_changed_count": 0,
+          "aa_jaccard": 1.0,
+          "covered_deploy_nodes": 85,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.042
+        },
+        {
+          "r_km": 3.0,
+          "S_bonus": 1559.4,
+          "phi_with_aa": 0.82962,
+          "aa_nodes": [
+            77,
+            134,
+            140,
+            150,
+            166,
+            218,
+            247,
+            255,
+            380,
+            384
+          ],
+          "aa_changed_count": 0,
+          "aa_jaccard": 1.0,
+          "covered_deploy_nodes": 101,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.042
+        },
+        {
+          "r_km": 3.5,
+          "S_bonus": 1559.4,
+          "phi_with_aa": 0.82962,
+          "aa_nodes": [
+            77,
+            134,
+            140,
+            150,
+            166,
+            218,
+            247,
+            255,
+            380,
+            384
+          ],
+          "aa_changed_count": 0,
+          "aa_jaccard": 1.0,
+          "covered_deploy_nodes": 109,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.041
+        },
+        {
+          "r_km": 4.0,
+          "S_bonus": 1559.4,
+          "phi_with_aa": 0.82962,
+          "aa_nodes": [
+            77,
+            134,
+            140,
+            150,
+            166,
+            218,
+            247,
+            255,
+            380,
+            384
+          ],
+          "aa_changed_count": 0,
+          "aa_jaccard": 1.0,
+          "covered_deploy_nodes": 116,
+          "status": "optimal",
+          "gap": 0.0,
+          "t": 0.047
+        }
+      ],
+      "stability_interval_km": [
+        2.0,
+        4.0
+      ],
+      "stability_criterion": "防空节点集与基线Jaccard相似度≥0.8",
+      "conclusion": "r∈[2.0,4.0]km 内防空节点布局与基线相似度≥0.8，全扫描[2.0,4.0]km 最大节点变化数=0，防空配置稳健",
+      "solver_meta": {
+        "all_points_status_optimal": true,
+        "statuses": [
+          "optimal"
+        ],
+        "max_MIPGap": 0.0,
+        "max_solve_time_s": 0.047,
+        "source": "求解器原生元数据（solver_backend.solve_mip 透传）"
+      }
+    }
+  },
+  "a04": {
+    "q1": {
+      "苏军": {
+        "parameter": "A-04 空中单位部署上限 α（force_空中 约束 rhs=N_空中×α）",
+        "baseline_alpha": 0.1,
+        "base_command_node": 136,
+        "points": [
+          {
+            "alpha": 0.05,
+            "air_cap_units": 25,
+            "air_deployed": 25,
+            "air_nodes": [
+              386
+            ],
+            "phi": 0.76829,
+            "command_node": 136,
+            "flipped": false,
+            "deploy_jaccard": 1.0,
+            "status": "optimal",
+            "gap": 0.0,
+            "t": 0.332
+          },
+          {
+            "alpha": 0.1,
+            "air_cap_units": 50,
+            "air_deployed": 50,
+            "air_nodes": [
+              386
+            ],
+            "phi": 0.76879,
+            "command_node": 136,
+            "flipped": false,
+            "deploy_jaccard": 1.0,
+            "status": "optimal",
+            "gap": 0.0,
+            "t": 0.329
+          },
+          {
+            "alpha": 0.15,
+            "air_cap_units": 75,
+            "air_deployed": 75,
+            "air_nodes": [
+              386
+            ],
+            "phi": 0.76929,
+            "command_node": 136,
+            "flipped": false,
+            "deploy_jaccard": 1.0,
+            "status": "optimal",
+            "gap": 0.0,
+            "t": 0.364
+          },
+          {
+            "alpha": 0.2,
+            "air_cap_units": 100,
+            "air_deployed": 100,
+            "air_nodes": [
+              344,
+              386
+            ],
+            "phi": 0.76977,
+            "command_node": 136,
+            "flipped": false,
+            "deploy_jaccard": 0.9744,
+            "status": "optimal",
+            "gap": 0.0,
+            "t": 0.337
+          }
+        ],
+        "flip_count": 0,
+        "stability_interval": [
+          0.05,
+          0.2
+        ],
+        "stability_criterion": "指挥节点不翻转",
+        "conclusion": "α∈[5%,20%] 内指挥节点0翻转，空中部署随上限单调不减，定性结论（空中单位少量集中部署）稳定",
+        "solver_meta": {
+          "all_points_status_optimal": true,
+          "statuses": [
+            "optimal"
+          ],
+          "max_MIPGap": 0.0,
+          "max_solve_time_s": 0.364,
+          "source": "求解器原生元数据（solver_backend.solve_mip 透传）"
+        }
+      },
+      "盟军": {
+        "parameter": "A-04 空中单位部署上限 α（force_空中 约束 rhs=N_空中×α）",
+        "baseline_alpha": 0.1,
+        "base_command_node": 384,
+        "points": [
+          {
+            "alpha": 0.05,
+            "air_cap_units": 15,
+            "air_deployed": 15,
+            "air_nodes": [
+              384
+            ],
+            "phi": 0.77309,
+            "command_node": 384,
+            "flipped": false,
+            "deploy_jaccard": 1.0,
+            "status": "optimal",
+            "gap": 0.0,
+            "t": 0.203
+          },
+          {
+            "alpha": 0.1,
+            "air_cap_units": 30,
+            "air_deployed": 30,
+            "air_nodes": [
+              384
+            ],
+            "phi": 0.77324,
+            "command_node": 384,
+            "flipped": false,
+            "deploy_jaccard": 1.0,
+            "status": "optimal",
+            "gap": 0.0,
+            "t": 0.208
+          },
+          {
+            "alpha": 0.15,
+            "air_cap_units": 45,
+            "air_deployed": 45,
+            "air_nodes": [
+              384
+            ],
+            "phi": 0.77339,
+            "command_node": 384,
+            "flipped": false,
+            "deploy_jaccard": 1.0,
+            "status": "optimal",
+            "gap": 0.0,
+            "t": 0.21
+          },
+          {
+            "alpha": 0.2,
+            "air_cap_units": 60,
+            "air_deployed": 60,
+            "air_nodes": [
+              247,
+              384
+            ],
+            "phi": 0.77354,
+            "command_node": 384,
+            "flipped": false,
+            "deploy_jaccard": 0.975,
+            "status": "optimal",
+            "gap": 0.0,
+            "t": 0.224
+          }
+        ],
+        "flip_count": 0,
+        "stability_interval": [
+          0.05,
+          0.2
+        ],
+        "stability_criterion": "指挥节点不翻转",
+        "conclusion": "α∈[5%,20%] 内指挥节点0翻转，空中部署随上限单调不减，定性结论（空中单位少量集中部署）稳定",
+        "solver_meta": {
+          "all_points_status_optimal": true,
+          "statuses": [
+            "optimal"
+          ],
+          "max_MIPGap": 0.0,
+          "max_solve_time_s": 0.224,
+          "source": "求解器原生元数据（solver_backend.solve_mip 透传）"
+        }
+      }
+    },
+    "q2_propagation": {
+      "parameter": "A-04 空中上限 α 经部署→需求传播至 Q2 补给成本",
+      "base_TC_excl_labor": {
+        "苏军": 88013.7,
+        "盟军": 117573.0
+      },
+      "points": [
+        {
+          "alpha": 0.05,
+          "TC_苏军": 87840.4,
+          "delta_pct_苏军": -0.197,
+          "status_苏军": "optimal",
+          "TC_盟军": 117476.6,
+          "delta_pct_盟军": -0.082,
+          "status_盟军": "optimal"
+        },
+        {
+          "alpha": 0.1,
+          "TC_苏军": 88013.7,
+          "delta_pct_苏军": 0.0,
+          "status_苏军": "optimal",
+          "TC_盟军": 117573.0,
+          "delta_pct_盟军": 0.0,
+          "status_盟军": "optimal"
+        },
+        {
+          "alpha": 0.15,
+          "TC_苏军": 88187.0,
+          "delta_pct_苏军": 0.197,
+          "status_苏军": "optimal",
+          "TC_盟军": 117669.3,
+          "delta_pct_盟军": 0.082,
+          "status_盟军": "optimal"
+        },
+        {
+          "alpha": 0.2,
+          "TC_苏军": 88382.5,
+          "delta_pct_苏军": 0.419,
+          "status_苏军": "optimal",
+          "TC_盟军": 117760.6,
+          "delta_pct_盟军": 0.16,
+          "status_盟军": "optimal"
+        }
+      ],
+      "max_abs_delta_pct": 0.419,
+      "conclusion": "α∈[5%,20%] 全扫描下 Q2 补给成本最大变化 0.419%，传播影响可忽略，Q2 结论对 A-04 稳健"
+    }
+  },
+  "a07": {
+    "苏军": {
+      "granularity": "0.5万人/单位（动员兵总量×2，其余装备粒度不变）",
+      "phi": 0.76889,
+      "base_phi": 0.76879,
+      "phi_delta": 0.0001,
+      "command_node": 136,
+      "command_flipped": false,
+      "equip_jaccard": 1.0,
+      "infantry_L1_wanren": 6.0,
+      "deploy_node_count": 10,
+      "status": "optimal",
+      "gap": 0.0,
+      "t": 0.354
+    },
+    "盟军": {
+      "granularity": "0.5万人/单位（动员兵总量×2，其余装备粒度不变）",
+      "phi": 0.77325,
+      "base_phi": 0.773242,
+      "phi_delta": 1e-05,
+      "command_node": 384,
+      "command_flipped": false,
+      "equip_jaccard": 1.0,
+      "infantry_L1_wanren": 0.0,
+      "deploy_node_count": 10,
+      "status": "optimal",
+      "gap": 0.0,
+      "t": 0.187
+    },
+    "max_phi_delta": 0.0001,
+    "conclusion": "0.5万人更细粒度下双方指挥节点均不翻转、装备部署结构Jaccard≥0.8、Φ最大变化0.0001——万人粒度为建模粒度选择（避免10^6值域病态），部署结构对粒度稳健",
+    "structure_stable": true
+  },
+  "figures": [
+    "fig11_q1_direct_range_sweep",
+    "fig12_q1_aa_radius_sweep",
+    "fig13_q2_a01_baseline_vs_stackelberg",
+    "fig14_q1_air_cap_sweep"
+  ],
+  "total_time_s": 47.5
+}

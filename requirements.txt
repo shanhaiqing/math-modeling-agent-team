@@ -1,0 +1,20 @@
+# 数模 B 题团队核心依赖清单（版本锁定）——绘图 + 求解相关
+# 生成来源：项目 .venv（importlib.metadata）；用途：换机可复现环境，杜绝 scienceplots/cmasher 等缺失导致的图表静默降级。
+# 安装：python -m pip install -r requirements.txt
+#
+# 分组说明：
+#   - 求解：pulp（CBC）、cvxpy（后端 osqp/clarabel/scs/ecos 由 pip 自动解析）、highspy（HiGHS）
+#   - 数值/数据：numpy / scipy / pandas
+#   - 绘图：matplotlib / seaborn / scienceplots（期刊风格）/ cmasher（科学色板）
+# 注：scienceplots、cmasher 为可选增强，缺失时 visualization_style.py 优雅降级，但图表视觉质量会回落。
+
+numpy==2.5.1
+scipy==1.18.0
+pandas==3.0.3
+matplotlib==3.11.1
+seaborn==0.13.2
+scienceplots==2.2.2
+cmasher==1.9.2
+pulp==3.3.2
+cvxpy==1.9.2
+highspy==1.15.1
