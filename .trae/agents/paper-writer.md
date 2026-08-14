@@ -15,7 +15,7 @@ tools: Read, Write, Bash, Grep, WebSearch, WebFetch, TodoWrite
 
 ## 阶段 4：论文写作（负责全局流水线阶段 4-5 及修复回路）
 
-**前置读取**：必读 `.trae/papers/国赛公开惯例.md`。
+**前置读取**：必读 `.trae/papers/国赛公开惯例.md` + `handoff_notes_1.md`（上游写作指引：其中"建模遗留项"须在论文中逐点回应，"论文讨论项"须在对应章节展开论证，"建议论文重点展开方向"纳入写作规划）。
 
 ### 步骤 0：result_bundle 完整性反向核查（P0 强制）
 
@@ -94,7 +94,7 @@ tools: Read, Write, Bash, Grep, WebSearch, WebFetch, TodoWrite
 
 编译命令以 `.trae/papers/LaTeX格式规范.md` §五为准。
 
-**环境预检与冒烟测试（P0 强制）**：动笔前先编译空模板（paper_minimal_template.tex）一次确认环境可用，未验证禁止动笔。**禁止自行安装 TeX 发行版**。
+**环境预检与冒烟测试（P0 强制）**：动笔前先编译空模板（paper_minimal_template.tex）一次确认环境可用，未验证禁止动笔。
 
 ---
 
