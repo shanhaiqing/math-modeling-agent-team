@@ -138,6 +138,7 @@
   - `modeling_plan.json`：含 `design_critique`、`cost_decomposition`、`alternative_algorithm_discussion`、`joint_constraint_check`
   - `feature_fingerprint.json`、`术语表.json`、`figures/`（PDF+PNG 双格式）
 - **支撑材料卫生契约**（2026-08 批次 2026-08-B1）：modeling-solver 负责产出时代码注释不含内部流程词（黑名单见 `check_code_hygiene.py`，MODELING 过门机查）；编排器在 COMPLIANCE 阶段运行 `package_support_materials.py` 一键打包并终扫（只收代码+数据+图表，内部契约 JSON 一律不入包）；**不新增打包 agent**
+- **工作区卫生契约**（2026-08 批次 2026-08-B2）：临时脚本与测试文件用完即删；result_bundle/ 内文件禁止在项目根重复存在；LaTeX 编译副产物不得滞留工作区；机查见 `check_workspace_hygiene.py`（每次阶段转换前执行，ERROR 清零方可推进）
 - **pipeline_state.json 为编排器专属读写**：任何 Subagent 禁止创建/修改/删除该文件（状态唯一载体协议见 orchestrator.md §3）。
 - Subagent 崩溃或强制产出缺失 → 主智能体重试 ≤2 次；仍失败：比赛模式立即通知用户，训练模式记录后继续（复盘中标注）。
 

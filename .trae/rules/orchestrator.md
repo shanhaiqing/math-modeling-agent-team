@@ -66,6 +66,7 @@ HG0_INTAKE → MODELING → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
 | REVIEW_FIX 每轮后 | `check_pipeline_manifest.py --stage review` | 更新 `manifest_check_report.json` |
 | CALIBRATION → RETRO | `check_pipeline_manifest.py --stage calibration` + `check_isolation.py --signature ...`（泄漏审计，签名规程见 §8 第 4 步） | 更新 `manifest_check_report.json` + `isolation_check_report.json` |
 | COMPLIANCE（打包） | `package_support_materials.py`（只收代码+数据+图表，终扫未过不得交付，2026-08-B1） | `packaging_report.json` |
+| 任意阶段转换（工作区卫生） | `check_workspace_hygiene.py`（扫描项目根设计外垃圾，2026-08-B2） | `workspace_hygiene_report.json` |
 | 任意共享文件落地后 | `check_prompt_budget.py` | 终端输出即可 |
 
 WARN 的裁定权维持下游 agent 制度（惯例 五.1）不变——编排器只保证**机查被执行、报告存在、ERROR 清零**，不越权裁定 WARN。
