@@ -11,7 +11,7 @@ check_isolation.py — 信息隔离泄漏审计（复盘前编排器强制执行
   1. 全项目递归扫描（_quarantine/.venv/.git 等除外）散放的提取物文件
      （ref_*/ocr_*/_ocr_* 命名特征）→ ERROR
   2. 非授权 agent 产出（retro_modeling/retro_writing/retro_review/paper.tex/
-     handoff_notes_1-3/fix_round*/s1-s4_reflection/stage5_review/solution.json 等）
+     handoff_notes_1-3/fix_round*/s1-s4_reflection/solution.json 等）
      内容含 --signature 特征串 → ERROR
   3. 含特征串的 calibration 产出（含 handoff_notes_4）缺节级隔离声明
      （惯例 C-1 分层标注）→ WARN
@@ -28,7 +28,7 @@ EXCLUDE_DIRS = {"_quarantine", ".venv", "venv", ".git", "node_modules", "__pycac
 UNAUTHORIZED = {"retro_modeling.md", "retro_writing.md", "retro_review.md",
                 "paper.tex", "handoff_notes_1.md", "handoff_notes_2.md", "handoff_notes_3.md",
                 "s1_reflection.md", "s2_reflection.md", "s3_reflection.md", "s4_reflection.md",
-                "abstract_candidates.md", "stage5_review.json", "modeling_plan.json",
+                "abstract_candidates.md", "modeling_plan.json",
                 "solution.json", "feature_fingerprint.json", "术语表.json"}
 UNAUTHORIZED_PREFIX = ("fix_round",)   # fix_round*.md（paper-writer 修复轮产物）
 CALIBRATION_FILES = {"calibration_report.md", "calibration_log.md", "retro_calibration.md",

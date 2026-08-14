@@ -28,10 +28,9 @@
 
 - @modeling-solver / @paper-writer / @independent-reviewer：**不得接触任何同题国赛论文**
 - @calibration-analyzer：**唯一可读取同题参考论文**
-- @independent-reviewer：**不得读取 stage5_review.json**（防止被自审分数影响独立判断）
 - 复盘阶段读物实行**白名单+黑名单**（一处定义；替代原"只读自身"全称表述——复盘任务书本就要求对照下游处置记录，全称表述与之矛盾）：
   - **白名单**（均为复盘前已固化产物，并行复盘无读写冲突）：自身 decision_logs 与产出物；下游处置记录 `fix_round*.md`、`fix_order.md`；`review_report.json` 与 `review_scores.md`；校准产出物的【可共享节】（惯例 四.13，一处定义）。具体可读文件以主智能体按 handoff 契约第五项下发的本轮可共享材料清单为准，清单外一律禁读。
-  - **黑名单**：同题参考论文及一切提取物（`_quarantine/` 等目录与 `ref_*`/`ocr_*` 类文件，无论存放位置）；校准产出物的【隔离节】；@independent-reviewer 另禁读 `stage5_review.json`（主线禁令延伸至复盘）。@calibration-analyzer 不受参考论文禁令约束（独占授权）。
+  - **黑名单**：同题参考论文及一切提取物（`_quarantine/` 等目录与 `ref_*`/`ocr_*` 类文件，无论存放位置）；校准产出物的【隔离节】。@calibration-analyzer 不受参考论文禁令约束（独占授权）。
 - 参照论文提取物（OCR 文本/截图/中间产物）**强制入 `{项目根}/decision_logs/_quarantine/` 专用目录**，禁止散放 decision_logs 根下或其他目录；复盘前由主智能体运行 `.trae/code_templates/check_isolation.py` 做泄漏审计（执行协议见 orchestrator.md）
 
 ## 时间预算（比赛模式 72h；训练模式不设限但需记录各阶段耗时）
@@ -55,7 +54,7 @@
 1. **HG0 准入**：题型判定 + 声明模式与时间预算 → **暂停等用户确认**
 2. **@modeling-solver** → 产出 result_bundle/ + decision_logs/（5 份日志）
 3. **HG1 用户审查**（按审查卡，建模+求解合并一次审查）→ 放行/退回
-4. **@paper-writer** → 产出 paper.pdf + paper.tex + stage5_review.json + S4 反思日志 + 摘要候选
+4. **@paper-writer** → 产出 paper.pdf + paper.tex + S4 反思日志 + 摘要候选
 5. **HG2 用户审查**：确认论文初稿 → 放行/退回
 6. **@independent-reviewer 初审** → **修复回路 R1-R2**（paper-writer 修复 ⇄ reviewer 复审，≤2 轮）→ **HG3 用户裁决**
 7. **合规检查 + 摘要定稿** → 交付
@@ -87,7 +86,7 @@
 | solver ↔ reviewer | 禁 | 可 | 主线盲审独立性 + 间接依赖 |
 | 任意 ↔ calibration | 禁 | 可 | 主线参照论文隔离；复盘 calibration 读物按白名单+参照论文独占授权 |
 
-矩阵未覆盖的情形一律视为**禁止并行**。判定维度仅两项：①是否存在产物生产-消费依赖；②是否共触隔离敏感资源（参照论文 / stage5_review.json）。复盘阶段 calibration-analyzer 读取参照论文属其独占授权，不与其他 agent 构成冲突。
+矩阵未覆盖的情形一律视为**禁止并行**。判定维度仅两项：①是否存在产物生产-消费依赖；②是否共触隔离敏感资源（参照论文）。复盘阶段 calibration-analyzer 读取参照论文属其独占授权，不与其他 agent 构成冲突。
 
 ## HG 审查卡（比赛模式，用户逐项勾选后放行）
 
@@ -147,7 +146,7 @@
 红线是**关卡**而非散文义务：编排器按 orchestrator.md 协议逐项核验并登记 pipeline_state.json，缺失产物同时触发 check_pipeline_manifest.py ERROR。
 
 - **@modeling-solver**：result_bundle/solution.json 存在且非空 + figures/ ≥6 张图表 + **5 份** decision_logs 全部存在（s1_reflection / guided_questions_trace / s2_reflection / method_card_matching / s3_reflection）
-- **@paper-writer**：**正文（摘要页之后、不含附录）≥10 页且尽量 ≤28 页**（超 28 页不自动拦截，必须报告用户作最终决断）+ 图表引用 ≥6 处 + stage5_review.json 五维度齐全 + abstract_candidates.md ≥2 版
+- **@paper-writer**：**正文（摘要页之后、不含附录）≥10 页且尽量 ≤28 页**（超 28 页不自动拦截，必须报告用户作最终决断）+ 图表引用 ≥6 处 + abstract_candidates.md ≥2 版
 - **@independent-reviewer**：五维度均有 ≥3 句具体依据 + B 题 12 项核查齐全 + 红队搜查范围与证据记录（含虚惊标注）。**评审红线只约束评审行为，不设分数下限**——低分是论文信号，如实报告是评审职责；评分仅作为修复回路触发信号
 - **@calibration-analyzer**：calibration_report.md 含 ≥3 条差距 + **每条附三维度通用性判决** + 维度零（同题污染）检查通过 + 审批清单 + 执行层修复工单
 

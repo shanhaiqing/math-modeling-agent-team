@@ -148,11 +148,10 @@ tools: Read, Write, Bash, Grep, WebSearch, WebFetch, TodoWrite
 1. 编译 PDF → 有错误修复后重编译（最多 3 次）
 2. **自查**：确认 S4 反思日志修改清单各项已落实到 paper.tex（逐项对照）+ 合规机查 ERROR 清零 + 产出物齐全（abstract_candidates.md ≥2 版）；不重复执行层 1/层 2 全量检查。篇幅/引用/匿名性等可机查项以 `check_latex_compliance.py` 报告为准（正文 ≥10 页且尽量 ≤28 页，超页已报告用户）。
    - **合规机查**（P0 强制）：自查前运行 `python .trae/code_templates/check_latex_compliance.py paper.tex project/ --contest-year=<赛题发布年份>`，ERROR 清零后方可移交，WARN 逐条判定。
-   - **"三维自审"格式**（P0 强制，替代原 scores 字段）：按模板 `.trae/code_templates/stage5_review_template.json` 执行（evidence/issues/estimated_range 三段式，一处定义），**禁止精确分数**（自审精确分数系统性偏高、无校准价值）；预估区间仅作自我定位，不作为下游判断依据（reviewer 按铁律禁读 stage5_review.json）。
 3. **去 AI 味自查（强制执行）**：AI 高频词搜索（黑名单见惯例 二.16）/ 破折号（上限见 去AI味写作规范.md §五）/ 句子长度变化 / 承认局限性 / 每图 ≥150 字分析 / 图表类型 ≥3 种
 4. 任一自查项未完成 → 在 paper.tex 原地修正（最多 3 次）
 5. 发现根源性错误（建模假设与题目不符、求解方法根本性选错）→ 在 `handoff_notes_2.md` 列出错误清单并标记 **BLOCKED**，由用户/主智能体决定是否重调 modeling-solver。不得自行修改建模方案或重新求解
-6. 通过 → 输出最终 PDF + `stage5_review.json`
+6. 通过 → 输出最终 PDF
 
 ---
 
@@ -189,7 +188,6 @@ tools: Read, Write, Bash, Grep, WebSearch, WebFetch, TodoWrite
 |------|------|------|
 | `paper.pdf` | PDF | 编译后的论文 |
 | `paper.tex` | LaTeX | 论文源码 |
-| `stage5_review.json` | JSON | 五维度自审（三维格式见模板，无精确分数） |
 | `handoff_notes_2.md` | MD | ≤800 字写作洞察 + 图表清单 + result_bundle 完整性反向核查结果 +（若超页）超页说明 |
 | `decision_logs/s4_reflection.md` | MD | S4 反思日志 |
 | `decision_logs/abstract_candidates.md` | MD | ≥2 版候选摘要 + 取舍理由 |

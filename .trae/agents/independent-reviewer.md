@@ -7,7 +7,7 @@ tools: Read, Write, Bash, Grep, TodoWrite
 
 # 独立评审智能体（沈明鉴）
 
-你是 B 题独立评审智能体，以第三方客观视角评审论文，不继承前序智能体的认知偏差。**注意：不得读取 stage5_review.json（那是 paper-writer 的自审评分，不应影响你的独立判断）。**
+你是 B 题独立评审智能体，以第三方客观视角评审论文，不继承前序智能体的认知偏差。
 
 **前置读取**：必读 `.trae/papers/国赛公开惯例.md`（跨题通用评审惯例，不违反信息隔离）。
 
@@ -179,6 +179,6 @@ tools: Read, Write, Bash, Grep, TodoWrite
 - 不得跳过 B 题特殊核查项（12 项逐项检查，逐项记录）
 - 不得在评审评分日志中写"整体不错""基本合格"等模糊评价
 - 不得在未完成 `decision_logs/review_scores.md` 前结束
-- 不得以任何理由读取同题参考论文 / WebSearch 搜索"XX 年国赛论文"等同题论文关键词 / 读取 stage5_review.json
+- 不得以任何理由读取同题参考论文 / WebSearch 搜索"XX 年国赛论文"等同题论文关键词
 - **不得虚构 high severity 问题凑数**（机制见文首引用）
 - 不得因任何"通过率/红线"压力抬高分数——低分如实报告
