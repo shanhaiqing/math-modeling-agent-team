@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 """
 可视化样式模板
-建模与写作阶段统一使用。确保图表符合论文规范（中文字体自动检测优先 Microsoft YaHei、300dpi、PDF+PNG 双格式）。
+建模与写作阶段统一使用。确保图表符合论文规范（中文衬线字体自动检测优先 SimSun、300dpi、PDF+PNG 双格式）。
+
+=== 视觉体系三原则（出图前必读 .trae/papers/visual_anchors/ 示例图页对照） ===
+  1. 低饱和学术配色：禁止 matplotlib 默认 tab10 高饱和色，统一用本模板 PALETTE。
+  2. 高信息密度：相关量尽量组合为 (a)/(b) 多面板（new_figure），单图单信息视为浪费。
+  3. 图内统计标注：关键结论用 annotate_badge / annotate_callout 直接标在图上，
+     方法说明（口径/置信水平等）留给论文 caption，不写进图标题。
 
 === 库选择规则（强制） ===
 
@@ -39,9 +45,9 @@ import seaborn as sns
 # 全局样式设置
 # ============================================================
 
-# 自动检测可用的中文字体
-_CJK_FONT_CANDIDATES = ['Microsoft YaHei', 'SimHei', 'SimSun', 'KaiTi', 'FangSong',
-                         'Noto Sans CJK SC', 'WenQuanYi Micro Hei', 'Arial Unicode MS']
+# 自动检测可用的中文字体（衬线优先：宋体与论文正文同族，视觉统一）
+_CJK_FONT_CANDIDATES = ['SimSun', 'Noto Serif CJK SC', 'FangSong', 'KaiTi',
+                         'Microsoft YaHei', 'SimHei', 'WenQuanYi Micro Hei', 'Arial Unicode MS']
 _available_fonts = {f.name for f in fm.fontManager.ttflist}
 _cjk_font = None
 for _font in _CJK_FONT_CANDIDATES:
@@ -63,14 +69,14 @@ SINGLE_COLUMN = (6, 4)    # 单栏图
 DOUBLE_COLUMN = (8, 5)    # 双栏大图
 SQUARE = (5, 5)           # 正方形图
 
-# 颜色方案
+# 颜色方案（低饱和学术色板，Okabe-Ito 降饱和变体；禁用 tab10 默认高饱和）
 COLORS = {
-    "primary": "#1f77b4",
-    "secondary": "#ff7f0e",
-    "tertiary": "#2ca02c",
-    "quaternary": "#d62728",
-    "palette": ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728",
-                "#9467bd", "#8c564b", "#e377c2", "#7f7f7f"]
+    "primary": "#4C78A8",
+    "secondary": "#E8927C",
+    "tertiary": "#7FB89B",
+    "quaternary": "#D6604D",
+    "palette": ["#4C78A8", "#E8927C", "#7FB89B", "#B48EAD",
+                "#D4A94E", "#8C6D5C", "#6FA8DC", "#9AA0A6"]
 }
 
 # 线型
@@ -78,6 +84,11 @@ LINE_STYLES = ['-', '--', '-.', ':']
 
 # 标记
 MARKERS = ['o', 's', '^', 'D', 'v', '<', '>', 'p']
+
+
+def _apply_grid(ax, axis='both'):
+    """淡网格：细实线低透明度，仅作读数辅助，不抢视觉主体。"""
+    ax.grid(True, alpha=0.15, linestyle='-', linewidth=0.5, axis=axis)
 
 
 # ============================================================
@@ -134,11 +145,18 @@ def setup_style():
         SCIENCE_STYLE_ACTIVE = True
         print("[可视化] 已应用 SciencePlots 'science' 期刊风格")
         # science 风格默认 font.family=['serif']，会迫使中文走 STIX 导致方框；
-        # 强制 sans-serif 家族，令中文回落到 Microsoft YaHei。
+        # 显式指定 sans-serif 列表，令中文回落到检测到的中文字体（SimSun 优先）。
         mpl.rcParams.update({
             'font.family': ['sans-serif'],
             'font.sans-serif': [_cjk_font, 'DejaVu Sans'] if _cjk_font else ['DejaVu Sans'],
             'axes.unicode_minus': False,
+            # science 风格默认 use_mathtext=True，负号走数学字体缺字形（渲染为方框），
+            # 关闭后刻度负号回落到 ASCII 连字符，SimSun 可正常渲染
+            'axes.formatter.use_mathtext': False,
+            # 全局统一淡网格（science 默认灰虚线过抢），与 _apply_grid 一致
+            'grid.alpha': 0.15,
+            'grid.linestyle': '-',
+            'grid.linewidth': 0.5,
             'figure.dpi': 100,
             'savefig.dpi': 300,
             'savefig.bbox': 'tight',
@@ -159,8 +177,9 @@ def setup_style():
         'savefig.dpi': 300,
         'savefig.bbox': 'tight',
         'lines.linewidth': 1.5,
-        'grid.alpha': 0.3,
-        'grid.linestyle': '--',
+        'grid.alpha': 0.15,
+        'grid.linestyle': '-',
+        'grid.linewidth': 0.5,
     })
 
 
@@ -179,7 +198,57 @@ def save_figure(fig, filename: str, formats: list = None):
     for fmt in formats:
         path = f"{filename}.{fmt}"
         fig.savefig(path, dpi=300, bbox_inches='tight')
-        print(f"✅ 图表已保存: {path}")
+        print(f"[完成] 图表已保存: {path}")
+
+
+def new_figure(n_panels=2, figsize=None, sharex=False, sharey=False):
+    """
+    创建 (a)/(b) 多面板图，返回 (fig, axes 列表)。
+
+    相关量组合到一张图（如"可行域+最优解""收敛+相对误差"），
+    提升信息密度；单面板需求直接用 plt.subplots 亦可。
+
+    Args:
+        n_panels: 面板数（横向排列）
+        figsize: 整图尺寸；None 时按面板数自动（每面板约 4.2x3.6 英寸）
+        sharex/sharey: 是否共享坐标轴
+    """
+    if figsize is None:
+        figsize = (4.2 * n_panels, 3.6)
+    fig, axes = plt.subplots(1, n_panels, figsize=figsize,
+                             sharex=sharex, sharey=sharey)
+    if n_panels == 1:
+        axes = [axes]
+    else:
+        axes = list(axes)
+    for i, ax in enumerate(axes):
+        # SimSun 无 bold 字形，用字号区分层级而非字重
+        ax.text(-0.12, 1.06, f"({chr(97 + i)})", transform=ax.transAxes,
+                fontsize=11, va='top')
+    return fig, axes
+
+
+def annotate_badge(ax, text, xy, color=None, fontsize=8):
+    """
+    图内统计徽章：在数据坐标 xy 处放置带边框的结论性标注
+    （如"中位 59%""导通"），白底彩框，示例论文常见手法。
+    """
+    color = color or COLORS["primary"]
+    ax.annotate(text, xy=xy, fontsize=fontsize, color=color,
+                bbox=dict(boxstyle="round,pad=0.3", fc="white",
+                          ec=color, alpha=0.9))
+
+
+def annotate_callout(ax, text, xy, xytext, color=None, fontsize=8):
+    """
+    图内引导注释：箭头从 xytext 指向数据点 xy
+    （如最优解星标说明、临界点解释），适合对单个关键点的解释。
+    """
+    color = color or COLORS["quaternary"]
+    ax.annotate(text, xy=xy, xytext=xytext, fontsize=fontsize, color=color,
+                arrowprops=dict(arrowstyle="->", color=color, lw=1.0),
+                bbox=dict(boxstyle="round,pad=0.3", fc="white",
+                          ec=color, alpha=0.9))
 
 
 def plot_line(x, y_list, labels, xlabel="", ylabel="", title="",
@@ -211,7 +280,7 @@ def plot_line(x, y_list, labels, xlabel="", ylabel="", title="",
     ax.set_ylabel(ylabel)
     ax.set_title(title)
     if grid:
-        ax.grid(True, alpha=0.3)
+        _apply_grid(ax)
     ax.legend()
     
     save_figure(fig, filename)
@@ -245,7 +314,7 @@ def plot_bar(categories, values, xlabel="", ylabel="", title="",
         plt.xticks(rotation=45, ha='right')
     
     ax.set_title(title)
-    ax.grid(True, alpha=0.3, axis='y' if horizontal else 'x')
+    _apply_grid(ax, axis='y' if horizontal else 'x')
     
     save_figure(fig, filename)
     plt.close(fig)
@@ -275,7 +344,7 @@ def plot_tornado(params, sensitivities, xlabel="目标值变化 (%)", title="灵
     ax.axvline(x=0, color='black', linewidth=0.8)
     ax.set_xlabel(xlabel)
     ax.set_title(title)
-    ax.grid(True, alpha=0.3, axis='x')
+    _apply_grid(ax, axis='x')
     
     save_figure(fig, filename)
     plt.close(fig)
@@ -297,7 +366,7 @@ def plot_scatter(x, y, labels=None, xlabel="", ylabel="", title="",
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     ax.set_title(title)
-    ax.grid(True, alpha=0.3)
+    _apply_grid(ax)
     
     save_figure(fig, filename)
     plt.close(fig)
@@ -470,7 +539,7 @@ def plot_confint(x, y_mean, y_lower, y_upper, xlabel="", ylabel="", title="",
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     ax.set_title(title)
-    ax.grid(True, alpha=0.3)
+    _apply_grid(ax)
     ax.legend()
     save_figure(fig, filename)
     plt.close(fig)
@@ -502,7 +571,7 @@ def plot_errorbar(x, y, yerr=None, xerr=None, capsize=4, xlabel="", ylabel="",
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     ax.set_title(title)
-    ax.grid(True, alpha=0.3)
+    _apply_grid(ax)
     save_figure(fig, filename)
     plt.close(fig)
     return fig
