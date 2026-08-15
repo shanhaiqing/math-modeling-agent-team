@@ -60,7 +60,7 @@ HG0_INTAKE → MODELING → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
 
 | 转换 | 必跑机查 | 报告规范路径（项目根） |
 |------|---------|----------------------|
-| MODELING → 下一阶段 | `check_solution_json.py` + `check_pipeline_manifest.py --stage modeling` + `check_code_hygiene.py project/`（交付代码注释卫生，2026-08-B1） | `contract_check_report.json` + `manifest_check_report.json` + `code_hygiene_report.json` |
+| MODELING → 下一阶段 | `check_solution_json.py` + `check_modeling_artifacts.py`（图表双格式配对/绝对路径/商业求解器，2026-08-B8）+ `check_pipeline_manifest.py --stage modeling` + `check_code_hygiene.py project/`（交付代码注释卫生，2026-08-B1） | `contract_check_report.json` + `modeling_artifacts_report.json` + `manifest_check_report.json` + `code_hygiene_report.json` |
 | WRITING 启动前（预检） | `check_latex_env.py`（xelatex/关键宏包/中文字体，2026-08-B1；任一 ERROR 报告用户，禁止 subagent 自行安装 TeX 发行版） | `latex_env_report.json` |
 | WRITING → 下一阶段 | `check_latex_compliance.py` + `check_tex_numbers.py`（WARN 级辅助，不阻塞）+ `check_pipeline_manifest.py --stage writing` | `latex_compliance_report.json` + `tex_number_check_report.json` + 更新 `manifest_check_report.json` |
 | REVIEW_FIX 每轮后 | `check_pipeline_manifest.py --stage review` | 更新 `manifest_check_report.json` |

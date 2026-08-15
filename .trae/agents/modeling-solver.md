@@ -132,7 +132,7 @@ mcpServers:
 
 ### 步骤 3.2：代码实现
 
-**环境依赖**（首次执行前检查并安装）：`python -m pip install -r requirements.txt 2>/dev/null || true`（版本已锁定）
+**环境依赖**：`python -m pip install -r requirements.txt 2>/dev/null || true`（版本已锁定）
 - **求解后端**：统一使用 `.trae/code_templates/solver_backend.py`（开源 HiGHS/CBC，经 pulp/cvxpy 调用）。禁止商业求解器。最优性验证的 MIPGap/status 取原生元数据（细节见 3.3 节）。
 
 **项目结构**：`project/results/`（结果输出）、`project/figures/`（图表）、`project/问题X_求解.py`（求解代码）
@@ -149,12 +149,13 @@ mcpServers:
 
 ### 步骤 3.3：求解验证
 
-**最优性验证**（数学最优性）：精确算法报告 MIPGap≤1%。使用 solver_backend.py 求解时，MIPGap/status 取自求解器原生状态——status=optimal 即已证明最优（gap=0）；time_limit 中断时须延长时限或增大规模校验，禁止伪造 gap。启发式 ≥5 次运行报最优/平均/标准差；枚举法完备性按 2.2 节 P0 #5 执行（一处定义）。
+**最优性验证**（数学最优性）：精确算法报告 MIPGap≤1%；solver_backend.py 的 MIPGap/status 取原生状态——status=optimal 即已证最优（gap=0）；time_limit 中断须延长时限或增大规模校验，禁伪造 gap。启发式 ≥5 次运行报最优/平均/标准差；枚举完备性按 2.2 P0 #5（一处定义）。
 
 **模型验证**（蒙特卡洛仿真，条件触发：含随机性/不确定性/稳态假设，详见 `.trae/code_templates/monte_carlo_template.py`）：
-- ≥1000 次仿真（小样本 ≥10000），报告次数/收敛/与解析偏差（>5% 须析因）；与 MIPGap/枚举完备性（最优性验证）独立不可互替
-- **convergence 字段判定**（P0 强制）：按惯例 一.1 执行（一处定义）。
-- **不确定性参数登记-传播映射**（条件触发：读题阶段登记了不确定性/随机参数清单）：按惯例 一.1 执行（一处定义）。
+- ≥1000 次仿真（小样本 ≥10000），报告仿真次数、收敛情况、与解析结果偏差
+- 偏差 >5% 须分析原因
+- ⚠️ 蒙特卡洛（模型验证）与 MIPGap/枚举完备性（最优性验证）是两个独立维度，不可相互替代
+- **convergence 判定与不确定性参数登记-传播映射**（P0 / 条件触发：登记了随机参数清单）：按惯例 一.1 执行（一处定义）。
 
 **灵敏度分析**：核心参数 ±5%/±10%/±20% 扰动，生成 Tornado 图。**参数范围与论文描述必须一致**。
 
@@ -203,6 +204,7 @@ mcpServers:
 1. 合并 `project/results/*.json` → `result_bundle/solution.json`（契约字段见 AGENTS.md "handoff 契约"节）
    - **字段命名准确性**（P0 强制）：按惯例 一.8 执行（一处定义）。
 2. 复制 `project/figures/*` → `result_bundle/figures/`
+   - **产物机查**（P0 强制）：打包前运行 `python .trae/code_templates/check_modeling_artifacts.py {项目根}`（图表配对/绝对路径/商业求解器），ERROR 当场修复。
 3. 复制 `feature_fingerprint.json`、`术语表.json`、`modeling_plan.json` → `result_bundle/`
 4. 输出 `handoff_notes_1.md`（≤800 字：方法论洞察、反直觉发现、建议论文重点展开方向、已知潜在质疑点）。**质疑点须分类标注**："论文讨论项"（仅需论文展开论证）vs"建模遗留项"（建模未完全解决，需 paper-writer 重点关注）。
 

@@ -1,0 +1,28 @@
+{
+  "checker": "check_modeling_artifacts",
+  "root": ".",
+  "summary": {
+    "ERROR": 0,
+    "WARN": 0
+  },
+  "findings": [
+    {
+      "level": "PASS",
+      "rule": "P11-F",
+      "location": "",
+      "message": "14 组图表全部 PDF+PNG 配对齐全"
+    },
+    {
+      "level": "PASS",
+      "rule": "P11-A",
+      "location": "",
+      "message": "扫描 11 个脚本，零绝对路径"
+    },
+    {
+      "level": "PASS",
+      "rule": "P11-G",
+      "location": "",
+      "message": "零商业求解器 import（开源后端约束满足）"
+    }
+  ]
+}

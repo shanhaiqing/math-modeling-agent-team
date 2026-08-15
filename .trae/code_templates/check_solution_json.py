@@ -32,6 +32,13 @@ check_solution_json.py — solution.json 契约校验器（机查版）
           modeling_plan 登记清单与映射表（含 propagation 字段）计数一致性；
           缺映射表或计数不符 → WARN（合并处理的显式声明不可机查，留人工）
           prompt 位置：.trae/agents/modeling-solver.md 步骤 3.3 模型验证（按惯例一.1 执行）
+  [P11-S] 总审批清单 P11 —— 灵敏度覆盖与扰动幅度
+          每子问题 sensitivity 须含 ≥1 扰动参数；参数名可机读百分比时最大幅度须 ≥10%
+          （prompt 要求 ±5%/±10%/±20% 扰动）；幅度无法机读 → WARN 人工确认
+          prompt 位置：.trae/agents/modeling-solver.md 步骤 3.3 灵敏度分析
+  [P11-M] 总审批清单 P11 —— 蒙特卡洛仿真次数下限
+          monte_carlo.n_sim ≥1000；"小样本 ≥10000"依赖场景判断不可机查，留人工
+          prompt 位置：.trae/agents/modeling-solver.md 步骤 3.3 模型验证
 
 同步维护条款（T-1）：新增或修改机查项时，须同步核对对应 agent prompt 是否已下达该要求。
 机查要求集不得超出 prompt 要求集（详见 .trae/papers/国赛公开惯例.md 五.2）。
@@ -692,7 +699,60 @@ def check_uncertainty_propagation(modeling_plan, data):
              f"登记参数 {len(reg)} 个 vs 映射表 {len(mv)} 项计数不一致——若属合并处理，请确认验证记录中已显式声明覆盖缺口（P-3）；否则须补映射")
 
 
-# ---------- 主流程 ----------
+# ---------- 检查 P11-S：灵敏度覆盖与扰动幅度 ----------
+
+PCT_PAT = re.compile(r"(\d+(?:\.\d+)?)\s*%")
+
+
+def _sens_param_names(sens):
+    """从 sensitivity 结构提取扰动参数名列表（兼容两种布局）。"""
+    names = []
+    if not isinstance(sens, dict):
+        return names
+    if isinstance(sens.get("parameters"), list):
+        names += [str(p) for p in sens["parameters"]]
+    for v in sens.values():
+        if isinstance(v, dict) and isinstance(v.get("perturbations"), list):
+            names += [str(p.get("param", "")) for p in v["perturbations"]
+                      if isinstance(p, dict)]
+    return names
+
+
+def check_sensitivity_coverage(data):
+    subs = find_subproblems(data)
+    for name, sub in subs.items():
+        score = sum(1 for f in REQUIRED if f in sub)
+        if score == 0 or "sensitivity" not in sub:
+            continue
+        names = _sens_param_names(sub["sensitivity"])
+        if not names:
+            error("P11-S", name, "sensitivity 无任何扰动参数（须对核心参数做扰动）")
+            continue
+        pcts = [float(m) for n in names for m in PCT_PAT.findall(n)]
+        if pcts:
+            if max(pcts) < 10:
+                error("P11-S", name, f"最大扰动幅度 {max(pcts)}% < 10%（prompt 要求 ±5%/±10%/±20%）")
+            else:
+                ok("P11-S", f"{name}: {len(names)} 个扰动参数，最大幅度 {max(pcts)}%")
+        else:
+            warn("P11-S", name, f"{len(names)} 个扰动参数但幅度无法机读（参数名无百分比），人工确认是否覆盖 ±10% 以上")
+
+
+# ---------- 检查 P11-M：蒙特卡洛次数下限 ----------
+
+def check_mc_count(data):
+    nodes = [(p, v) for p, k, v, _ in walk(data) if k == "monte_carlo"]
+    for p, mc in nodes:
+        if mc is None:
+            continue
+        n = mc.get("n_sim") if isinstance(mc, dict) else None
+        if not is_num(n):
+            warn("P11-M", p, "monte_carlo 缺 n_sim 字段，无法校验仿真次数")
+        elif n < 1000:
+            error("P11-M", p, f"仿真次数 {int(n)} < 1000（prompt 要求 ≥1000）")
+        else:
+            ok("P11-M", f"{p}: n_sim={int(n)} ≥1000")
+
 
 def main():
     try:
@@ -718,6 +778,8 @@ def main():
     check_naming(data)
     check_semantics(data, results_dir)
     check_active_derived(data)
+    check_sensitivity_coverage(data)
+    check_mc_count(data)
 
     # C-02/C-03: modeling_plan.json 字段检查（A-01/A-03 机查化）
     # 自动查找同名目录下的 modeling_plan.json

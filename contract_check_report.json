@@ -1,9 +1,9 @@
 {
   "target": "result_bundle\\solution.json",
   "summary": {
-    "ERROR": 0,
-    "WARN": 2,
-    "PASS": 41
+    "ERROR": 1,
+    "WARN": 3,
+    "PASS": 49
   },
   "findings": [
     {
@@ -107,6 +107,66 @@
       "rule": "P-1",
       "location": "",
       "message": "$.q3_allied_withdrawal.active_constraints: 活跃约束派生量扫描 3 条（含派生量 3 条）"
+    },
+    {
+      "level": "PASS",
+      "rule": "P11-S",
+      "location": "",
+      "message": "q1_soviet_deployment: 11 个扰动参数，最大幅度 33.0%"
+    },
+    {
+      "level": "PASS",
+      "rule": "P11-S",
+      "location": "",
+      "message": "q1_allied_deployment: 11 个扰动参数，最大幅度 33.0%"
+    },
+    {
+      "level": "PASS",
+      "rule": "P11-S",
+      "location": "",
+      "message": "q2_soviet_logistics: 5 个扰动参数，最大幅度 20.0%"
+    },
+    {
+      "level": "PASS",
+      "rule": "P11-S",
+      "location": "",
+      "message": "q2_allied_logistics: 5 个扰动参数，最大幅度 20.0%"
+    },
+    {
+      "level": "WARN",
+      "rule": "P11-S",
+      "location": "q3_soviet_attack",
+      "message": "1 个扰动参数但幅度无法机读（参数名无百分比），人工确认是否覆盖 ±10% 以上"
+    },
+    {
+      "level": "PASS",
+      "rule": "P11-S",
+      "location": "",
+      "message": "q3_allied_withdrawal: 1 个扰动参数，最大幅度 20.0%"
+    },
+    {
+      "level": "PASS",
+      "rule": "P11-M",
+      "location": "",
+      "message": "$.q2_soviet_logistics.monte_carlo: n_sim=2000 ≥1000"
+    },
+    {
+      "level": "PASS",
+      "rule": "P11-M",
+      "location": "",
+      "message": "$.q2_allied_logistics.monte_carlo: n_sim=2000 ≥1000"
+    },
+    {
+      "level": "ERROR",
+      "rule": "P11-M",
+      "location": "$.q3_soviet_attack.monte_carlo",
+      "message": "仿真次数 500 < 1000（prompt 要求 ≥1000）"
+    },
+    {
+      "level": "PASS",
+      "rule": "P11-M",
+      "location": "",
+      "message": "$.q3_allied_withdrawal.monte_carlo: n_sim=2000 ≥1000"
     },
     {
       "level": "PASS",
@@ -250,13 +310,13 @@
       "level": "PASS",
       "rule": "P-2",
       "location": "",
-      "message": "solution.json: 34 个叙述性字符串字段内嵌数值均匹配结构化字段或已标注历史口径"
+      "message": "solution.json: 32 个叙述性字符串字段内嵌数值均匹配结构化字段或已标注历史口径"
     },
     {
       "level": "PASS",
       "rule": "P-2",
       "location": "",
-      "message": "modeling_plan.json: 17 个叙述性字符串字段内嵌数值均匹配结构化字段或已标注历史口径"
+      "message": "modeling_plan.json: 18 个叙述性字符串字段内嵌数值均匹配结构化字段或已标注历史口径"
     },
     {
       "level": "PASS",
