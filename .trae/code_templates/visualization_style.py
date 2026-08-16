@@ -4,7 +4,8 @@
 建模与写作阶段统一使用。确保图表符合论文规范（中文衬线字体自动检测优先 SimSun、300dpi、PDF+PNG 双格式）。
 
 === 视觉体系三原则（出图前必读 .trae/papers/visual_anchors/ 示例图页对照） ===
-  1. 低饱和学术配色：禁止 matplotlib 默认 tab10 高饱和色，统一用本模板 PALETTE。
+  1. 低饱和学术配色：禁止 matplotlib 默认 tab10 高饱和色，统一用本模板 PALETTE；
+     柱形图填充统一半透明 alpha≈0.5（类 fill_betweenx 波带风格），避免大色块压抑。
   2. 高信息密度：相关量尽量组合为 (a)/(b) 多面板（new_figure），单图单信息视为浪费。
   3. 图内统计标注：关键结论用 annotate_badge / annotate_callout 直接标在图上，
      方法说明（口径/置信水平等）留给论文 caption，不写进图标题。
@@ -20,17 +21,18 @@
 │   • 散点矩阵 (pairplot)      → sns.pairplot()               │
 │   • 多变量分组对比           → sns.catplot() / sns.relplot()│
 │                                                             │
-│ 用 matplotlib 的场景：                                       │
-│   • 折线图 (line)   → plot_line()                           │
-│   • 柱状图 (bar)    → plot_bar()                            │
-│   • 散点图 (scatter)→ plot_scatter()                        │
-│   • Tornado 图      → plot_tornado()                        │
-│   • 需要自定义标注/子图/复杂布局                             │
-│   • seaborn 不支持的特殊图表                                 │
+│ 用 matplotlib 的场景（本模板不再提供 plot_bar/plot_tornado/     │
+│   plot_line/plot_scatter/plot_heatmap 等成品封装——它们签名过窄、  │
+│   无法承载题内自定义装饰，agent 实际从不调用；此类图一律自绘）：  │
+│   • 折线/柱状/散点/Tornado/热力等需自定义装饰的图                │
+│     → 自绘（new_figure + annotate_* 积木 + COLORS/BAR_ALPHA）   │
+│   • 区间/误差表达 → plot_confint() / plot_errorbar()（保留封装） │
+│   • 需要自定义标注/子图/复杂布局                                 │
+│   • seaborn 不支持的特殊图表                                     │
 └─────────────────────────────────────────────────────────────┘
 
 原则：seaborn 能画的统计图优先用 seaborn（默认美观度更高，代码更短）；
-      自定义/特殊图表用 matplotlib（灵活度更高）。
+      自定义/特殊图表用 matplotlib 自绘（灵活度更高）。
 """
 
 import matplotlib
@@ -46,23 +48,39 @@ import seaborn as sns
 # ============================================================
 
 # 自动检测可用的中文字体（衬线优先：宋体与论文正文同族，视觉统一）
-_CJK_FONT_CANDIDATES = ['SimSun', 'Noto Serif CJK SC', 'FangSong', 'KaiTi',
-                         'Microsoft YaHei', 'SimHei', 'WenQuanYi Micro Hei', 'Arial Unicode MS']
+# 修订建议 #10：SimSun/宋体是衬线，与 sans-serif 语义不符，按衬线/无衬线分族回落
+_SERIF_CJK_CANDIDATES = ['SimSun', 'Noto Serif CJK SC', 'FangSong', 'KaiTi',
+                         'Arial Unicode MS']
+_SANS_CJK_CANDIDATES = ['Microsoft YaHei', 'SimHei', 'WenQuanYi Micro Hei']
 _available_fonts = {f.name for f in fm.fontManager.ttflist}
 _cjk_font = None
-for _font in _CJK_FONT_CANDIDATES:
+_cjk_family = 'sans-serif'
+for _font in _SERIF_CJK_CANDIDATES:
     if _font in _available_fonts:
         _cjk_font = _font
+        _cjk_family = 'serif'
         break
+if _cjk_font is None:
+    for _font in _SANS_CJK_CANDIDATES:
+        if _font in _available_fonts:
+            _cjk_font = _font
+            break
 
 if _cjk_font:
+    plt.rcParams['font.family'] = [_cjk_family]
+    plt.rcParams['font.serif'] = [_cjk_font, 'DejaVu Serif']
     plt.rcParams['font.sans-serif'] = [_cjk_font, 'DejaVu Sans']
-    print(f"[可视化] 检测到中文字体: {_cjk_font}")
+    print(f"[可视化] 检测到中文字体: {_cjk_font}（{_cjk_family} 族）")
 else:
     plt.rcParams['font.sans-serif'] = ['DejaVu Sans']
     print("[可视化] ⚠️ 未检测到中文字体，图表中文可能显示为方框")
 
 plt.rcParams['axes.unicode_minus'] = False
+# 修订建议 #10：数学字体固定 DejaVu 系，避免负号/数学符号缺字形渲染为方框
+plt.rcParams['mathtext.fontset'] = 'dejavusans'
+# 修订建议 #11：PDF/PS 真字体嵌入（Type 42），避免期刊系统因 Type 3 位图报错
+plt.rcParams['pdf.fonttype'] = 42
+plt.rcParams['ps.fonttype'] = 42
 
 # 图尺寸（单栏/双栏）
 SINGLE_COLUMN = (6, 4)    # 单栏图
@@ -84,6 +102,9 @@ LINE_STYLES = ['-', '--', '-.', ':']
 
 # 标记
 MARKERS = ['o', 's', '^', 'D', 'v', '<', '>', 'p']
+
+# 柱形图填充半透明（批次 B10：统一 alpha≈0.5，fig8 波峰 fill_betweenx 风格，避免大色块压抑）
+BAR_ALPHA = 0.5
 
 
 def _apply_grid(ax, axis='both'):
@@ -110,7 +131,9 @@ COLORMAPS = {
     "sequential": "cmr.sunburst" if CMASHER_ACTIVE else "viridis",  # 顺序：热力图/密度/单调量
     "diverging": "cmr.fusion" if CMASHER_ACTIVE else "RdBu_r",    # 发散：正负/盈亏临界对比
     "cyclic": "cmr.seasons" if CMASHER_ACTIVE else "twilight",     # 循环：角度/相位
-    "qualitative": "tab10",                                         # 定性：分类离散
+    # 修订建议 #1：分类离散色禁止 colormap（防止回退 tab10 高饱和），
+    # 一律走 COLORS['palette']（离散色板）。None 作哨兵：误用作 colormap 会显式报错而非静默 tab10。
+    "qualitative": None,
 }
 
 
@@ -145,27 +168,33 @@ def setup_style():
         SCIENCE_STYLE_ACTIVE = True
         print("[可视化] 已应用 SciencePlots 'science' 期刊风格")
         # science 风格默认 font.family=['serif']，会迫使中文走 STIX 导致方框；
-        # 显式指定 sans-serif 列表，令中文回落到检测到的中文字体（SimSun 优先）。
+        # 按检测到的字体族（serif/sans-serif）覆盖，保证中文正常回落。
         mpl.rcParams.update({
-            'font.family': ['sans-serif'],
+            'font.family': [_cjk_family],
+            'font.serif': [_cjk_font, 'DejaVu Serif'] if _cjk_font else ['DejaVu Serif'],
             'font.sans-serif': [_cjk_font, 'DejaVu Sans'] if _cjk_font else ['DejaVu Sans'],
             'axes.unicode_minus': False,
-            # science 风格默认 use_mathtext=True，负号走数学字体缺字形（渲染为方框），
-            # 关闭后刻度负号回落到 ASCII 连字符，SimSun 可正常渲染
             'axes.formatter.use_mathtext': False,
+            # science 风格默认 mathtext.fontset='cm'，会重置模块级设置；
+            # 强制固定 DejaVu 系，避免负号/数学符号缺字形渲染为方框（修订建议 #10）
+            'mathtext.fontset': 'dejavusans',
             # 全局统一淡网格（science 默认灰虚线过抢），与 _apply_grid 一致
             'grid.alpha': 0.15,
             'grid.linestyle': '-',
             'grid.linewidth': 0.5,
             'figure.dpi': 100,
-            'savefig.dpi': 300,
             'savefig.bbox': 'tight',
+            # PDF/PS 字体嵌入（Type 42），避免期刊系统报错
+            'pdf.fonttype': 42,
+            'ps.fonttype': 42,
         })
         return
 
     # --- 降级分支：内置 rcParams 直设 ---
     sns.set_style("whitegrid")  # seaborn 全局样式
     mpl.rcParams.update({
+        'font.family': [_cjk_family],
+        'font.serif': [_cjk_font, 'DejaVu Serif'] if _cjk_font else ['DejaVu Serif'],
         'font.sans-serif': [_cjk_font, 'DejaVu Sans'] if _cjk_font else ['DejaVu Sans'],
         'font.size': 10,
         'axes.titlesize': 12,
@@ -173,19 +202,24 @@ def setup_style():
         'xtick.labelsize': 9,
         'ytick.labelsize': 9,
         'legend.fontsize': 9,
+        'mathtext.fontset': 'dejavusans',
         'figure.dpi': 100,
-        'savefig.dpi': 300,
         'savefig.bbox': 'tight',
         'lines.linewidth': 1.5,
         'grid.alpha': 0.15,
         'grid.linestyle': '-',
         'grid.linewidth': 0.5,
+        'pdf.fonttype': 42,
+        'ps.fonttype': 42,
     })
 
 
 def save_figure(fig, filename: str, formats: list = None):
     """
     保存图表为 PDF + PNG 双格式。
+    
+    修订建议 #11：PDF/SVG/EPS 是矢量，不传 dpi 保留矢量精度；
+    PNG/JPG/TIFF 用 300 dpi，并显式指定白底色（透明不可用于期刊投稿）。
     
     Args:
         fig: matplotlib figure 对象
@@ -195,9 +229,22 @@ def save_figure(fig, filename: str, formats: list = None):
     if formats is None:
         formats = ['pdf', 'png']
     
+    # 矢量格式列表（不传 dpi）
+    _VECTOR = {'.pdf', '.svg', '.eps', '.ps'}
+    # 位图格式列表（传 300 dpi）
+    _RASTER = {'.png', '.jpg', '.jpeg', '.tiff', '.tif'}
+    
     for fmt in formats:
         path = f"{filename}.{fmt}"
-        fig.savefig(path, dpi=300, bbox_inches='tight')
+        ext = f".{fmt.lower()}"
+        save_kw = {'bbox_inches': 'tight'}
+        if ext in _RASTER:
+            save_kw['dpi'] = 300
+            save_kw['facecolor'] = 'white'
+            save_kw['edgecolor'] = 'white'
+            save_kw['transparent'] = False
+        # 矢量格式不传 dpi（保留矢量精度）
+        fig.savefig(path, **save_kw)
         print(f"[完成] 图表已保存: {path}")
 
 
@@ -249,161 +296,6 @@ def annotate_callout(ax, text, xy, xytext, color=None, fontsize=8):
                 arrowprops=dict(arrowstyle="->", color=color, lw=1.0),
                 bbox=dict(boxstyle="round,pad=0.3", fc="white",
                           ec=color, alpha=0.9))
-
-
-def plot_line(x, y_list, labels, xlabel="", ylabel="", title="",
-              filename="figures/line_plot", grid=True):
-    """
-    绘制多条折线图。
-    
-    Args:
-        x: x 轴数据
-        y_list: y 轴数据列表 [y1, y2, ...]
-        labels: 图例标签列表
-        xlabel: x 轴标签
-        ylabel: y 轴标签
-        title: 图表标题
-        filename: 保存路径（不含扩展名）
-        grid: 是否显示网格
-    """
-    setup_style()
-    fig, ax = plt.subplots(figsize=SINGLE_COLUMN)
-    
-    for i, y in enumerate(y_list):
-        color = COLORS["palette"][i % len(COLORS["palette"])]
-        style = LINE_STYLES[i % len(LINE_STYLES)]
-        marker = MARKERS[i % len(MARKERS)]
-        ax.plot(x, y, color=color, linestyle=style, marker=marker,
-                markersize=4, markevery=max(1, len(x)//10), label=labels[i])
-    
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    ax.set_title(title)
-    if grid:
-        _apply_grid(ax)
-    ax.legend()
-    
-    save_figure(fig, filename)
-    plt.close(fig)
-    return fig
-
-
-def plot_bar(categories, values, xlabel="", ylabel="", title="",
-             filename="figures/bar_plot", horizontal=False, sort=True):
-    """
-    绘制柱状图。
-    """
-    setup_style()
-    fig, ax = plt.subplots(figsize=SINGLE_COLUMN)
-    
-    if sort:
-        idx = np.argsort(values)
-        categories = [categories[i] for i in idx]
-        values = [values[i] for i in idx]
-    
-    colors = [COLORS["palette"][i % len(COLORS["palette"])] for i in range(len(values))]
-    
-    if horizontal:
-        ax.barh(categories, values, color=colors)
-        ax.set_xlabel(ylabel)
-        ax.set_ylabel(xlabel)
-    else:
-        ax.bar(categories, values, color=colors)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        plt.xticks(rotation=45, ha='right')
-    
-    ax.set_title(title)
-    _apply_grid(ax, axis='y' if horizontal else 'x')
-    
-    save_figure(fig, filename)
-    plt.close(fig)
-    return fig
-
-
-def plot_tornado(params, sensitivities, xlabel="目标值变化 (%)", title="灵敏度分析",
-                 filename="figures/tornado"):
-    """
-    绘制 Tornado 图（参数敏感度排序）。
-    
-    Args:
-        params: 参数名称列表
-        sensitivities: 敏感度列表（正值表示目标值增加，负值表示减少）
-    """
-    setup_style()
-    fig, ax = plt.subplots(figsize=DOUBLE_COLUMN)
-    
-    # 按绝对敏感度排序
-    idx = np.argsort(np.abs(sensitivities))
-    params = [params[i] for i in idx]
-    sensitivities = [sensitivities[i] for i in idx]
-    
-    colors = [COLORS["primary"] if s > 0 else COLORS["quaternary"] for s in sensitivities]
-    ax.barh(params, sensitivities, color=colors)
-    
-    ax.axvline(x=0, color='black', linewidth=0.8)
-    ax.set_xlabel(xlabel)
-    ax.set_title(title)
-    _apply_grid(ax, axis='x')
-    
-    save_figure(fig, filename)
-    plt.close(fig)
-    return fig
-
-
-def plot_scatter(x, y, labels=None, xlabel="", ylabel="", title="",
-                 filename="figures/scatter_plot"):
-    """绘制散点图"""
-    setup_style()
-    fig, ax = plt.subplots(figsize=SQUARE)
-    
-    ax.scatter(x, y, c=COLORS["primary"], alpha=0.6, s=30)
-    
-    if labels:
-        for i, label in enumerate(labels):
-            ax.annotate(label, (x[i], y[i]), fontsize=7, alpha=0.7)
-    
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    ax.set_title(title)
-    _apply_grid(ax)
-    
-    save_figure(fig, filename)
-    plt.close(fig)
-    return fig
-
-
-def plot_heatmap(data, row_labels=None, col_labels=None, title="",
-                 filename="figures/heatmap", cmap=None, annot=True, fmt=".2f"):
-    """
-    绘制热力图（seaborn 版）。
-
-    Args:
-        data: 2D 数组或 DataFrame
-        row_labels: 行标签
-        col_labels: 列标签
-        cmap: 色板；None 时用 COLORMAPS["sequential"]（科学顺序色板，发散对比请显式传 COLORMAPS["diverging"]）
-        annot: 是否在格子内标注数值
-        fmt: 数值标注格式
-    """
-    if cmap is None:
-        cmap = COLORMAPS["sequential"]
-    setup_style()
-    fig, ax = plt.subplots(figsize=SQUARE)
-
-    # 标签为 None 时不显式传参，交由 seaborn 自动推断（传 None 会触发新版 seaborn 报错）
-    heat_kw = dict(annot=annot, fmt=fmt, cmap=cmap, linewidths=0.5, ax=ax,
-                   cbar_kws={"shrink": 0.8})
-    if row_labels is not None:
-        heat_kw["yticklabels"] = row_labels
-    if col_labels is not None:
-        heat_kw["xticklabels"] = col_labels
-    sns.heatmap(data, **heat_kw)
-
-    ax.set_title(title)
-    save_figure(fig, filename)
-    plt.close(fig)
-    return fig
 
 
 # ============================================================
@@ -478,18 +370,6 @@ def plot_distribution(data, x=None, kde=True, bins="auto", xlabel="", title="",
     save_figure(fig, filename)
     plt.close(fig)
     return fig
-
-
-def plot_convergence(iterations, values, ylabel="目标值", title="收敛曲线",
-                     filename="figures/convergence"):
-    """
-    绘制迭代收敛曲线（matplotlib，用于算法收敛性验证）。
-    """
-    return plot_line(
-        iterations, [values], [""],
-        xlabel="迭代次数", ylabel=ylabel, title=title,
-        filename=filename, grid=True
-    )
 
 
 # ============================================================
