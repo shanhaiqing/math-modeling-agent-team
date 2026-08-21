@@ -15,9 +15,26 @@ check_latex_compliance.py — 论文 LaTeX 合规校验器（机查版）
         提取 \bibitem/.bib 条目年份，不得晚于赛题发布日期；--contest-year=YYYY 启用，
         未提供 → WARN 提示；晚于赛题年份 → ERROR（时代错位）
         prompt 位置：.trae/agents/independent-reviewer.md B 题核查 #8 来源子项（指针至惯例一.22）
+  [P11-R] skills/reference-studio —— 参考文献双向核对 + DOI/URL 可达性审计
+        调用 citation_check.py（幽灵引用 ERROR/僵尸文献与括注提点 WARN，惯例 一.22b）
+        与 doi_audit.py scan（确定死链 ERROR/网络存疑与无出处 WARN，惯例 二.3）；
+        prompt 位置：.trae/skills/reference-studio/SKILL.md + paper-writer.md 论文结构第 9 项
+        + independent-reviewer.md B 题核查 #8 来源子项 + calibration-analyzer.md 1c
   [去AI味·六] papers/去AI味写作规范.md 第六节（惯例 二.16 承载细则）—— 内部高频短语（≥5 次）与超长段落（>300 字）自查
         （W-4 机查化，2015B 校准反馈，WARN 项；正文统计，排除附录与各浮动体/代码环境）
         prompt 位置：.trae/agents/paper-writer.md 去 AI 味自查（S4/阶段 5 自审）
+  [摘要页页码] papers/LaTeX格式规范.md §七.1 —— titlepage 环境吞页码检查
+        prompt 位置：.trae/code_templates/paper_minimal_template.tex 摘要页注释
+  [摘要单页] 官方硬约束"摘要 ≤1 页"确定性机查（2026-08-B3）——读 .aux 中
+        abstract:end 锚点页码：=1 通过；>1 ERROR；无 aux/锚点降级 WARN
+        prompt 位置：.trae/agents/paper-writer.md "篇幅与合规红线"节（摘要 ≤1 页要求）
+        + paper_minimal_template.tex 摘要页锚点注释
+  [西文/数学字体] papers/LaTeX格式规范.md §二（西文 Times / 数学 newtxmath 行）
+        prompt 位置：.trae/code_templates/paper_minimal_template.tex 字体节注释
+  [图幅] papers/LaTeX格式规范.md §四（图幅统一 0.9\textwidth，<0.8 WARN）
+        prompt 位置：.trae/code_templates/paper_minimal_template.tex 图幅注释
+  [子图引用] paper-writer S4 层 2 必查项 6 —— 正文方位引用（图X上图/中图等）提示核对
+        prompt 位置：.trae/agents/paper-writer.md S4 层 2 必查项 6
 
 同步维护条款（T-1）：新增或修改机查项时，须同步核对对应 agent prompt 是否已下达该要求。
 机查要求集不得超出 prompt 要求集（详见 .trae/papers/国赛公开惯例.md 五.2）。
@@ -349,6 +366,34 @@ def check_pages(tex_path, pdf_path):
         warn("页数", "", f"PDF 页数读取失败（{e}）——请人工核对正文页数")
 
 
+# ---------- 检查 10b：摘要单页（aux 锚点法，官方硬约束 ≤1 页，2026-08-B3） ----------
+
+ABSTRACT_END_LABEL = re.compile(r"\\newlabel\{abstract:end\}\{\{[^}]*\}\{([^}]*)\}")
+
+
+def check_abstract_onepage(tex_path):
+    """读 .aux 中 \\label{abstract:end} 的页码：=1 通过；>1 摘要溢出（ERROR）。
+    模板锚点见 paper_minimal_template.tex 摘要页注释；无 aux/无锚点降级 WARN。"""
+    aux = tex_path.with_suffix(".aux")
+    if not aux.is_file():
+        warn("摘要单页", "", "未找到 .aux——摘要 ≤1 页（官方硬约束）无法机查，编译后重跑本脚本")
+        return
+    m = ABSTRACT_END_LABEL.search(aux.read_text(encoding="utf-8", errors="ignore"))
+    if not m:
+        warn("摘要单页", "", ".aux 中无 abstract:end 锚点——请在摘要页末（\\end{titlepage} 前）加 "
+                            "\\label{abstract:end}（见 paper_minimal_template.tex 摘要页注释）")
+        return
+    page = m.group(1).strip()
+    if not page.isdigit():
+        warn("摘要单页", "", f"锚点页码 {page!r} 非阿拉伯数字——请人工核对摘要 ≤1 页")
+        return
+    if int(page) == 1:
+        ok("摘要单页", "abstract:end 页码=1，摘要未超页 ✓（官方硬约束满足）")
+    else:
+        error("摘要单页", "", f"abstract:end 落在第 {page} 页——摘要超页（官方硬约束：≤1 页），"
+                             f"须压缩摘要后重编译复查")
+
+
 # ---------- 检查 11：参考文献年份比对（A2a，惯例 一.22a） ----------
 
 YEAR_PAT = re.compile(r"(?<!\d)((?:19|20)\d{2})(?!\d)")
@@ -395,6 +440,39 @@ def check_reference_years(text, tex_path, contest_year):
                             f"——时代错位，须替换为赛题日期前的等价来源（惯例 一.22a）")
     else:
         ok("来源年份", f"{n_year} 条可提取年份的文献均 ≤ {contest_year} ✓")
+
+
+def check_reference_audit(tex_path):
+    """P11-R：调用 reference-studio 两脚本——双向核对（惯例 一.22b）+ DOI/URL
+    可达性审计（惯例 二.3）。脚本缺失/调用失败降级 WARN，不阻塞（同 P11-V 模式）。"""
+    import subprocess
+    scripts = Path(__file__).resolve().parent.parent / "skills" / "reference-studio" / "scripts"
+    targets = [
+        (scripts / "citation_check.py", [str(tex_path)], "双向核对"),
+        (scripts / "doi_audit.py", ["scan", str(tex_path)], "可达性审计"),
+    ]
+    n_err = n_warn = 0
+    for script, args, name in targets:
+        if not script.is_file():
+            warn("P11-R", script.name, f"{name}脚本不存在——跳过，按 reference-studio SKILL.md 人工核查")
+            continue
+        try:
+            proc = subprocess.run(
+                [sys.executable, str(script), *args],
+                capture_output=True, text=True, timeout=600,
+                encoding="utf-8", errors="replace")
+        except Exception as e:
+            warn("P11-R", script.name, f"{name}调用失败（{e}）——跳过，人工核查")
+            continue
+        for line in proc.stdout.splitlines():
+            if line.startswith("ERROR"):
+                error("P11-R", script.name, line.strip()[6:130])
+                n_err += 1
+            elif line.startswith("WARN"):
+                warn("P11-R", script.name, line.strip()[5:129])
+                n_warn += 1
+    if n_err == 0 and n_warn == 0:
+        ok("P11-R", "reference-studio 双向核对 + 可达性审计无异常")
 
 
 # ---------- 检查 12：内部高频短语与超长段落（C4，去AI味写作规范 第六节，W-4 机查化） ----------
@@ -467,6 +545,74 @@ def check_repetition_paragraphs(text):
         ok("AI味", f"无超过 {LONG_PARA_THRESHOLD} 字的超长段落")
 
 
+# ---------- 检查 13：摘要页页码（titlepage 吞页码，§七.1） ----------
+
+def check_abstract_pagestyle(text):
+    blocks = re.findall(r"\\begin\{titlepage\}(.*?)\\end\{titlepage\}", text, re.S)
+    if not blocks:
+        return  # 未用 titlepage 时摘要页页样式由全局 pagestyle 决定，不重复检查
+    for blk in blocks:
+        if "\\thispagestyle{plain}" not in blk:
+            error("摘要页页码", "", "titlepage 环境默认 empty 页样式会吞掉摘要页页码"
+                                  "——官方要求页码从摘要页起编，请在 \\begin{titlepage} 后加 \\thispagestyle{plain}")
+            return
+    ok("摘要页页码", "titlepage 内已声明 \\thispagestyle{plain}，摘要页起编页码 ✓")
+
+
+# ---------- 检查 14：西文/数学字体（§二，对齐国赛标杆 Times 观感） ----------
+
+def check_western_fonts(text):
+    if not re.search(r"\\setmainfont\{", text):
+        warn("西文字体", "", "未检出 \\setmainfont——西文/数字将回落 Latin Modern，"
+                            "与国赛标杆（Times 系）观感不符，请人工确认")
+    if not re.search(r"\\usepackage(\[[^\]]*\])?\{(newtxmath|unicode-math|mathptmx|newtxtext)\}", text):
+        warn("数学字体", "", "未检出 newtxmath/unicode-math/mathptmx——数学字体将回落 Computer Modern，"
+                            "偏瘦且与西文正文不同族，请人工确认")
+    if re.search(r"\\usepackage(\[[^\]]*\])?\{[^}]*amssymb[^}]*\}", text) and \
+       re.search(r"\\usepackage(\[[^\]]*\])?\{newtxmath\}", text):
+        error("数学字体", "", "amssymb 与 newtxmath 同时加载会符号冲突——newtxmath 自带 AMS 符号，删除 amssymb")
+    if not any(f["rule"] in ("西文字体", "数学字体") for f in FINDINGS):
+        ok("西文字体", "西文 Times 系 + Times 系数学字体已配置 ✓")
+
+
+# ---------- 检查 15：图幅宽度（§四：统一 0.9\textwidth，<0.8 WARN） ----------
+
+def check_figure_width(text):
+    hits = []
+    for i, line in enumerate(text.splitlines(), 1):
+        for m in re.finditer(r"\\includegraphics(?:\[([^\]]*)\])?", line):
+            opts = m.group(1) or ""
+            wm = re.search(r"width\s*=\s*([\d.]+)\s*\\textwidth", opts)
+            if not wm:
+                hits.append((i, "未显式设置 width"))
+            elif float(wm.group(1)) < 0.8:
+                hits.append((i, f"width={wm.group(1)}\\textwidth < 0.8"))
+    if hits:
+        detail = "; ".join(f"第{ln}行({msg})" for ln, msg in hits[:6])
+        more = f" 等 {len(hits)} 处" if len(hits) > 6 else ""
+        warn("图幅", "", f"图幅不符合统一标准（0.9\\textwidth，多面板可 0.95）: {detail}{more}"
+                        f"——多面板子图/特殊构图由人工裁定")
+    else:
+        ok("图幅", "全部 \\includegraphics 图幅 ≥0.8\\textwidth ✓")
+
+
+# ---------- 检查 16：子图方位引用提示（S4 层 2 必查项 6 辅助） ----------
+
+SUBFIG_REF = re.compile(r"图\s*\d+\s*[（(]?\s*[上中下左右]\s*[)）]?\s*(?:图|侧|部分)")
+
+
+def check_subfigure_refs(text):
+    hits = [(i, m.group(0)) for i, line in enumerate(text.splitlines(), 1)
+            if (m := SUBFIG_REF.search(line))]
+    if hits:
+        detail = "; ".join(f"第{ln}行'{w}'" for ln, w in hits[:5])
+        more = f" 等 {len(hits)} 处" if len(hits) > 5 else ""
+        warn("子图引用", "", f"检出对图内方位的引用: {detail}{more}"
+                            f"——请人工核对对应 figure 确有子图结构且未跨页碎裂（S4 必查项 6）")
+    else:
+        ok("子图引用", "无图内方位引用")
+
+
 # ---------- 主流程 ----------
 
 def main():
@@ -506,6 +652,7 @@ def main():
     check_abstract(text)
     check_bibliography(text, tex_path)
     check_reference_years(text, tex_path, contest_year)
+    check_reference_audit(tex_path)
     check_figures(text)
     check_avoidance(text)
     check_ai_words(text)
@@ -513,6 +660,11 @@ def main():
     check_anonymity(text)
     check_appendix_code(text, tex_path, project_dir)
     check_pages(tex_path, pdf_path)
+    check_abstract_onepage(tex_path)
+    check_abstract_pagestyle(text)
+    check_western_fonts(text)
+    check_figure_width(text)
+    check_subfigure_refs(text)
 
     n_err = sum(1 for f in FINDINGS if f["level"] == "ERROR")
     n_warn = sum(1 for f in FINDINGS if f["level"] == "WARN")

@@ -25,6 +25,10 @@
 \linespread{1.4}
 
 % ===== 字体（实战验证配置） =====
+% 西文/数字用 Times 系（对齐国赛标杆论文观感；无 Times New Roman 的 Linux
+% 环境改 \setmainfont{TeX Gyre Termes}）；数学用 newtxmath 与西文同族——
+% 不设两者时西文回落 Latin Modern、数学回落 Computer Modern，偏瘦且与国赛观感不符
+\setmainfont{Times New Roman}
 % 特殊符号（★△✓∈）归入 CJK 类经中文字体回退；其中 ✓ 各中文字体均缺字形，
 % 经 xeCJK 子分区机制单独路由到 Segoe UI Symbol（零缺字形验证）
 \xeCJKDeclareCharClass{CJK}{"2605, "25B3, "2713, "2208}
@@ -56,7 +60,8 @@
 }
 
 % ===== 宏包 =====
-\usepackage{amsmath,amssymb}
+\usepackage{amsmath}
+\usepackage{newtxmath}  % Times 系数学字体（自带 AMS 符号，禁止再加载 amssymb——会冲突）
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{float}
@@ -89,6 +94,7 @@
 % 禁止：\maketitle（会带入队名/日期）、\tableofcontents（官方明确不要目录）
 % ============================================================
 \begin{titlepage}
+\thispagestyle{plain}  % 官方：页码从摘要页起编（titlepage 默认 empty 会吞掉页码）
 \centering
 {\zihao{3}\heiti [论文标题：准确简练醒目]\par}
 \vspace{0.5cm}
@@ -107,6 +113,9 @@
 \vspace{0.3cm}
 \noindent{\heiti 关键词：}[关键词1；关键词2；关键词3；关键词4（3-5 个，含核心方法与核心指标）]
 \end{minipage}
+% 摘要单页机查锚点（2026-08-B3）：check_latex_compliance.py 读 .aux 中本标签页码，
+% 页码=1 则摘要未超页；>1 则溢出（官方硬约束：摘要 ≤1 页）。禁止删除/改名。
+\label{abstract:end}
 \end{titlepage}
 
 % ============================================================
@@ -223,9 +232,10 @@ y = f(x_1, x_2, \ldots; \theta)
 
 [核心参数 ±5\%/±10\%/±20\% 扰动，Tornado 图 + 参数敏感度排序。
 扰动范围必须与代码实现一致。]
+% 图幅宽度统一 0.9\textwidth（多面板图可至 0.95；<0.8 触发机查 WARN，见 LaTeX格式规范 §四）
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{fig_sensitivity.pdf}
+\includegraphics[width=0.9\textwidth]{fig_sensitivity.pdf}
 \caption{参数敏感度 Tornado 图}
 \label{fig:tornado}
 \end{figure}
