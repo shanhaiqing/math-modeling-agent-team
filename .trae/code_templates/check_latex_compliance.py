@@ -351,6 +351,57 @@ def check_appendix_code(text, tex_path, project_dir):
         ok("附录代码", f"附录代码通过 \\lstinputlisting/\\VerbatimInput 直接引用 {len(inputs)} 个文件 ✓")
 
 
+# ---------- 检查 9b：附录支撑材料文件列表三线表格式（2026-08-B13） ----------
+
+def check_appendix_filelist(text):
+    """检查附录 A「支撑材料文件列表」是否使用三线表（booktabs）格式。"""
+    m = re.search(r"\\appendix", text)
+    if not m:
+        return  # 无附录时跳过（结构检查已报错）
+    appendix_text = text[m.start():]
+    # 定位"支撑材料文件列表"节：允许中文节名或显式 \section{支撑材料文件列表}
+    # 节结束标志：下一个 \section 或 \end{document}
+    sec_match = re.search(
+        r"(?:\\section\{[^}]*支撑材料[^}]*\}|支撑材料文件列表)", appendix_text)
+    if not sec_match:
+        # 没有明确的"支撑材料文件列表"节——可能论文没有支撑材料，
+        # 但按规则仍需显式声明，给出 WARN
+        warn("附录文件列表", "", "未检测到「支撑材料文件列表」节；若无支撑材料也须显式声明（空表或注明'无支撑材料'）")
+        return
+    sec_start = sec_match.end()
+    next_sec = re.search(r"\\section\b|\\end\{document\}", appendix_text[sec_start:])
+    sec_end = sec_start + next_sec.start() if next_sec else len(appendix_text)
+    sec_text = appendix_text[sec_start:sec_end]
+
+    # 判定是否使用了三线表：存在 table 环境且含 \toprule + \midrule + \bottomrule（booktabs 三线）
+    has_table_env = bool(re.search(r"\\begin\{table\}", sec_text))
+    has_toprule = "\\toprule" in sec_text
+    has_midrule = "\\midrule" in sec_text
+    has_bottomrule = "\\bottomrule" in sec_text
+    is_three_line = has_table_env and has_toprule and has_midrule and has_bottomrule
+
+    if is_three_line:
+        ok("附录文件列表", "支撑材料文件列表使用三线表格式 ✓")
+        return
+
+    # 若用了 itemize/enumerate 逐条罗列，明确 ERROR
+    if re.search(r"\\begin\{itemize\}|\\begin\{enumerate\}", sec_text):
+        error("附录文件列表", "", "支撑材料文件列表使用了逐条罗列（itemize/enumerate），必须改为三线表（booktabs）格式，两列：文件名/文件说明")
+        return
+
+    # 纯文本（无任何环境）
+    if not has_table_env:
+        error("附录文件列表", "", "支撑材料文件列表未使用三线表格式，须使用 booktabs 表格（\\toprule/\\midrule/\\bottomrule）两列呈现：文件名/文件说明")
+        return
+
+    # 有 table 环境但缺 booktabs 线
+    missing = []
+    if not has_toprule: missing.append("\\toprule")
+    if not has_midrule: missing.append("\\midrule")
+    if not has_bottomrule: missing.append("\\bottomrule")
+    error("附录文件列表", "", f"支撑材料文件列表表格缺少 booktabs 线命令：{', '.join(missing)}——三线表必须包含 \\toprule/\\midrule/\\bottomrule")
+
+
 # ---------- 检查 10：页数（PDF 代理） ----------
 
 def check_pages(tex_path, pdf_path):
@@ -659,6 +710,7 @@ def main():
     check_repetition_paragraphs(text)
     check_anonymity(text)
     check_appendix_code(text, tex_path, project_dir)
+    check_appendix_filelist(text)
     check_pages(tex_path, pdf_path)
     check_abstract_onepage(tex_path)
     check_abstract_pagestyle(text)

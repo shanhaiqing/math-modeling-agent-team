@@ -291,7 +291,21 @@ y = f(x_1, x_2, \ldots; \theta)
 
 \section{支撑材料文件列表}
 
-[列出随论文提交的支撑材料文件及用途；无则注明"本论文没有支撑材料"。]
+% 必须使用三线表（booktabs），两列：文件名 / 文件说明
+% 按"代码→结果→其他"分组或按文件类别分组，禁止逐条罗列
+\begin{table}[H]
+\centering
+\caption{支撑材料文件列表}
+\begin{tabular}{p{5cm}p{9cm}}
+\toprule
+\centering 文件名 & \centering 文件说明 \\
+\midrule
+代码 & [数量] 个 .py 文件（入口是 main.py / problem1_solver.py，...） \\
+结果 & [概述：CSV 结果文件 + 敏感性图 + 可视化图表] \\
+[其他文件.pdf] & [文件说明，如"AI 工具使用情况说明"] \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{完整可运行源程序代码}
 
