@@ -8,5 +8,6 @@
   "stage_timestamps": {},
   "machine_checks": {},
   "blocked_history": [],
-  "redline_results": {}
+  "redline_results": {},
+  "subagent_ids": {}
 }

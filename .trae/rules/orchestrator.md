@@ -49,10 +49,13 @@ HG0_INTAKE → MODELING → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
 | `machine_checks` | `{check名: {time, result, report_path}}` | 每次机查执行后追加 |
 | `blocked_history` | 数组（触发者/原因/回退对象/结果/时间） | BLOCKED 每次触发 |
 | `redline_results` | `{agent: {pass, missing[], time}}` | 红线核验后 |
+| `subagent_ids` | `{subagent_type: agent_id}` | subagent 调用返回含 agent ID 时登记（供 resume 复用） |
 
 禁止以"文件是否存在"反推状态——状态一律以本文件为准；本文件与实际产物冲突时，以实际产物为准并当场修正本文件。
 
 **断点接管协议（会话中断恢复）**：编排器新会话启动时，先检查 `{项目根}/pipeline_state.json` 是否存在——存在则读取 `current_stage`/`passed_gates`/`fix_rounds_used`/`machine_checks` 接管至对应状态继续编排，**禁止重跑已过门阶段**；状态与实际产物冲突时按上条当场修正后继续。训练模式下接管继续属全自动推进，不视为中途暂停。
+
+**subagent 上下文接力协议（resume 辅助机制）**：subagent 每次调用无久存对话状态，上下文接力遵循 `AGENTS.md` "handoff 契约"（自包含 prompt + 上游产出清单，一处定义），编排器不得假设同一 subagent 连续两次调用共享对话上下文。resume 仅作可选加速手段、不作主机制：条件触发——若某次 subagent 调用返回中回传 agent ID，则编排器须立即将其登记至 `pipeline_state.json` 的 `subagent_ids` 字段，供后续对该实例 `resume` 复用；未回传 ID 时禁止依赖 resume 续接上下文。
 
 ## 4. 阶段转换协议（机查收归编排器）
 
