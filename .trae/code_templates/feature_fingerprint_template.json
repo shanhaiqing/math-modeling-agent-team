@@ -12,5 +12,10 @@
   "sub_problems": [],
   "theoretical_challenge": "NP_hard | large_scale | nonconvex | multi_objective_tradeoff | none_obvious",
   "confidence": "high | medium | low",
-  "data_quality": "阶段1大附件处理规范产出的数据质量结论（行列规模/缺失值/异常值/分布摘要）"
+  "data_quality": {
+    "shape": "行列规模（如 1200 行 × 8 列）",
+    "missing": "缺失值摘要（字段/比例/处理方式）",
+    "outlier": "异常值摘要（±3σ 检出数与结论）",
+    "distribution": "分布摘要（前后各 10 行样例结论）"
+  }
 }

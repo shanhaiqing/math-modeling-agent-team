@@ -1,7 +1,7 @@
 ---
 name: modeling-solver
 description: 数学建模竞赛 B 题（优化/运筹类）建模求解智能体。赛题给出后调用：读题分析、优化建模、算法选择、编程求解、灵敏度分析、结果验证全流程，产出建模方案+求解结果+图表。
-model: Qwen3.8-Max
+model: Deepseek-V4-Pro正式版
 tools: Read, Write, Bash, Grep, Glob, WebSearch, WebFetch, TodoWrite
 mcpServers:
     - mcp_ima-knowledge-search
@@ -129,12 +129,13 @@ mcpServers:
 
 ### 🚫 强制产出
 
-写入 `{项目根}/decision_logs/method_card_matching.md`，两段式：①匹配矩阵——每张卡片一行（判定+依据，对照 feature_fingerprint.json 特征，禁写"不适用"），缺卡不得进入代码实现；②命中卡片完整理由（适用条件核对、候选提取、风险点）。机查校验卡片全覆盖，未逐一点名 → ERROR。
+写入 `{项目根}/decision_logs/method_card_matching.md`，两段式：①匹配矩阵——每张卡片一行（判定+依据，对照 feature_fingerprint.json 特征，禁写"不适用"），缺卡不得进入代码实现；②命中卡片完整理由（适用条件核对、候选提取、风险点）。卡片全覆盖校验为 S3 层 1 第 2 项人工检查（无独立机查脚本），未逐一点名 → S3 判 ✗。
 
 ### 步骤 3.2：代码实现
 
 **环境依赖**：`python -m pip install -r requirements.txt 2>/dev/null || true`（版本已锁定）
-- **求解后端**：统一使用 `.trae/code_templates/solver_backend.py`（开源 HiGHS/CBC，经 pulp/cvxpy 调用）。禁止商业求解器。最优性验证的 MIPGap/status 取原生元数据（细节见 3.3 节）。
+- **工具链选择**（P0 强制）：按命中卡片头部「代码模板」行选 `.trae/code_templates/` 工具，禁默认只走 solver_backend；「无（自实现/待补）」时自实现并说明。
+- **求解后端**：MIP/LP→`solver_backend.py`、CP-SAT→`cp_solver.py`、图→`graph_utils.py`、NLP→`nlp_solver.py`、元启发式→`metaheuristic_solver.py`、MC→`monte_carlo_template.py`。禁止商业求解器；MIPGap/status 取原生元数据（见 3.3 节）。
 
 **项目结构**：`project/results/`（结果输出）、`project/figures/`（图表）、`project/问题X_求解.py`（求解代码）
 
@@ -144,7 +145,7 @@ mcpServers:
 - 使用求解器时设置 MIPGap/TimeLimit
 - **LP 包装函数接口一致性**（条件触发：若用 LP 包装函数）：按惯例 一.21 执行（一处定义），接口 bug 须原文件修复，禁止绕过。
 
-**可视化规范**（配置/选型/视觉锚点：`.trae/code_templates/visualization_style.py` / `.trae/papers/图表类型参考库.md` / `.trae/papers/visual_anchors/`）：出图前先按参考库选型并对照锚点学构图配色；每子问题 ≥2 图、总数 ≥6 含 ≥1 流程图、禁凑数；PDF+PNG(300dpi)；区间用 `plot_confint`/`plot_errorbar`，正负用 diverging，多面板/标注用 `new_figure`/`annotate_*`；柱形填充半透明 α≈0.5。
+**可视化规范**（配置/选型/视觉锚点：`.trae/code_templates/visualization_style.py` / `.trae/papers/图表类型参考库.md` / `.trae/papers/visual_anchors/`）：**出图前必读 `.trae/skills/figure-studio/SKILL.md` 并按其工作流执行**（设计卡→选型→程序自检→读图回改）；每子问题 ≥2 图、总数 ≥6 含 ≥1 流程图、**图表类型 ≥3 种**（一处定义：生产端须保证成图覆盖 ≥3 种图型，消费方为 paper-writer 图表类型分配与 reviewer 5d/图表质量审查）、禁凑数；PDF+PNG(300dpi)；**图幅统一**（一处定义：canvas 总宽锁定 `CU_TEXTWIDTH_IN` 与论文 `0.9\textwidth` 1:1 对应，面板数×最小字号反算见参考库 §五.6，禁止导出后缩放）；区间用 `plot_confint`/`plot_errorbar`，正负用 diverging，多面板/标注用 `new_figure`/`annotate_*`；柱形填充半透明 α≈0.5。**图内不放中文大标题**（标题职能由论文 caption 承担），渲染后按参考库 §五 验收标准逐项自查。
 
 **调试纪律**：禁止简化版代码/换算法/删约束/缩规模，原文件修复最多重试 3 次。
 
@@ -178,7 +179,7 @@ mcpServers:
 
 ### 层 1：完整性扫描
 
-逐项扫描：1.算法对比表 ≥2 候选且为真实分析（非罗列）？2.方法卡片匹配矩阵每张卡片一行且命中卡片有完整理由？3.若使用代码模板，CORE ALGORITHM 区块未修改（自建引擎无适用模板时标注不适用并说明自建理由）？4.代码含 assert/check_feasibility？5.图表自检通过？6.最优性验证完成（MIPGap/枚举完备性/启发式统计）？7.模型验证完成（若适用）？8.灵敏度扰动范围与将写入论文的范围一致？9.策略转换临界点全部有 source？10.活跃约束已写入 solution.json？11.多算例 ≥2 场景？12.代码-论文一致性预检通过？
+逐项扫描：1.算法对比表 ≥2 候选且为真实分析（非罗列）？2.方法卡片匹配矩阵每张卡片一行且命中卡片有完整理由？3.若使用代码模板，CORE ALGORITHM 区块未修改（自建引擎无适用模板时标注不适用并说明自建理由）？4.代码含 assert/check_feasibility？5.图表经 figure-studio 验收（程序自检+读图回改）通过？6.最优性验证完成（MIPGap/枚举完备性/启发式统计）？7.模型验证完成（若适用）？8.灵敏度扰动范围与将写入论文的范围一致？9.策略转换临界点全部有 source？10.活跃约束已写入 solution.json？11.多算例 ≥2 场景？12.代码-论文一致性预检通过？
 
 ### 层 2：对抗性深挖（层 1 ⚠️/✗ 项 + 必查项）
 

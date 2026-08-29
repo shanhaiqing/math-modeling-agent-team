@@ -7,6 +7,7 @@
   "fix_rounds_used": {"R1": false, "R2": false, "R3": false},
   "stage_timestamps": {},
   "machine_checks": {},
+  "isolation_signatures": [],
   "blocked_history": [],
   "redline_results": {},
   "subagent_ids": {}

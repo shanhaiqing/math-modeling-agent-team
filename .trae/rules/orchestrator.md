@@ -47,6 +47,7 @@ HG0_INTAKE → MODELING → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
 | `fix_rounds_used` | `{R1: bool, R2: bool, R3: bool}` | 每轮修复后更新 |
 | `stage_timestamps` | `{阶段名: {start, end}}` | 阶段起止（**耗时记录唯一载体**） |
 | `machine_checks` | `{check名: {time, result, report_path}}` | 每次机查执行后追加 |
+| `isolation_signatures` | 数组（特征串，≥3 条） | 首次泄漏审计前从隔离区提取物现场提取后登记（签名规程见 §8 第 4 步）；**顶层字段，不并入 machine_checks 条目结构** |
 | `blocked_history` | 数组（触发者/原因/回退对象/结果/时间） | BLOCKED 每次触发 |
 | `redline_results` | `{agent: {pass, missing[], time}}` | 红线核验后 |
 | `subagent_ids` | `{subagent_type: agent_id}` | subagent 调用返回含 agent ID 时登记（供 resume 复用） |
@@ -71,6 +72,7 @@ HG0_INTAKE → MODELING → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
 | COMPLIANCE（打包） | `package_support_materials.py`（只收代码+数据+图表，终扫未过不得交付，2026-08-B1） | `packaging_report.json` |
 | 任意阶段转换（工作区卫生） | `check_workspace_hygiene.py`（扫描项目根设计外垃圾，2026-08-B2） | `workspace_hygiene_report.json` |
 | 任意共享文件落地后 | `check_prompt_budget.py` | 终端输出即可 |
+| 绘图代码落地后（`visualization_style.py` / `figure-studio/`） | `check_viz_tests.py`（跑 4 个 `test_*` 回归测试，任一失败 ERROR） | 终端输出即可 |
 
 WARN 的裁定权维持下游 agent 制度（惯例 五.1）不变——编排器只保证**机查被执行、报告存在、ERROR 清零**，不越权裁定 WARN。
 
@@ -84,7 +86,7 @@ subagent 返回后，编排器按 `AGENTS.md` 质量红线节逐项核验（产�
 
 ## 6. HG 退回协议与重试
 
-- **HG 退回**：退回对象 = 本阶段责任 subagent；反馈载体 = 在原 handoff_notes 追加"HG退回反馈"节（日期 + 退回理由 + 整改要求）；**轮次不重置**（修复回路轮次计数继续）；退回重跑后重新过同一 HG 门。
+- **HG 退回**：退回对象 = 本阶段责任 subagent；反馈载体 = 在原 handoff_notes 追加"HG退回反馈"节（日期 + 退回理由 + 整改要求）；退回重跑后重新过同一 HG 门。**轮次衔接**：HG1/HG2 退回时修复回路尚未开始，修复回路轮次按初始状态处理；若退回发生在修复回路已消耗轮次之后，修复回路轮次计数不重置——**禁止借退回重置 R1/R2 上限**。
 - **重试**：subagent 崩溃或强制产出缺失 → 重试 ≤2 次（同一调用 prompt + 补充失败信息）；仍失败：比赛模式通知用户，训练模式记录后继续。
 
 ## 7. BLOCKED 回退协议
@@ -99,7 +101,7 @@ subagent 返回后，编排器按 `AGENTS.md` 质量红线节逐项核验（产�
 2. **圈定本轮可共享材料清单**：按 `AGENTS.md` 信息隔离节白名单，逐个列出本轮可读文件的具体路径（含校准产出物【可共享节】位置）；清单作为 handoff 契约第五项写入每个复盘调用 prompt。
 3. **同一消息内并发发起四个复盘 Task**（并行兼容性矩阵白名单），每个调用 prompt 显式下发该清单并声明"清单外一律禁读"。白名单材料均为复盘前已固化产物，四任务并行无读写冲突。
 4. 收齐后、汇总前，**重跑 `check_isolation.py`（复盘后内容泄漏审计）**——此时 retro_*.md 已生成，脚本检查 2 的非授权产出扫描才真正生效；ERROR 清零方可汇总，报告更新 `isolation_check_report.json` 并登记 `machine_checks`。
-   **签名规程（签名缺失 = 审计未执行）**：每次调用必须携带 `--signature`。特征串由编排器在首次泄漏审计前从 `decision_logs/_quarantine/` 提取物中现场提取 ≥3 条高区分度片段（参照论文标题短语 / 专有数值 / 特有术语，每条 ≥10 字符，禁止取自赛题本身公开内容），登记 `pipeline_state.json` 的 `machine_checks.isolation_signatures` 后供 CALIBRATION→RETRO 与复盘后两次审计复用；未登记签名而运行的审计记录视为无效，须补签名重跑。
+   **签名规程（签名缺失 = 审计未执行）**：每次调用必须携带 `--signature`。特征串由编排器在首次泄漏审计前从 `decision_logs/_quarantine/` 提取物中现场提取 ≥3 条高区分度片段（参照论文标题短语 / 专有数值 / 特有术语，每条 ≥10 字符，禁止取自赛题本身公开内容），登记 `pipeline_state.json` 顶层字段 `isolation_signatures`（见 §3 字段表，不并入 machine_checks 条目结构）后供 CALIBRATION→RETRO 与复盘后两次审计复用；未登记签名而运行的审计记录视为无效，须补签名重跑。
 5. 串行汇总 retrospective.md；含参照论文信息的节按惯例 C-1 分层标注。
 6. 汇总总审批清单 → 提交用户逐项审批 → 审批通过后按铁律 6 执行写入 + 回读 + **git commit（含批次号）**。
 

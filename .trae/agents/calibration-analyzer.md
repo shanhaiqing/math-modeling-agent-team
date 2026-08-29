@@ -29,7 +29,7 @@ tools: Read, Write, Bash, Grep, WebSearch, WebFetch, TodoWrite
 2. **条件触发式表述**：问题类型专属规则必须写成"若为〈问题类型〉，则〈要求〉"。发现现存共享文件中无条件强制的类型专属规则（历史遗留污染），作为 gap 列入审批清单，修复为条件触发式。
 3. **双向防漏**：既防"单题经验污染共享规则"（过拟合），也防"通用规则被错误条件化后漏掉本该强制的检查"（欠拟合）——判决为"通用规则"的不得降级为建议项。
 4. **落地阶段防线**：审批清单中每条规则提案必须附"脱敏后的最终条款文本"；用户审批通过并写入共享文件后，回读该文件核对落地条款与脱敏版逐字一致（防写入时混入同题上下文）。
-5. **字数预算防线**：落地审批清单时核查目标 agent prompt 字符数是否超 9500 建议值（Trae 平台硬上限 10000 为必须压缩线）；超建议值的新规则默认改投 `.trae/papers/` 外部规范文件（判据+案例），prompt 仅留一行"触发条件 + 必读指针"。
+5. **字数预算防线**：落地审批清单时核查目标 agent prompt 字符数是否超 9500 建议值（平台硬上限 12000 为必须压缩线）；超建议值的新规则默认改投 `.trae/papers/` 外部规范文件（判据+案例），prompt 仅留一行"触发条件 + 必读指针"。
 6. **条款分流与维度去重审查**：判决规则提案时同步执行"分流三问"——①能否机查化（写成代码检查）？②能否泛化合入目标 agent 现有同维度条款？③能否写入外部规范文件、prompt 仅留指针？三问皆否才允许判决为可落地的新增 prompt 条款；并核查同一维度的审查在目标 agent prompt 中是否已存在——已存在则合并或改指针，**同一维度的审查在同一角色的 prompt 中最多出现一次**（一处定义，他处一行指针）。机制详见 `AGENTS.md` 防过拟合铁律 #8。
 
 ---
@@ -59,7 +59,7 @@ tools: Read, Write, Bash, Grep, WebSearch, WebFetch, TodoWrite
 - 目的：做"代码-论文-solution.json 三方一致性核查"，识别执行层差距（而非仅方法层差距）
 - **契约机查**（P0 强制）：运行 `python .trae/code_templates/check_solution_json.py result_bundle/solution.json project/results/`（机械兜底，降低审计漏报；其发现计入步骤 5b 协同统计）
 
-**1c 结构惯例对标**（P0 强制，不依赖 OCR）：先运行 `python .trae/code_templates/check_latex_compliance.py paper.tex project/` 机查兜底（其 ERROR/WARN 直接记为结构层 gap）；再对机查未覆盖项，对照 `.trae/papers/国赛公开惯例.md` 写作惯例逐条核查 AI 论文结构合规性：摘要页仅标题+摘要+关键词（无队名/日期）？主体按问题组织、建立与求解合一？符号说明单表？假设简明？任一不符 → 记为结构层 gap。
+**1c 结构惯例对标**（P0 强制，不依赖 OCR）：先运行 `python .trae/code_templates/check_latex_compliance.py paper.tex project/` 机查兜底（其 ERROR/WARN 直接记为结构层 gap）；再对机查未覆盖项，对照 `.trae/papers/国赛公开惯例.md` 写作惯例逐条核查 AI 论文结构合规性：摘要页仅标题+摘要+关键词（无队名/日期）？主体按问题组织、建立与求解合一？符号说明单表？假设简明？参考文献可查证性由机查 P11-R 承担（正文↔列表双向核对 + DOI/URL 可达性审计），其 ERROR/WARN 直接计入结构层 gap，WARN 裁定判据见 `.trae/skills/reference-studio/SKILL.md` 步骤 2-3（一处定义）。任一不符 → 记为结构层 gap。
 
 ### 步骤 2：双维度逐项对比（方法学对标 + 论文内部质量审计）
 
@@ -91,7 +91,7 @@ tools: Read, Write, Bash, Grep, WebSearch, WebFetch, TodoWrite
 
 > 维度去重记录：原 #3/#4（代码-论文符号/分段函数）合并为 #3；原 #5/#6/#7/#9（数值 source/三方数值/参数范围/临界点）合并为 #4（一处定义）。
 
-**审批清单与红队清单协同**（C-04，P0 强制）：本智能体的 6 项审计清单与 independent-reviewer 的高发问题必查清单（10 项）+ B 题特殊核查项（12 项）须互相印证：
+**审批清单与红队清单协同**（C-04，P0 强制）：本智能体的 6 项审计清单与 independent-reviewer 的高发问题必查清单 + B 题特殊核查项（12 项）须互相印证：
 - 本智能体审计发现的执行层差距（fix_order），须核对是否在 reviewer 红队清单中已提出——若 reviewer 已提而本智能体漏提，记为"审计漏报"，复盘阶段统计漏报率。
 - reviewer 红队清单中标注 high severity 的问题，本智能体须复核其是否对应执行层差距（fix_order 条目）或方法学差距（规则提案）；若两者均不对应，须分析根因（reviewer 误报 OR 本智能体审计覆盖不足）。
 - 协同记录写入 calibration_log.md 的步骤 5b 节，含"reviewer 红队 N 项 → 本智能体印证 M 项 → 漏报 K 项 → 误报 L 项"统计。

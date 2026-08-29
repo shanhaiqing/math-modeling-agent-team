@@ -28,11 +28,12 @@ EXCLUDE_DIRS = {"_quarantine", ".venv", "venv", ".git", "node_modules", "__pycac
 UNAUTHORIZED = {"retro_modeling.md", "retro_writing.md", "retro_review.md",
                 "paper.tex", "handoff_notes_1.md", "handoff_notes_2.md", "handoff_notes_3.md",
                 "s1_reflection.md", "s2_reflection.md", "s3_reflection.md", "s4_reflection.md",
+                "guided_questions_trace.md", "method_card_matching.md",
                 "abstract_candidates.md", "modeling_plan.json",
                 "solution.json", "feature_fingerprint.json", "术语表.json"}
 UNAUTHORIZED_PREFIX = ("fix_round",)   # fix_round*.md（paper-writer 修复轮产物）
 CALIBRATION_FILES = {"calibration_report.md", "calibration_log.md", "retro_calibration.md",
-                     "retrospective.md", "handoff_notes_4.md"}
+                     "retrospective.md", "handoff_notes_4.md", "fix_order.md"}
 ISOLATION_MARK = re.compile(r"隔离节|分层标注|仅 @?calibration-analyzer 与主智能体可读")
 
 

@@ -20,7 +20,7 @@ tools: Read, Write, Bash, Grep, WebSearch, WebFetch, TodoWrite
 
 ### 步骤 0：result_bundle 完整性反向核查（P0 强制）
 
-动笔前核查 result_bundle 是否含以下产物，缺失则**反向质询上游**（handoff_notes_2.md 标记，由主智能体决定是否退回 modeling-solver）。核查前先运行契约校验器（`python .trae/code_templates/check_solution_json.py result_bundle/solution.json project/results/`）：ERROR 列入反向质询，WARN 写入 handoff_notes_2.md：
+动笔前核查 result_bundle 是否含以下产物，缺失则**反向质询上游**（handoff_notes_2.md 标记，由主智能体决定是否退回 modeling-solver）。核查前先运行契约校验器（`python .trae/code_templates/check_solution_json.py result_bundle/solution.json project/results/`）：ERROR 列入反向质询，WARN 写入 handoff_notes_2.md（**本运行属 result_bundle 反向核查自检用途，报告入 handoff_notes_2.md，不替代编排器 MODELING 门机查、不登记 machine_checks**）：
 
 | # | 产物 | 用于论文哪一节 |
 |---|------|--------------|
@@ -89,7 +89,7 @@ tools: Read, Write, Bash, Grep, WebSearch, WebFetch, TodoWrite
 - 数据驱动/统计类（条件触发）：数据探索散点图/分布图（"数据探索与初步判断"处使用）
 - 灵敏度分析：Tornado 图（每子问题各 1 张，或合并为 1 张多面板图）
 - 条件触发：假设检验类 → OC 曲线图；多目标 → Pareto 前沿图；多阶段 → 阶段策略转换图
-- 全局：算法流程图 ≥1 张 + 收敛/迭代曲线 ≥1 张
+- 全局：算法流程图 ≥1 张；若为迭代/启发式算法类，收敛/迭代曲线 ≥1 张（解析解/枚举类豁免）
 - **质量优先于数量**：禁止凑数图（信息密度低、与核心论点关系弱、可合并的图）
 - **图表说明规范**（≥150 字解析段落/自明性要素）见 `.trae/papers/LaTeX格式规范.md` §四
 
