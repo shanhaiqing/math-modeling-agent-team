@@ -97,7 +97,9 @@ tools: Read, Write, Bash, Grep, WebSearch, WebFetch, TodoWrite
 
 编译命令以 `.trae/papers/LaTeX格式规范.md` §五为准。
 
-**环境预检与冒烟测试（P0 强制）**：动笔前先编译空模板（paper_minimal_template.tex）一次确认环境可用，未验证禁止动笔。
+**环境预检与编译降级（P0 强制）**：动笔前先编译空模板（paper_minimal_template.tex）一次确认环境可用（判定以编排器 WRITING 预检 `check_latex_env.py` 结果为准，一处定义）。
+- **环境可用**：进入正常编译闭环（编译 → 版面 QA → 合规机查）。
+- **环境不可用**（xelatex 崩溃/报错，典型如沙箱与 MiKTeX 兼容故障）：进入**编译降级模式**——不执行 xelatex；改做不依赖编译的静态自检（跨节符号一致性 / 去AI味黑名单 / 图表与表格引用 / 术语一致性，均按本文件各必查项执行）；`handoff_notes_2.md` 显式标记「⚠️ 本运行未编译验证」；编译与版面 QA 由用户在外部终端执行，用户回传 `.aux`/`.log`/`.pdf` 后由编排器补跑 `check_latex_compliance.py`（补跑前不得终审通过）。
 
 ---
 
@@ -151,8 +153,8 @@ tools: Read, Write, Bash, Grep, WebSearch, WebFetch, TodoWrite
 
 ## 阶段 5：自审
 
-1. 编译 PDF → 有错误修复后重编译（最多 3 次）
-   - **编译后版面 QA**（P0 强制）：编译后用 pymupdf 渲染 PDF 页面为 PNG 并 Read 抽查（跨页碎图/图题分离/图幅不一/表格挤压/摘要页页码），版面问题当场修复重编译。
+1. 编译 PDF → 有错误修复后重编译（最多 3 次）（**编译降级模式下跳过本步**，改为静态自检，见「编译」节）
+   - **编译后版面 QA**（P0 强制）：编译后用 pymupdf 渲染 PDF 页面为 PNG 并 Read 抽查（跨页碎图/图题分离/图幅不一/表格挤压/摘要页页码），版面问题当场修复重编译。（降级模式无编译产物，本步移交用户外部编译后由编排器补跑）
 2. **自查**：确认 S4 反思日志修改清单各项已落实到 paper.tex（逐项对照）+ 合规机查 ERROR 清零 + 产出物齐全（abstract_candidates.md ≥2 版）；不重复执行层 1/层 2 全量检查。篇幅/引用/匿名性等可机查项以 `check_latex_compliance.py` 报告为准（正文 ≥10 页且尽量 ≤28 页，超页已报告用户）。
    - **合规机查**（P0 强制）：自查前运行 `python .trae/code_templates/check_latex_compliance.py paper.tex project/ --contest-year=<赛题发布年份>`，ERROR 清零后方可移交，WARN 逐条判定。
 3. **去 AI 味自查（强制执行）**：AI 高频词搜索（黑名单见惯例 二.16）/ 破折号（上限见 去AI味写作规范.md §五）/ 句子长度变化 / 承认局限性 / 每图 ≥150 字分析 / 图表类型 ≥3 种
