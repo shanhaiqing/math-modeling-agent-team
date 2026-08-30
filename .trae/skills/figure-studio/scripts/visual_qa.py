@@ -22,6 +22,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+from matplotlib import text as mtext
 
 
 # ============================================================
@@ -43,8 +44,8 @@ def _check_cjk_glyphs(fig):
     available = {f.name for f in fm.fontManager.ttflist}
     if not (cjk_fonts & available):
         # 全局无 CJK 字体：图内任何中文都是方框
-        texts = [t for t in fig.findobj(match=lambda x: hasattr(x, 'get_text'))
-                 if callable(getattr(t, 'get_text', None)) and any('一' <= c <= '鿿' for c in t.get_text())]
+        texts = [t for t in fig.findobj(match=lambda x: isinstance(x, mtext.Text))
+                 if any('一' <= c <= '鿿' for c in t.get_text())]
         if texts:
             problems.append(("ERROR", "缺字形",
                              f"系统无 CJK 字体但图内含 {len(texts)} 处中文文本——全部渲染为方框，须先装中文字体"))
@@ -55,9 +56,10 @@ def _iter_texts_with_bbox(fig):
     """产出 (文本对象, 显示坐标 bbox)。渲染前需要先有 renderer。"""
     fig.canvas.draw()
     renderer = fig.canvas.get_renderer()
-    for t in fig.findobj(match=lambda x: hasattr(x, 'get_window_extent')):
-        if not callable(getattr(t, 'get_text', None)):
-            continue
+    for t in fig.findobj(match=lambda x: isinstance(x, mtext.Text)):
+        ax_ = getattr(t, 'axes', None)
+        if ax_ is not None and getattr(ax_, 'zaxis', None) is not None:
+            continue  # mplot3d 轴上文本的 window extent 不可靠（误报裁切），跳过
         s = t.get_text()
         if not s or not s.strip():
             continue
@@ -71,8 +73,13 @@ def _iter_texts_with_bbox(fig):
 def _check_text_clipping(fig):
     """文本超出图幅/坐标区 → 裁切（ERROR 级：交付后缺字）。"""
     problems = []
+    if any(getattr(a, 'zaxis', None) is not None for a in fig.axes):
+        return problems  # mplot3d 全局文本 bbox 不可靠（漂移量不定），裁切检查仅覆盖 2D 图
     W, H = fig.canvas.get_width_height()
     for t, s, bb in _iter_texts_with_bbox(fig):
+        # 数据坐标系/特殊变换下 bbox 可能异常巨大：超图幅 8 倍视为变换不可靠跳过（防误报）
+        if bb.x0 < -8 * W or bb.x1 > 8 * W or bb.y0 < -8 * H or bb.y1 > 8 * H:
+            continue
         if bb.x1 < -2 or bb.y1 < -2 or bb.x0 > W + 2 or bb.y0 > H + 2:
             problems.append(("ERROR", "文本裁切",
                              f"文本 '{s[:14]}' 完全越出图幅（bbox=({bb.x0:.0f},{bb.y0:.0f},{bb.x1:.0f},{bb.y1:.0f})，图幅 {W}x{H}）"))
@@ -86,6 +93,8 @@ def _check_tick_overlap(fig):
     """刻度标签互相重叠（WARN：阅读困难）。"""
     problems = []
     for ax in fig.axes:
+        if getattr(ax, 'zaxis', None) is not None:
+            continue  # mplot3d 刻度 bbox 不可靠，跳过
         for labels, axis_name in ((ax.get_xticklabels(), 'x'), (ax.get_yticklabels(), 'y')):
             boxes = []
             fig.canvas.draw()
@@ -114,11 +123,45 @@ def _check_tick_overlap(fig):
     return problems
 
 
+def _check_grayscale_legibility(fig):
+    """灰度分离度启发（WARN）：离散分类图的主题色两两灰度差不足 → 色盲/灰阶打印难区分。
+    免检情形：主题色 <2（无多色对比需求）或 >8（疑似连续色板，如热力/3D 响应面）。"""
+    from matplotlib.colors import to_rgba
+    problems = []
+    counter = {}
+    for obj in fig.findobj():
+        for attr in ("get_facecolor", "get_edgecolor"):
+            getter = getattr(obj, attr, None)
+            if not callable(getter):
+                continue
+            try:
+                c = to_rgba(getter())
+            except Exception:
+                continue
+            if len(c) == 4 and c[3] > 0.5:
+                key = (round(c[0], 2), round(c[1], 2), round(c[2], 2))
+                counter[key] = counter.get(key, 0) + 1
+    themed = [k for k, _ in sorted(counter.items(), key=lambda kv: -kv[1])[:10]
+              if 0.15 < sum(k) < 2.6]   # 排除近白背景/近黑文字
+    if len(themed) < 2 or len(themed) > 8:
+        return problems
+    grays = [0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2] for c in themed]
+    for i in range(len(grays)):
+        for j in range(i + 1, len(grays)):
+            if abs(grays[i] - grays[j]) < 0.15:
+                problems.append(("WARN", "灰阶难区分",
+                                 f"主题色 {themed[i]} 与 {themed[j]} 灰度差 {abs(grays[i] - grays[j]):.2f} < 0.15，"
+                                 "色盲/灰阶打印下难区分——换 OKABE_ITO 色板或加标记/图案"))
+                return problems
+    return problems
+
+
 def audit_figure(fig):
     """对 matplotlib Figure 做程序自检，返回 [(级别, 规则, 说明)]。打印并返回。"""
     problems = []
     problems += _check_cjk_glyphs(fig)
     try:
+        problems += _check_grayscale_legibility(fig)
         problems += _check_text_clipping(fig)
         problems += _check_tick_overlap(fig)
     except Exception as e:  # 渲染后端异常不阻塞出图

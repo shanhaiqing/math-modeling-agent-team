@@ -52,6 +52,8 @@ import seaborn as sns
 _SERIF_CJK_CANDIDATES = ['SimSun', 'Noto Serif CJK SC', 'FangSong', 'KaiTi',
                          'Arial Unicode MS']
 _SANS_CJK_CANDIDATES = ['Microsoft YaHei', 'SimHei', 'WenQuanYi Micro Hei']
+# CJK 字体候选全集（一处定义，供 visual_qa.py 等复用，避免多处硬编码不一致）
+CJK_FONT_SET = set(_SERIF_CJK_CANDIDATES) | set(_SANS_CJK_CANDIDATES)
 _available_fonts = {f.name for f in fm.fontManager.ttflist}
 _cjk_font = None
 _cjk_family = 'sans-serif'
@@ -73,7 +75,7 @@ if _cjk_font:
     print(f"[可视化] 检测到中文字体: {_cjk_font}（{_cjk_family} 族）")
 else:
     plt.rcParams['font.sans-serif'] = ['DejaVu Sans']
-    print("[可视化] ⚠️ 未检测到中文字体，图表中文可能显示为方框")
+    print("[可视化] [警告] 未检测到中文字体，图表中文可能显示为方框")
 
 plt.rcParams['axes.unicode_minus'] = False
 # 修订建议 #10：数学字体固定 DejaVu 系，避免负号/数学符号缺字形渲染为方框
@@ -82,10 +84,14 @@ plt.rcParams['mathtext.fontset'] = 'dejavusans'
 plt.rcParams['pdf.fonttype'] = 42
 plt.rcParams['ps.fonttype'] = 42
 
-# 图尺寸（单栏/双栏）
-SINGLE_COLUMN = (6, 4)    # 单栏图
-DOUBLE_COLUMN = (8, 5)    # 双栏大图
-SQUARE = (5, 5)           # 正方形图
+# 图幅统一锚点（2026-08 批次，一处定义：出图层与论文排版层 1:1 对应）
+# 论文端：\includegraphics[width=0.9\textwidth]（《LaTeX格式规范》§四）
+# 出图端：canvas 总宽锁定 CU_TEXTWIDTH_IN（A4 单栏 0.9\textwidth ≈ 14.6cm ≈ 5.75in）。
+# matplotlib 字号是图形绝对单位：canvas 宽与最终展示宽 1:1 时字号不失真；
+# 两者不一致时缩放即失真——禁止导出后再用 includegraphics 缩放补救。
+CU_TEXTWIDTH_IN = 5.75                     # A4 单栏展示宽（0.9\textwidth ≈ 14.6cm）
+SINGLE_COLUMN = (CU_TEXTWIDTH_IN, 3.6)     # 单面板占满栏宽（宽高比 8:5）
+# 多面板图幅一律由 new_figure 按面板数自动计算（总宽恒为 CU_TEXTWIDTH_IN），不另设常量
 
 # 颜色方案（低饱和学术色板，Okabe-Ito 降饱和变体；禁用 tab10 默认高饱和）
 COLORS = {
@@ -96,6 +102,12 @@ COLORS = {
     "palette": ["#4C78A8", "#E8927C", "#7FB89B", "#B48EAD",
                 "#D4A94E", "#8C6D5C", "#6FA8DC", "#9AA0A6"]
 }
+
+# 色盲安全 8 色标准集（调研入库 2026-08）：Okabe-Ito/Wong 全色觉障碍可区分标准色。
+# 离散分类需要"任意色觉障碍下均可区分"（尤其灰阶打印场景）时优先用本集；
+# COLORS['palette'] 为降饱和学术变体，两者并存不冲突。
+OKABE_ITO = ['#E69F00', '#56B4E9', '#009E73', '#F0E442',
+             '#0072B2', '#D55E00', '#CC79A7', '#000000']
 
 # 线型
 LINE_STYLES = ['-', '--', '-.', ':']
@@ -248,27 +260,47 @@ def save_figure(fig, filename: str, formats: list = None):
         print(f"[完成] 图表已保存: {path}")
 
 
-def new_figure(n_panels=2, figsize=None, sharex=False, sharey=False):
+def new_figure(n_panels=2, figsize=None, layout=None, sharex=False, sharey=False):
     """
     创建 (a)/(b) 多面板图，返回 (fig, axes 列表)。
 
-    相关量组合到一张图（如"可行域+最优解""收敛+相对误差"），
-    提升信息密度；单面板需求直接用 plt.subplots 亦可。
+    图幅纪律（一处定义，详则见《图表类型参考库》§五.6）：
+    canvas 总宽恒为 CU_TEXTWIDTH_IN（=论文 0.9\\textwidth≈14.6cm），与
+    includegraphics 1:1 对应，保证字号不失真；面板越多每面板展示宽越小——
+    图内最小字号按"每面板展示宽=栏宽÷横排面板数"折算后须仍 ≥ 正文字号 70%
+    （正文 12pt → 图内最小字 ≥9pt）。
+    布局默认：2 面板横排 (1,2)；3 面板横排 (1,3)（每面板≈4.9cm，内容须精简）；
+    ≥4 面板 2×2 网格，禁止单行横排 >3 面板（可读性崩塌）。
 
     Args:
-        n_panels: 面板数（横向排列）
-        figsize: 整图尺寸；None 时按面板数自动（每面板约 4.2x3.6 英寸）
+        n_panels: 面板总数
+        layout: (nrows, ncols) 网格，None 时按上述默认规则
+        figsize: 整图尺寸；None 时自动（总宽=CU_TEXTWIDTH_IN，行高按面板宽高比 4:3）
         sharex/sharey: 是否共享坐标轴
     """
+    if layout is None:
+        if n_panels <= 1:
+            layout = (1, 1)
+        elif n_panels == 2:
+            layout = (1, 2)
+        elif n_panels == 3:
+            layout = (1, 3)
+        else:
+            ncols = 2
+            nrows = (n_panels + 1) // 2
+            layout = (nrows, ncols)
+    nrows, ncols = layout
     if figsize is None:
-        figsize = (4.2 * n_panels, 3.6)
-    fig, axes = plt.subplots(1, n_panels, figsize=figsize,
+        panel_w = CU_TEXTWIDTH_IN / ncols
+        panel_h = panel_w / 1.35          # 单面板宽高比 ≈4:3
+        figsize = (CU_TEXTWIDTH_IN, panel_h * nrows)
+    fig, axes = plt.subplots(nrows, ncols, figsize=figsize,
                              sharex=sharex, sharey=sharey)
-    if n_panels == 1:
-        axes = [axes]
-    else:
-        axes = list(axes)
+    axes = np.array(axes, dtype=object).ravel().tolist()
     for i, ax in enumerate(axes):
+        if i >= n_panels:
+            ax.set_axis_off()             # layout 网格多于面板数时关闭多余格
+            continue
         # SimSun 无 bold 字形，用字号区分层级而非字重
         ax.text(-0.12, 1.06, f"({chr(97 + i)})", transform=ax.transAxes,
                 fontsize=11, va='top')
@@ -302,7 +334,7 @@ def annotate_callout(ax, text, xy, xytext, color=None, fontsize=8):
 # Seaborn 专用封装函数
 # ============================================================
 
-def plot_boxplot(data, x=None, y=None, hue=None, xlabel="", ylabel="", title="",
+def plot_boxplot(data, x=None, y=None, hue=None, xlabel="", ylabel="",
                  filename="figures/boxplot"):
     """
     绘制箱线图（seaborn）。
@@ -324,13 +356,12 @@ def plot_boxplot(data, x=None, y=None, hue=None, xlabel="", ylabel="", title="",
 
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
-    ax.set_title(title)
     save_figure(fig, filename)
     plt.close(fig)
     return fig
 
 
-def plot_violin(data, x=None, y=None, hue=None, xlabel="", ylabel="", title="",
+def plot_violin(data, x=None, y=None, hue=None, xlabel="", ylabel="",
                 filename="figures/violin"):
     """
     绘制小提琴图（seaborn）。适合展示分布形状 + 多组对比。
@@ -343,13 +374,12 @@ def plot_violin(data, x=None, y=None, hue=None, xlabel="", ylabel="", title="",
 
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
-    ax.set_title(title)
     save_figure(fig, filename)
     plt.close(fig)
     return fig
 
 
-def plot_distribution(data, x=None, kde=True, bins="auto", xlabel="", title="",
+def plot_distribution(data, x=None, kde=True, bins="auto", xlabel="",
                       filename="figures/distribution"):
     """
     绘制分布直方图 + KDE 曲线（seaborn）。
@@ -366,7 +396,6 @@ def plot_distribution(data, x=None, kde=True, bins="auto", xlabel="", title="",
 
     ax.set_xlabel(xlabel)
     ax.set_ylabel("频数")
-    ax.set_title(title)
     save_figure(fig, filename)
     plt.close(fig)
     return fig
@@ -380,7 +409,7 @@ def plot_distribution(data, x=None, kde=True, bins="auto", xlabel="", title="",
 # 都是问题依赖的，必须由求解脚本按题目语义完成）。正确性由：
 #   ① 输入数值（来自已验证的求解结果）  ② 函数内输入校验  ③ 单元测试 共同保证。
 
-def plot_confint(x, y_mean, y_lower, y_upper, xlabel="", ylabel="", title="",
+def plot_confint(x, y_mean, y_lower, y_upper, xlabel="", ylabel="",
                  filename="figures/confint", color=None, fill_alpha=0.25):
     """
     绘制"点估计 + 置信区间波带"（纯可视化，不计算置信区间）。
@@ -418,7 +447,6 @@ def plot_confint(x, y_mean, y_lower, y_upper, xlabel="", ylabel="", title="",
 
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
-    ax.set_title(title)
     _apply_grid(ax)
     ax.legend()
     save_figure(fig, filename)
@@ -427,7 +455,7 @@ def plot_confint(x, y_mean, y_lower, y_upper, xlabel="", ylabel="", title="",
 
 
 def plot_errorbar(x, y, yerr=None, xerr=None, capsize=4, xlabel="", ylabel="",
-                  title="", filename="figures/errorbar", color=None):
+                  filename="figures/errorbar", color=None):
     """
     绘制带误差棒的散点/折线图（纯可视化，不计算误差）。
 
@@ -450,7 +478,6 @@ def plot_errorbar(x, y, yerr=None, xerr=None, capsize=4, xlabel="", ylabel="",
 
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
-    ax.set_title(title)
     _apply_grid(ax)
     save_figure(fig, filename)
     plt.close(fig)
