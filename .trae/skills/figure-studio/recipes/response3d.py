@@ -48,6 +48,10 @@ CBAR_LABEL = ZL
 # --- 色板（感知均匀系：顺序 sunburst / 发散 fusion，见 COLORMAPS）---
 CMAP = COLORMAPS["diverging"] if CMASHER_ACTIVE else "RdBu_r"
 
+# --- 坐标面（pane）网格线（观感层）---
+N_TICKS = 5             # 各轴刻度数（pane 网格线密度 = 刻度数，越小越稀）
+PANE_GRID_COLOR = "#e0e0e0"  # pane 网格线颜色（淡灰）；轴边线色不受此参数影响
+
 # --- 导出 ---
 OUT = "response3d"        # 输出文件名（不含扩展名，PDF+PNG 双格式）
 DTYPE_SAFE = True         # 保留 True：筛除 NaN/Inf 防止曲面破洞
@@ -66,10 +70,10 @@ W = CU_TEXTWIDTH_IN
 fig = plt.figure(figsize=(W, W * 0.85), dpi=300)
 ax = fig.add_subplot(111, projection="3d")
 
-# 曲面：浅灰细网格 + 抗锯齿 + 光照阴影（观感层）
-surf = ax.plot_surface(X, Y, Z, cmap=CMAP, linewidth=0.15,
+# 曲面：alpha=1.0 全不透明（pane 网格线无法透过曲面显白）；linewidth=0 无网格边线
+surf = ax.plot_surface(X, Y, Z, cmap=CMAP, linewidth=0,
                        rstride=1, cstride=1, antialiased=True,
-                       shade=True, alpha=0.95, vmin=zmin, vmax=zmax)
+                       shade=True, alpha=1.0, vmin=zmin, vmax=zmax)
 
 # 底部投影等高线（读数层，标准做法：zdir='z' + offset=zmin）
 ax.contourf(X, Y, Z, zdir="z", offset=zmin, cmap=CMAP,
@@ -83,7 +87,18 @@ for p in (ax.xaxis.pane, ax.yaxis.pane, ax.zaxis.pane):
     p.fill = False
     p.set_edgecolor("#cfcfcf")
     p.set_linewidth(0.6)
-ax.grid(True, alpha=0.12, linewidth=0.4)
+# 坐标面（pane）网格线：淡色 + 细线（_axinfo 精确控制；密度由刻度数决定，见下）
+ax.grid(True)
+for _axis in (ax.xaxis, ax.yaxis, ax.zaxis):
+    _axis._axinfo["grid"].update(color=PANE_GRID_COLOR, linewidth=0.3)
+
+# 刻度减稀 → pane 网格线减稀（三轴均匀 N_TICKS 个刻度；pane 边线保持原色不动）
+xt = np.linspace(float(np.nanmin(PARAM_X)), float(np.nanmax(PARAM_X)), N_TICKS)
+yt = np.linspace(float(np.nanmin(PARAM_Y)), float(np.nanmax(PARAM_Y)), N_TICKS)
+zt = np.linspace(zmin, zmax, N_TICKS)
+ax.set_xticks(xt)
+ax.set_yticks(yt)
+ax.set_zticks(zt)
 
 # 色条（紧凑）与坐标轴标签
 cbar = fig.colorbar(surf, shrink=0.6, aspect=20, pad=0.08)
