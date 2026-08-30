@@ -154,9 +154,9 @@
 
 % 3-6 条，每条 1-2 句简明陈述；仅关键假设附一句理由。禁止每条都展开"适用条件/放宽影响"。
 \begin{enumerate}[label=\arabic*., leftmargin=2em]
-    \item [假设内容，1-2 句]；
-    \item [假设内容]；
-    \item [假设内容]。
+    \item 假设内容（1-2 句，关键假设附一句理由）；
+    \item 假设内容；
+    \item 假设内容。
 \end{enumerate}
 
 % ============================================================
@@ -210,12 +210,37 @@ y = f(x_1, x_2, \ldots; \theta)
 
 [算法选择：≥2 种候选对比 + 选择理由（≥1 段）。]
 
+% 条件触发：≥2 个模型/算法候选对比时，用下表收敛对比结果（优化口径）
+\begin{table}[H]
+\centering
+\caption{模型/算法对比（优化口径）}
+\label{tab:model_compare}
+\begin{tabular}{lcccc}
+\toprule
+模型/算法 & 目标值 & 最优性指标 & 求解耗时 & 备注 \\
+\midrule
+{MIP 精确解} & {数值} & MIPGap = {x}\% & {秒} & {小规模/精确} \\
+{启发式算法} & {数值} & 与精确解偏差 {x}\% & {秒} & {大规模/实时} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 [求解过程与结果。]
 
 \subsubsection{结果验证与结果分析}
 
 [最优性验证（优化类：MIPGap/枚举完备性/启发式多次运行统计；
 统计类：残差分析/拟合优度/显著性检验）。]
+
+% 条件触发：统计拟合/回归预测类问题（含随机性数据的模型），在结果验证处展开以下
+% "模型检验"骨架；优化类用最优性验证（MIPGap/枚举完备性），不适用本块。
+% 分层说明：残差分析/拟合优度/显著性检验为评审红线最低必查；交叉验证/Bootstrap
+% 为可选增强手段（非红线）。以下为写法骨架，非强制全列：
+%   a) 残差分析：残差 vs 拟合值散点图，判断同方差性与无系统模式
+%   b) 拟合优度：R^2 与调整 R^2（多变量时用后者，避免单纯靠变量数抬升）
+%   c) 置信区间：关键参数的置信区间（与显著性检验配合报告）
+%   d) 交叉验证：K 折交叉验证（K=5 或 10），报告平均预测误差
+%   e) Bootstrap：重采样估计参数/预测区间（次数 ≥1000，报告区间而非点值）
 
 [模型验证（条件触发：含随机性/不确定性/稳态假设时，蒙特卡洛仿真：
 仿真次数、收敛情况、与解析结果偏差、偏差 >5\% 的原因分析）。
@@ -238,6 +263,39 @@ y = f(x_1, x_2, \ldots; \theta)
 \includegraphics[width=0.9\textwidth]{fig_sensitivity.pdf}
 \caption{参数敏感度 Tornado 图}
 \label{fig:tornado}
+\end{figure}
+
+% 条件触发：含灵敏度分析时，下表与 Tornado 图互补（表精读 + 图全览）
+\begin{table}[H]
+\centering
+\caption{参数灵敏度汇总表}
+\label{tab:sensitivity}
+\begin{tabular}{ccccc}
+\toprule
+参数 & 基准值 & 变化幅度 & 结果变化率 & 灵敏度排序 \\
+\midrule
+{参数1} & {基准值} & ±5\% & +{x}\% & 1（最敏感） \\
+{参数2} & {基准值} & ±5\% & -{x}\% & 2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% 条件触发：两相关图需并排对比时（如不同参数/方法下结果对比），用双子图
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{fig_a.pdf}\\
+{\small（a）情形 A}
+\end{minipage}
+\hspace{0.04\textwidth}
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{fig_b.pdf}\\
+{\small（b）情形 B}
+\end{minipage}
+\caption{双子图并排示例（子图用（a）（b）标注，总 caption 概括）}
+\label{fig:twin}
 \end{figure}
 
 % 条件触发小节（按题型保留，不适用则整节删除）：
@@ -298,11 +356,11 @@ y = f(x_1, x_2, \ldots; \theta)
 \caption{支撑材料文件列表}
 \begin{tabular}{p{5cm}p{9cm}}
 \toprule
-\centering 文件名 & \centering 文件说明 \\
+\multicolumn{1}{c}{文件名} & \multicolumn{1}{c}{文件说明} \\
 \midrule
-代码 & [数量] 个 .py 文件（入口是 main.py / problem1_solver.py，...） \\
+代码 & [数量] 个 .py 文件（入口是 main.py / problem1\_solver.py，...） \\
 结果 & [概述：CSV 结果文件 + 敏感性图 + 可视化图表] \\
-[其他文件.pdf] & [文件说明，如"AI 工具使用情况说明"] \\
+{其他文件.pdf} & [文件说明，如"AI 工具使用情况说明"] \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -314,7 +372,7 @@ y = f(x_1, x_2, \ldots; \theta)
 用 \VerbatimInput 直接引用 project/ 下源文件，保证与实际代码逐行一致，
 禁止"示意性改写"：]
 
-\VerbatimInput{project/problem1_solver.py}
+\VerbatimInput{project/problem1\_solver.py}
 
 \section{补充推导（仅限正文确实放不下时）}
 
