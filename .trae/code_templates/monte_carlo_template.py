@@ -13,7 +13,7 @@
     3. 修改 simulate_once 函数：定义单次仿真的逻辑
     4. 运行脚本，输出仿真次数、收敛情况、偏差、偏差原因分析
 
-⚠️ 蒙特卡洛仿真是"模型验证"，与"最优性验证"（MIPGap/枚举完备性）是两个独立维度，不可相互替代。
+[注意] 蒙特卡洛仿真是"模型验证"，与"最优性验证"（MIPGap/枚举完备性）是两个独立维度，不可相互替代。
 """
 
 import numpy as np
@@ -261,7 +261,7 @@ def save_results(simulation_result: dict, comparison_result: dict,
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
-    print(f"✓ 仿真结果已保存到 {output_path}")
+    print(f"[OK] 仿真结果已保存到 {output_path}")
 
 
 def print_summary(simulation_result: dict, comparison_result: dict):

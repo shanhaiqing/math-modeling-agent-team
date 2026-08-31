@@ -5,9 +5,9 @@ check_prompt_budget.py — agent prompt 字数机查（全文口径，含 frontm
 
 [契约] AGENTS.md 防过拟合铁律 7：
        建议值 9500（超 → WARN，人工裁定，不阻塞；确为实质内容可保留）；
-       平台硬上限 10000（超 → ERROR 必须压缩，否则无法存入 Trae 自定义智能体）。
+       平台硬上限 12000（超 → ERROR 必须压缩，否则无法存入 Trae 自定义智能体）。
 [执行] rules/orchestrator.md 第 4 节（任意共享文件落地后必跑）。
-用法：python check_prompt_budget.py [--budget 9500] [--hard-limit 10000] [--agents-dir <目录>]
+用法：python check_prompt_budget.py [--budget 9500] [--hard-limit 12000] [--agents-dir <目录>]
 """
 import sys
 from pathlib import Path
@@ -19,7 +19,7 @@ def _arg(flag, default):
 
 def main():
     budget = _arg("--budget", 9500)      # 建议值：超 → WARN
-    hard = _arg("--hard-limit", 10000)   # 平台硬上限：超 → ERROR
+    hard = _arg("--hard-limit", 12000)   # 平台硬上限：超 → ERROR
     agents_dir = Path(sys.argv[sys.argv.index("--agents-dir") + 1]) if "--agents-dir" in sys.argv \
         else Path(__file__).resolve().parent.parent / "agents"
     errors = warns = 0

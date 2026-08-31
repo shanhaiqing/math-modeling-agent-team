@@ -91,19 +91,20 @@ def plot_multistart(res: dict, save_path: str = "figures/nlp_multistart.pdf"):
     feas_vals = [r["fun"] for r in res["runs"] if r["success"]]
     feas_nits = [r["nit"] for r in res["runs"] if r["success"]]
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    fig, axes = plt.subplots(1, 2, figsize=(5.75, 2.4))  # 0.9\textwidth=5.75in（=viz CU_TEXTWIDTH_IN），高按原 12:5 等比
     axes[0].hist(feas_vals, bins=15, color="steelblue", edgecolor="white")
-    axes[0].axvline(res["best_f"], color="red", linestyle="--", label=f"最优 {res['best_f']:.4f}")
+    axes[0].axvline(res["best_f"], color="red", linestyle="--",
+                    label=f"最优 {res['best_f']:.4f}（{res['n_converged']}/{res['n_starts']} 收敛）")
     axes[0].set_xlabel("收敛目标值")
     axes[0].set_ylabel("起点数")
-    axes[0].set_title(f"多起点收敛值分布（{res['n_converged']}/{res['n_starts']} 收敛）")
+    axes[0].set_title("(a)")
     axes[0].legend()
     axes[0].grid(True, alpha=0.3)
 
     axes[1].hist(feas_nits, bins=15, color="darkorange", edgecolor="white")
     axes[1].set_xlabel("SLSQP 迭代次数")
     axes[1].set_ylabel("起点数")
-    axes[1].set_title("迭代次数分布")
+    axes[1].set_title("(b)")
     axes[1].grid(True, alpha=0.3)
 
     plt.tight_layout()
@@ -121,7 +122,7 @@ def main():
           f"标准差: {res['std_f']:.6f}  散布: {res['spread']:.6f}")
     print(f"  最优解: {[round(v, 4) for v in res['best_x']]}")
     if res["spread"] > max(1e-6, abs(res["best_f"]) * 0.01):
-        print("  ⚠️ 起点散布显著——非凸性强，论文须注明局部最优并给出收敛起点占比")
+        print("  [警告] 起点散布显著——非凸性强，论文须注明局部最优并给出收敛起点占比")
 
     plot_multistart(res)
     with open("results/nlp_stats.json", "w", encoding="utf-8") as f:

@@ -161,20 +161,20 @@ def run_multiple_times(algorithm_fn: Callable, n_runs: int = N_RUNS) -> dict:
 
 def plot_convergence(ga_result: dict, sa_result: dict, save_path: str = "figures/convergence.pdf"):
     """绘制收敛曲线"""
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    fig, axes = plt.subplots(1, 2, figsize=(5.75, 2.4))  # 0.9\textwidth=5.75in（=viz CU_TEXTWIDTH_IN），高按原 12:5 等比
     
     # 遗传算法收敛曲线
     axes[0].plot(ga_result["history"], 'b-', linewidth=1)
     axes[0].set_xlabel("迭代次数")
     axes[0].set_ylabel("最优适应度")
-    axes[0].set_title("遗传算法收敛曲线")
+    axes[0].set_title("(a)")
     axes[0].grid(True, alpha=0.3)
     
     # 模拟退火收敛曲线
     axes[1].plot(sa_result["history"], 'r-', linewidth=1)
     axes[1].set_xlabel("迭代次数")
     axes[1].set_ylabel("最优适应度")
-    axes[1].set_title("模拟退火收敛曲线")
+    axes[1].set_title("(b)")
     axes[1].grid(True, alpha=0.3)
     
     plt.tight_layout()

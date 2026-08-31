@@ -40,8 +40,7 @@ y_mean = np.array([10.0, 20.0, 30.0, 40.0])
 y_lower = np.array([9.0, 18.0, 27.0, 36.0])
 y_upper = np.array([11.0, 22.0, 33.0, 44.0])
 fp = os.path.join(OUT, "confint")
-fig = vs.plot_confint(x, y_mean, y_lower, y_upper, title="测试",
-                      filename=fp)
+fig = vs.plot_confint(x, y_mean, y_lower, y_upper, filename=fp)
 check("plot_confint 生成 PNG", os.path.exists(fp + ".png"))
 check("plot_confint 生成 PDF", os.path.exists(fp + ".pdf"))
 ax = fig.axes[0] if fig.axes else None

@@ -1,6 +1,7 @@
 # 12 POMDP（部分可观察马尔可夫决策过程）
 
 > 优化方法卡片。Agent 1 阶段 3 算法选择时查阅。条件触发：特征指纹 `uncertainty = "stochastic"` + `time_dependence = "multi_period"` + 状态部分可观察（决策者仅知当前观测、不知真实状态与未来）。
+> 代码模板：无（待补：POMCP / PBVI 算法未实现，需自研）
 
 ---
 
@@ -125,7 +126,7 @@ b'(s') = η · O(s', a, z) · Σ_s T(s, a, s') · b(s)
 
 ## 代码模板
 
-见 `code_templates/pomdp_solver.py`（待补，需实现 POMCP 或 PBVI 算法）
+模板文件见本卡头部「代码模板」元数据行（唯一事实源）。本类无现成模板（待补：POMCP / PBVI），命中时须自研并标注。
 
 参考实现：
 - `pomdp_py` 库（Python）：https://github.com/h2r/pomdp-py
