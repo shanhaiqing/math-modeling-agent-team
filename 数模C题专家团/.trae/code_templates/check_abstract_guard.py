@@ -143,7 +143,7 @@ def command_audit(args) -> int:
     # (1) 篇幅分布（国一基准 P10-P90 软边界，超出 WARN 不阻塞）
     n_chars = len(re.sub(r"\s", "", plain))
     if n_chars < 772:
-        problems.append(("WARN", "摘要篇幅", f"纯文本 {n_chars} 字符 < 国一基准 P10(772)——疑似信息不足，审计门核查六型"))
+        problems.append(("WARN", "摘要篇幅", f"纯文本 {n_chars} 字符 < 国一基准 P10(772)——疑似信息不足，按摘要写作规范审计六型核查"))
     elif n_chars > 1294:
         problems.append(("WARN", "摘要篇幅", f"纯文本 {n_chars} 字符 > 国一基准 P90(1294)——疑似冗长或有超页风险，人工裁定"))
 
@@ -152,7 +152,7 @@ def command_audit(args) -> int:
     num_pat = re.compile(r"\d+(?:\.\d+)?|\\?%")
     for i, p in enumerate(paras[1:], start=2):
         if not num_pat.search(strip_tex(p)):
-            problems.append(("WARN", "段落无量化", f"第 {i} 段无任何数字——疑似有方法无结果（审计六型之 1/2），人工核查"))
+            problems.append(("WARN", "段落无量化", f"第 {i} 段无任何数字——疑似有方法无结果（摘要写作规范审计六型之 1/2），人工核查"))
 
     # (3) 关键词行加粗（摘要写作规范）
     kw_line = next((lines[b1 + j] for j in range(0, 8) if b1 + j < len(lines)

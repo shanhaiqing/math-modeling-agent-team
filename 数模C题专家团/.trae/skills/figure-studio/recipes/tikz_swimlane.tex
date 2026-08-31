@@ -35,16 +35,16 @@
 % ================= 泳道内容（按题目替换 【】 占位） =================
 % ---- 泳道 1：数据与结构 ----
 \node[io]   (d1) {附件数据加载\\[-1pt]\footnotesize 规模/缺失/异常摘要};
-\node[proc, below=4mm of d1] (d2) {结构核验\\[-1pt]\footnotesize 连通性/几何校验 $O(|V|{+}|E|)$};
+\node[proc, below=4mm of d1] (d2) {训练/测试划分\\[-1pt]\footnotesize 时序保序/分层分组，防泄漏};
 
 % ---- 泳道 2：建模与求解（hero 在此） ----
-\node[proc, right=16mm of d1] (m1) {问题一：【模型名】\\[-1pt]\footnotesize 决策变量 $x_{ij}\in\{0,1\}$，约束 【N】 类};
-\node[hero, below=4mm of m1] (m2) {问题二：【核心创新，如分层成本+对抗最坏情形】\\[-1pt]\footnotesize $\min\; C_{\mathrm{trans}}+C_{\mathrm{escort}}+C_{\mathrm{loss}}$\\[-1pt]\footnotesize 求解器 MIPGap $=0$（全局最优）};
-\node[proc, below=4mm of m2] (m3) {问题三：【策略评估】\\[-1pt]\footnotesize 蒙特卡洛 $N=2000$，种子固定};
+\node[proc, right=16mm of d1] (m1) {问题一：【模型名】\\[-1pt]\footnotesize 候选【模型1/模型2】+ 基线，指标 【RMSE/AUC】};
+\node[hero, below=4mm of m1] (m2) {问题二：【核心创新，如多模型加权融合】\\[-1pt]\footnotesize 留出集 AUC $=0.86$（提升 $0.03$）\\[-1pt]\footnotesize 五折交叉验证 波动 $\pm0.01$};
+\node[proc, below=4mm of m2] (m3) {问题三：【模型验证】\\[-1pt]\footnotesize 蒙特卡洛 $N=2000$，种子固定};
 
 % ---- 泳道 3：验证与输出 ----
-\node[proc, right=16mm of m1] (v1) {最优性验证\\[-1pt]\footnotesize MIPGap/枚举完备性};
-\node[proc, below=4mm of v1] (v2) {灵敏度与临界点\\[-1pt]\footnotesize $\pm20\%$ 扰动，翻转计数 0};
+\node[proc, right=16mm of m1] (v1) {验证设计\\[-1pt]\footnotesize 留出集/K折 与基线对比};
+\node[proc, below=4mm of v1] (v2) {数据扰动灵敏度\\[-1pt]\footnotesize 特征 $\pm$ 扰动/种子重抽样};
 \node[out,  below=4mm of v2] (v3) {结论与方案\\[-1pt]\footnotesize 【定量结论一句话】};
 
 % ---- 判定与回退（跨泳道底部） ----

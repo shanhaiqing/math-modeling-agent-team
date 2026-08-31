@@ -42,4 +42,4 @@ description: 数模论文参考文献工作室。凡涉及参考文献（写作�
 | 双向核对脚本 | `scripts/citation_check.py` | 步骤 2 对账 |
 | 合规判据 | `.trae/papers/国赛公开惯例.md` 一.22 / 二.3 | 步骤 1 插入前必读 |
 | LaTeX 引用格式 | `.trae/papers/LaTeX格式规范.md`（GB/T 7714、`\cite{}`） | 步骤 1 格式化 |
-| 机查集成 | `.trae/code_templates/check_latex_compliance.py`（P11-R 调用本工作室两脚本） | WRITING 过门自动执行 |
+| 机查集成 | 未集成（C 版 check_latex_compliance 不调用本工作室）；由 paper-writer 自审时按需手动执行两脚本 | 手动 |

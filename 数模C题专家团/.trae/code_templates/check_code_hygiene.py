@@ -3,9 +3,9 @@
 """
 check_code_hygiene.py — 交付代码注释卫生检查（机查版）
 
-[契约] 总审批清单 2026-08-B1 P4-a：交付代码（project/*.py）注释不得含内部流程词；
+[契约] 交付代码（project/*.py）注释不得含内部流程词（C 版，移植自 B 系统同源契约）；
        MODELING 过门机查命中即 ERROR。
-[新增] 2026-08-B12：交付代码禁止含emoji/变体选择符等特殊Unicode，这些字符
+[新增] 交付代码禁止含emoji/变体选择符等特殊Unicode，这些字符
        在LaTeX附录Verbatim环境中因Consolas/SimSun字体无字形导致PDF乱码。
 [背景] 历史教训：代码模板注释自带流水线术语，随代码继承到交付物，
        支撑材料打包时被迫逐文件清洗，耗费大量时间。防污染在产出时，不在打包时。
@@ -89,7 +89,7 @@ def check_file(path):
             hits += 1
             error(f"{path}:{lineno}", f"注释含内部流程词 '{m.group(0)}'：{text.strip()[:80]}")
 
-    # 检查2：全文件扫描emoji/特殊Unicode字符（新增，2026-08-B12）
+    # 检查2：全文件扫描emoji/特殊Unicode字符（C 版移植）
     # 覆盖注释、docstring、字符串常量所有位置——VerbatimInput会原样输出整个文件
     for lineno, line in enumerate(source.splitlines(), 1):
         for m in EMOJI_PATTERN.finditer(line):
