@@ -1,0 +1,75 @@
+% !TEX program = xelatex
+% ============================================================
+% 配方：泳道式框架图（P2 范式，数模论文"模型框架图/技术路线图"模板）
+% 编译：xelatex tikz_swimlane.tex → 产出 PDF → 正文 \includegraphics 引入
+%       （standalone 独立编译，主文档零编译风险）
+% 铁律：禁止空框+箭头——每个框内必须嵌入真实方法对象（公式/参数/缩略结构），
+%       hero 框（本文贡献核心）视觉最重（红框+底色）。
+% 借鉴：Icarus-Figures framework-figures.md P2/T1-T3（重绘原创，非复制）
+% ============================================================
+\documentclass[border=8pt]{standalone}
+\usepackage{ctex}
+\usepackage{newtxmath}
+\usepackage{tikz}
+\usetikzlibrary{positioning,fit,backgrounds,shapes.geometric,arrows.meta}
+
+\begin{document}
+\begin{tikzpicture}[
+  font=\small,
+  % --- T1：一种语义角色一种样式，颜色承载含义（低饱和，与正文图表同族） ---
+  io/.style    = {rectangle, rounded corners=1mm, draw=green!50!black, fill=green!6,
+                  minimum width=30mm, minimum height=9mm, align=center},
+  proc/.style  = {rectangle, draw=blue!55!black, fill=blue!4,
+                  minimum width=30mm, minimum height=9mm, align=center},
+  hero/.style  = {rectangle, draw=red!65!black, line width=1pt, fill=red!5,
+                  minimum width=34mm, minimum height=11mm, align=center},
+  out/.style   = {rectangle, rounded corners=1mm, draw=orange!75!black, fill=orange!7,
+                  minimum width=30mm, minimum height=9mm, align=center},
+  decide/.style= {diamond, draw=purple!60!black, fill=purple!5, aspect=2.4,
+                  align=center, inner sep=1pt},
+  lane/.style  = {draw=gray!45, fill=gray!3, rounded corners=2mm, inner sep=4mm},
+  flow/.style  = {-{Stealth[length=2mm]}, line width=0.7pt, black!70},
+  back/.style  = {-{Stealth[length=2mm]}, dashed, black!55}
+]
+
+% ================= 泳道内容（按题目替换 【】 占位） =================
+% ---- 泳道 1：数据与结构 ----
+\node[io]   (d1) {附件数据加载\\[-1pt]\footnotesize 规模/缺失/异常摘要};
+\node[proc, below=4mm of d1] (d2) {结构核验\\[-1pt]\footnotesize 连通性/几何校验 $O(|V|{+}|E|)$};
+
+% ---- 泳道 2：建模与求解（hero 在此） ----
+\node[proc, right=16mm of d1] (m1) {问题一：【模型名】\\[-1pt]\footnotesize 决策变量 $x_{ij}\in\{0,1\}$，约束 【N】 类};
+\node[hero, below=4mm of m1] (m2) {问题二：【核心创新，如分层成本+对抗最坏情形】\\[-1pt]\footnotesize $\min\; C_{\mathrm{trans}}+C_{\mathrm{escort}}+C_{\mathrm{loss}}$\\[-1pt]\footnotesize 求解器 MIPGap $=0$（全局最优）};
+\node[proc, below=4mm of m2] (m3) {问题三：【策略评估】\\[-1pt]\footnotesize 蒙特卡洛 $N=2000$，种子固定};
+
+% ---- 泳道 3：验证与输出 ----
+\node[proc, right=16mm of m1] (v1) {最优性验证\\[-1pt]\footnotesize MIPGap/枚举完备性};
+\node[proc, below=4mm of v1] (v2) {灵敏度与临界点\\[-1pt]\footnotesize $\pm20\%$ 扰动，翻转计数 0};
+\node[out,  below=4mm of v2] (v3) {结论与方案\\[-1pt]\footnotesize 【定量结论一句话】};
+
+% ---- 判定与回退（跨泳道底部） ----
+\node[decide, below=6mm of m3] (q) {验证全部通过？};
+\node[proc, draw=gray!60, fill=gray!5, left=10mm of q] (fix) {回退：修正模型/数据\\[-1pt]\footnotesize 重跑受影响环节};
+
+% ---- 主流 ----
+\draw[flow] (d1) -- (d2);
+\draw[flow] (d1.east) -- (m1.west);
+\draw[flow] (m1) -- (m2);
+\draw[flow] (m2) -- (m3);
+\draw[flow] (m1.east) -- (v1.west);
+\draw[flow] (v1) -- (v2);
+\draw[flow] (v2) -- (v3);
+\draw[flow] (m3) -- (q);
+\draw[flow] (q.east) -- node[above, font=\footnotesize]{是} (v3.south west);
+\draw[back] (q) -- node[above, font=\footnotesize]{否} (fix);
+\draw[back] (fix.north) |- (m2.west);
+
+% ---- T3：泳道分组（背景层 fit + 旋转标签） ----
+\begin{scope}[on background layer]
+  \node[lane, fit=(d1)(d2), label={[font=\footnotesize\color{black!60}]above:数据与结构}] {};
+  \node[lane, fit=(m1)(m3), label={[font=\footnotesize\color{black!60}]above:建模与求解（核心）}] {};
+  \node[lane, fit=(v1)(v3), label={[font=\footnotesize\color{black!60}]above:验证与输出}] {};
+\end{scope}
+
+\end{tikzpicture}
+\end{document}
