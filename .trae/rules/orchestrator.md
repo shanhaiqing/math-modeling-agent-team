@@ -39,6 +39,7 @@ HG0_INTAKE → MODELING → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
 
 | 字段 | 类型 | 更新时机 |
 |------|------|---------|
+| `system` | "B"（C 系统为"C"） | HG0 写入；**防混同锚点**——编排器引用任何 `.trae/` 镜像文件（惯例/机查/agent 文件）前，校验本字段与项目根路径所属系统一致：项目根在 B 系统目录下则一切引用 B 侧文件、借用 C 侧资产走 C4③ 白名单，反之亦然（2026-08-C5） |
 | `mode` | competition / training | HG0 写入 |
 | `project_root` | 绝对路径 | HG0 写入 |
 | `reference_paper_dir` | 绝对路径 / null | HG0 写入（训练模式） |
