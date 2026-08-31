@@ -1,0 +1,17 @@
+# 数模 C 题团队核心依赖清单（版本锁定）——数据驱动 + 绘图相关
+# 安装：python -m pip install -r requirements.txt
+# 版本取自 C 题运行环境真实安装版本，保证换机可复现。
+# 绘图增强（SciencePlots/CMasher）为可选依赖：未安装时可视化自动降级回内置样式。
+
+# --- 数据驱动核心 ---
+numpy==2.5.1
+pandas==3.0.3
+scipy==1.18.0
+scikit-learn==1.9.0
+statsmodels==0.14.6
+
+# --- 绘图（含 SciencePlots 期刊风格 + CMasher 科学色板，均带优雅降级） ---
+matplotlib==3.11.1
+seaborn==0.13.2
+scienceplots==2.2.2
+cmasher==1.9.2
