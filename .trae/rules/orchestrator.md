@@ -66,7 +66,7 @@ HG0_INTAKE → MODELING → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
 |------|---------|----------------------|
 | MODELING → 下一阶段 | `check_solution_json.py` + `check_modeling_artifacts.py`（图表双格式配对/绝对路径/商业求解器，2026-08-B8）+ `check_pipeline_manifest.py --stage modeling` + `check_code_hygiene.py project/`（交付代码注释卫生，2026-08-B1） | `contract_check_report.json` + `modeling_artifacts_report.json` + `manifest_check_report.json` + `code_hygiene_report.json` |
 | WRITING 启动前（预检） | `check_latex_env.py`（xelatex/关键宏包/中文字体，2026-08-B1；**任一 ERROR 报告用户，禁止 subagent 自行安装 TeX 发行版**；xelatex 不可用则进入编译降级模式——不阻塞流水线，编译移交用户外部执行，用户回传 `.aux`/`.log`/`.pdf` 后编排器补跑 `check_latex_compliance.py`） | `latex_env_report.json` |
-| WRITING → 下一阶段 | `check_latex_compliance.py` + `check_tex_numbers.py`（WARN 级辅助，不阻塞）+ `check_pipeline_manifest.py --stage writing` | `latex_compliance_report.json` + `tex_number_check_report.json` + 更新 `manifest_check_report.json` |
+| WRITING → 下一阶段 | `check_latex_compliance.py` + `check_tex_numbers.py`（WARN 级辅助，不阻塞）+ `check_abstract_guard.py audit paper.tex`（摘要篇幅/段落量化/关键词加粗，WARN 级辅助，2026-08-C2，终端输出即可；`verify` 仅在修复回路摘要定稿后按惯例 三.10 执行）+ `check_pipeline_manifest.py --stage writing` | `latex_compliance_report.json` + `tex_number_check_report.json` + 更新 `manifest_check_report.json` |
 | REVIEW_FIX 每轮后 | `check_pipeline_manifest.py --stage review` | 更新 `manifest_check_report.json` |
 | CALIBRATION → RETRO | `check_pipeline_manifest.py --stage calibration` + `check_isolation.py --signature ...`（泄漏审计，签名规程见 §8 第 4 步） | 更新 `manifest_check_report.json` + `isolation_check_report.json` |
 | COMPLIANCE（打包） | `package_support_materials.py`（只收代码+数据+图表，终扫未过不得交付，2026-08-B1） | `packaging_report.json` |

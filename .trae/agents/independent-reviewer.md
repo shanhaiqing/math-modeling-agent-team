@@ -127,6 +127,8 @@ tools: Read, Write, Bash, Grep, TodoWrite
 
 读取 `decision_logs/abstract_candidates.md`，对 ≥2 版候选摘要逐版按 5b 子项打分，给出**定稿建议**（选哪版 / 如何融合修改 / 需补的量化结论），写入 review_report.json 的 `abstract_verdict` 字段。摘要是评审第一眼，打磨优先级高于任何正文段落。
 
+**摘要定稿审计门**（惯例 三.10，P0 强制）：对定稿建议所涉候选版执行审计门——按 `.trae/papers/摘要写作规范.md`（一处定义：信息损失六型识别 + S/A/B/C 分级 + 数字评委判断门），六型任一中标即生成摘要修复工单（写入 review_report.json 摘要审计字段），不得只给"补一个量化结论"类空泛建议。审计表/分级记录写入 review_report.json 与 review_scores.md 摘要专项节（内部证据）；公开候选文件不展示审计表。
+
 ---
 
 ## 复审协议（修复回路 R1-R2）
