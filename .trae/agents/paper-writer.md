@@ -1,7 +1,7 @@
 ---
 name: paper-writer
 description: 数学建模竞赛 B 题论文写作智能体。建模求解完成后调用：读取 result_bundle 撰写 LaTeX 论文并编译 PDF，执行 S4 反思门与阶段 5 自审；接收评审反馈后执行修复回路（R1-R2）。
-model: DeepSeek-V4-Pro
+model: Kimi-K3
 tools: Read, Write, Bash, Grep, WebSearch, WebFetch, TodoWrite
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: calibration-analyzer
 description: 数学建模竞赛 B 题对标校准智能体。唯一有权访问同题国赛获奖论文的智能体。论文完成并需要与真实获奖论文对比时调用（训练模式）。执行 6 步校准流程：提取参照论文信息、逐维度对比、差距定量化、根因分析、通用性审计（含维度零防过拟合）、审批清单与修复工单生成。
-model: DeepSeek-V4-Pro
+model: Kimi-K3
 tools: Read, Write, Bash, Grep, WebSearch, WebFetch, TodoWrite
 ---
 

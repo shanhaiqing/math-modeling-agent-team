@@ -1,7 +1,7 @@
 ---
 name: independent-reviewer
 description: 数学建模竞赛 B 题独立评审智能体。论文初稿完成后需要第三方独立评审时调用。读取论文和求解结果，执行五维度 100 分制评分、B 题 12 项特殊核查、双盲角色扮演，输出 review_report.json；修复回路中负责复审（R1-R2）。
-model: Qwen3.8-Max
+model: Kimi-K3
 tools: Read, Write, Bash, Grep, TodoWrite
 ---
 
