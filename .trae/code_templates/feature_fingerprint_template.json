@@ -1,5 +1,7 @@
 {
-  "problem_type": "LP | IP | MIP | NLP | MOO | DP | Network | Combinatorial | Queueing | Game | Other",
+  "problem_type": "LP | IP | MIP | NLP | DP | Network | Other",
+  "overlays": [],
+  "linearized": "false",
   "variable_type": "continuous | discrete | mixed",
   "variable_count_estimate": "small<10 | medium10-100 | large>100",
   "objective_type": "linear | nonlinear_convex | nonlinear_nonconvex",

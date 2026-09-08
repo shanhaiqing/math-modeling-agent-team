@@ -134,6 +134,8 @@ def check_visual_qa(fig_dir, checker_dir):
 # ---------- P11-FP：feature_fingerprint 契约校验 ----------
 # （总审批清单 F-1：指纹模板"既无枚举约束又无机查"双盲区根治）
 
+# problem_type 主类型以规划类为准；MOO/Combinatorial/Queueing/Game 仅允许作为历史兼容取值
+# （新产出应写入 overlays，不得用它们覆盖 LP/IP/MIP/NLP）。
 FINGERPRINT_ENUMS = {
     "problem_type": {"LP", "IP", "MIP", "NLP", "MOO", "DP", "Network",
                      "Combinatorial", "Queueing", "Game", "Other"},
@@ -150,6 +152,8 @@ FINGERPRINT_ENUMS = {
     "confidence": {"high", "medium", "low"},
 }
 DQ_KEYS = ("shape", "missing", "outlier", "distribution")
+OVERLAY_ALLOWED = {"MOO", "Network", "Combinatorial", "Queueing", "Game", "DP_candidate"}
+LINEARIZED_ALLOWED = {"true", "false", "na", True, False}
 
 
 def check_fingerprint(root):
@@ -182,6 +186,19 @@ def check_fingerprint(root):
             ok("P11-FP", "feature_fingerprint 枚举与 data_quality 四要素校验通过")
     else:
         error("P11-FP", "$.data_quality", "字段缺失或类型异常")
+
+    ov = data.get("overlays")
+    if ov is not None:
+        if not isinstance(ov, list):
+            error("P11-FP", "$.overlays", "须为数组（可空）")
+        else:
+            bad = [x for x in ov if x not in OVERLAY_ALLOWED]
+            if bad:
+                error("P11-FP", "$.overlays",
+                      f"非法取值 {bad}（合法：{'/'.join(sorted(OVERLAY_ALLOWED))}）")
+    lin = data.get("linearized")
+    if lin is not None and lin not in LINEARIZED_ALLOWED:
+        error("P11-FP", "$.linearized", "取值须为 true/false/na")
 
 
 def main():
