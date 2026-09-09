@@ -215,8 +215,8 @@ gap-XX：维度零(同题污染) ✅无污染/❌已脱敏重写/⛔转修复工
 
 | 输出 | 格式 | 内容 |
 |------|------|------|
-| `calibration_report.md` | MD | 人类可读摘要：差距分析+根因+通用性审计（含维度零）+审批清单 |
-| `fix_order.md` | MD | 执行层修复工单（转 @paper-writer，本题论文修复用） |
+| `decision_logs/calibration_report.md` | MD | 人类可读摘要：差距分析+根因+通用性审计（含维度零）+审批清单 |
+| `decision_logs/fix_order.md` | MD | 执行层修复工单（转 @paper-writer，本题论文修复用） |
 | `handoff_notes_4.md` | MD | ≤800 字校准洞察 + 红队差距清单（执行层+过拟合双清单） |
 | `decision_logs/calibration_log.md` | MD | 原始执行记录：6 步完整数据（表格+引用证据+维度对照） |
 

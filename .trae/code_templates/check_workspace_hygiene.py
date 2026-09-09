@@ -41,9 +41,6 @@ LATEX_ARTIFACT_DIRS = ["_minted"]
 # 未登记临时目录模式
 TEMP_DIR_PATTERNS = ["temp_images", "temp", "tmp", "_tmp", "_temp"]
 
-# 默认豁免目录（有意保留的工作目录，不参与"设计外垃圾"判定）
-ALWAYS_ALLOW_DIRS = {"agent质量排查"}
-
 FINDINGS = []
 
 
@@ -84,7 +81,7 @@ def main():
     scanned = 0
     for entry in sorted(root.iterdir()):
         name = entry.name
-        if name.startswith(".") or name in allow or name in ALWAYS_ALLOW_DIRS:
+        if name.startswith(".") or name in allow:
             continue
         scanned += 1
         if entry.is_file():

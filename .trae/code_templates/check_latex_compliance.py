@@ -211,7 +211,7 @@ def check_figures(text):
     n_img = len(re.findall(r"\\includegraphics", text))
     n_ref = len(re.findall(r"\\ref\{", text))
     if n_img < 6:
-        error("图表", "", f"\\includegraphics 仅 {n_img} 处 < 6 张下限（S4 层 1 第 13 项：图数 <6 → BLOCKED）")
+        error("图表", "", f"\\includegraphics 仅 {n_img} 处 < 6 张下限（S4 模板层 1 核心第 3 项：图数 <6 → BLOCKED）")
     else:
         ok("图表", f"\\includegraphics {n_img} 处 ≥6 ✓")
     if n_ref == 0:

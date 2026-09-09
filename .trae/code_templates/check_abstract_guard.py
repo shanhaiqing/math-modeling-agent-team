@@ -24,7 +24,6 @@ TITLEPAGE_BEGIN_RE = re.compile(r"\\begin\{titlepage\}")
 TITLEPAGE_END_RE = re.compile(r"\\end\{titlepage\}")
 MINIPAGE_BEGIN_RE = re.compile(r"\\begin\{minipage\}")
 KEYWORDS_RE = re.compile(r"关键词\s*(?:[：:]|$)")
-ANCHOR_RE = re.compile(r"\\label\{abstract:end\}")
 ABSTRACT_SECTION_RE = re.compile(
     r"\\section\s*\*\s*\{[^}]*摘\s*要[^}]*\}|\\(?:subsection|section)\*?\s*\{[^}]*摘\s*要[^}]*\}"
 )

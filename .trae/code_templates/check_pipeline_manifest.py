@@ -16,7 +16,7 @@ check_pipeline_manifest.py — 产物齐备性机查（编排器阶段转换前�
 import argparse, json, re, sys
 from pathlib import Path
 
-STAGE_ORDER = ["modeling", "writing", "review", "calibration", "retro", "approval"]
+STAGE_ORDER = ["modeling", "writing", "review", "calibration", "retro", "approval", "compliance"]
 
 # 契约外产物检测（历史漂移对账节，一处定义）
 FORBIDDEN_PATTERNS = [

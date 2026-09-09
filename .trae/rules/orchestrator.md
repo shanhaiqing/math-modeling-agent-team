@@ -65,7 +65,7 @@ HG0_INTAKE → MODELING → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
 
 | 转换 | 必跑机查 | 报告规范路径（项目根） |
 |------|---------|----------------------|
-| MODELING → 下一阶段 | `check_solution_json.py` + `check_modeling_artifacts.py`（图表双格式配对/绝对路径/商业求解器，2026-08-B8）+ `check_pipeline_manifest.py --stage modeling` + `check_code_hygiene.py project/`（交付代码注释卫生，2026-08-B1） | `contract_check_report.json` + `modeling_artifacts_report.json` + `manifest_check_report.json` + `code_hygiene_report.json` |
+| MODELING → 下一阶段 | `check_solution_json.py` + `check_modeling_artifacts.py`（图表双格式配对/绝对路径/商业求解器，2026-08-B8）+ `check_code_hygiene.py project/`（交付代码注释卫生，2026-08-B1）+ `check_workspace_hygiene.py`（工作区卫生，本行内先于 manifest 执行）+ **最后** `check_pipeline_manifest.py --stage modeling`（齐备性门，须在本阶段其他机查报告全部落盘后执行，否则会误报缺失） | `contract_check_report.json` + `modeling_artifacts_report.json` + `code_hygiene_report.json` + `workspace_hygiene_report.json` + `manifest_check_report.json` |
 | WRITING 启动前（预检） | `check_latex_env.py`（xelatex/关键宏包/中文字体，2026-08-B1；**任一 ERROR 报告用户，禁止 subagent 自行安装 TeX 发行版**；xelatex 不可用则进入编译降级模式——不阻塞流水线，编译移交用户外部执行，用户回传 `.aux`/`.log`/`.pdf` 后编排器补跑 `check_latex_compliance.py`） | `latex_env_report.json` |
 | WRITING → 下一阶段 | `check_latex_compliance.py` + `check_tex_numbers.py`（WARN 级辅助，不阻塞）+ `check_abstract_guard.py audit paper.tex`（摘要篇幅/段落量化/关键词加粗，WARN 级辅助，2026-08-C2，终端输出即可；`verify` 仅在修复回路摘要定稿后按惯例 三.10 执行）+ `check_pipeline_manifest.py --stage writing` | `latex_compliance_report.json` + `tex_number_check_report.json` + 更新 `manifest_check_report.json` |
 | REVIEW_FIX 每轮后 | `check_pipeline_manifest.py --stage review` | 更新 `manifest_check_report.json` |
@@ -75,6 +75,9 @@ HG0_INTAKE → MODELING → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
 | 任意共享文件落地后 | `check_prompt_budget.py` | 终端输出即可 |
 | 惯例/共享规则落地后（`国赛公开惯例.md` 或引用惯例的文件改动时） | `check_convention_refs.py`（编号引用完整性 + 条款锚点目录对账） | 终端输出即可 |
 | 绘图代码落地后（`visualization_style.py` / `figure-studio/`） | `check_viz_tests.py`（跑 4 个 `test_*` 回归测试，任一失败 ERROR） | 终端输出即可 |
+| 方法卡片或求解器模板变更后 + MODELING 门（与 `check_modeling_artifacts.py` 同批） | `check_card_refs.py`（卡片→代码模板引用完整性：路径存在性、"自实现/待补"合法性） | 终端输出即可 |
+
+**执行顺序铁律**：`check_pipeline_manifest.py` 是齐备性门，会校验注册表内全部报告文件的存在性——**必须在同一转换内的其他机查全部落盘后最后执行**，否则会把尚未生成的报告误报为缺失 ERROR。上表各行的脚本排列顺序即为执行顺序。
 
 WARN 的裁定权维持下游 agent 制度（惯例 五.1）不变——编排器只保证**机查被执行、报告存在、ERROR 清零**，不越权裁定 WARN。
 
