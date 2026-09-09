@@ -407,12 +407,12 @@ def check_appendix_filelist(text):
 def check_pages(tex_path, pdf_path):
     pdf = Path(pdf_path) if pdf_path else tex_path.with_suffix(".pdf")
     if not pdf.is_file():
-        warn("页数", "", "未找到编译后 PDF——正文页数（≥10 且尽量 ≤28）需编译后人工核对")
+        warn("页数", "", "未找到编译后 PDF——正文页数（≥10 且尽量 ≤30）需编译后人工核对")
         return
     try:
         from pypdf import PdfReader
         n = len(PdfReader(str(pdf)).pages)
-        warn("页数", "", f"PDF 共 {n} 页（含附录）。正文（摘要页后、附录前）须 ≥10 且尽量 ≤28——附录起止页需人工核对后判定")
+        warn("页数", "", f"PDF 共 {n} 页（含附录）。正文（摘要页后、附录前）须 ≥10 且尽量 ≤30——附录起止页需人工核对后判定")
     except Exception as e:
         warn("页数", "", f"PDF 页数读取失败（{e}）——请人工核对正文页数")
 
