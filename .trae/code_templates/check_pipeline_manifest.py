@@ -101,6 +101,15 @@ def main():
     if not rows:
         print("FATAL: 注册表解析为空，检查表结构"); sys.exit(2)
 
+    # 编译降级模式感知（2026-09 批次 4 第 24 项；prompt 条款：orchestrator §3 compile_mode 字段、§4 编译降级专项条款）
+    compile_mode = None
+    ps = root / "pipeline_state.json"
+    if ps.is_file():
+        try:
+            compile_mode = json.loads(ps.read_text(encoding="utf-8-sig")).get("compile_mode")
+        except Exception:
+            pass
+
     checked = 0
     for r in rows:
         if STAGE_ORDER.index(r["stage"]) > stage_idx:
@@ -120,7 +129,12 @@ def main():
                 err(r["name"], f"figures 目录缺失或 PDF 数量不足（{pdf_count}/6）")
             continue
         if not exists:
-            if "必填" in req or "训练" in req:
+            if r["name"] == "paper.pdf" and compile_mode == "external":
+                if stage_idx >= STAGE_ORDER.index("compliance"):
+                    err(r["name"], "编译降级模式（compile_mode=external）下交付前 paper.pdf 仍缺失——用户外部编译回传件不齐（orchestrator §4 编译降级专项条款）")
+                else:
+                    warn(r["name"], "编译降级模式（compile_mode=external）：paper.pdf 缓由用户外部编译回传（.aux/.log/.pdf 三件齐备）")
+            elif "必填" in req or "训练" in req:
                 err(r["name"], f"缺失必填产物：{r['path']}")
             else:
                 warn(r["name"], f"条件产物缺失（请人工确认条件是否触发）：{r['path']}")

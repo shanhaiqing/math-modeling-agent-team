@@ -1,6 +1,7 @@
 {
   "system": "B",
   "mode": null,
+  "compile_mode": null,
   "project_root": "",
   "reference_paper_dir": null,
   "current_stage": "HG0_INTAKE",

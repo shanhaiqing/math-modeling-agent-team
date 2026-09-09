@@ -41,6 +41,7 @@ HG0_INTAKE → MODELING → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
 |------|------|---------|
 | `system` | "B"（C 系统为"C"） | HG0 写入；**防混同锚点**——编排器引用任何 `.trae/` 镜像文件（惯例/机查/agent 文件）前，校验本字段与项目根路径所属系统一致：项目根在 B 系统目录下则一切引用 B 侧文件、借用 C 侧资产走 C4③ 白名单，反之亦然（2026-08-C5） |
 | `mode` | competition / training | HG0 写入 |
+| `compile_mode` | external / null | WRITING 预检写入：xelatex 不可用 → `external`（编译降级模式）；本地可编译 → null |
 | `project_root` | 绝对路径 | HG0 写入 |
 | `reference_paper_dir` | 绝对路径 / null | HG0 写入（训练模式） |
 | `current_stage` | 状态机态名 | 每次转移 |
@@ -66,11 +67,11 @@ HG0_INTAKE → MODELING → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
 | 转换 | 必跑机查 | 报告规范路径（项目根） |
 |------|---------|----------------------|
 | MODELING → 下一阶段 | `check_solution_json.py` + `check_modeling_artifacts.py`（图表双格式配对/绝对路径/商业求解器，2026-08-B8）+ `check_code_hygiene.py project/`（交付代码注释卫生，2026-08-B1）+ `check_workspace_hygiene.py`（工作区卫生，本行内先于 manifest 执行）+ **最后** `check_pipeline_manifest.py --stage modeling`（齐备性门，须在本阶段其他机查报告全部落盘后执行，否则会误报缺失） | `contract_check_report.json` + `modeling_artifacts_report.json` + `code_hygiene_report.json` + `workspace_hygiene_report.json` + `manifest_check_report.json` |
-| WRITING 启动前（预检） | `check_latex_env.py`（xelatex/关键宏包/中文字体，2026-08-B1；**任一 ERROR 报告用户，禁止 subagent 自行安装 TeX 发行版**；xelatex 不可用则进入编译降级模式——不阻塞流水线，编译移交用户外部执行，用户回传 `.aux`/`.log`/`.pdf` 后编排器补跑 `check_latex_compliance.py`） | `latex_env_report.json` |
+| WRITING 启动前（预检） | `check_latex_env.py`（xelatex/关键宏包/中文字体，2026-08-B1；**任一 ERROR 报告用户，禁止 subagent 自行安装 TeX 发行版**；xelatex 不可用则进入编译降级模式——不阻塞流水线，`pipeline_state.json` 写入 `compile_mode=external`，编译移交用户外部执行；用户回传 `.aux`/`.log`/`.pdf`（三件缺一不可）后编排器补跑 `check_latex_compliance.py`） | `latex_env_report.json` |
 | WRITING → 下一阶段 | `check_latex_compliance.py` + `check_tex_numbers.py`（WARN 级辅助，不阻塞）+ `check_abstract_guard.py audit paper.tex`（摘要篇幅/段落量化/关键词加粗，WARN 级辅助，2026-08-C2，终端输出即可；`verify` 仅在修复回路摘要定稿后按惯例 三.10 执行）+ `check_pipeline_manifest.py --stage writing` | `latex_compliance_report.json` + `tex_number_check_report.json` + 更新 `manifest_check_report.json` |
 | REVIEW_FIX 每轮后 | `check_pipeline_manifest.py --stage review` | 更新 `manifest_check_report.json` |
 | CALIBRATION → RETRO | `check_pipeline_manifest.py --stage calibration` + `check_isolation.py --signature ...`（泄漏审计，签名规程见 §8 第 4 步） | 更新 `manifest_check_report.json` + `isolation_check_report.json` |
-| COMPLIANCE（打包） | `package_support_materials.py`（只收代码+数据+图表，终扫未过不得交付，2026-08-B1） | `packaging_report.json` |
+| COMPLIANCE（打包） | `package_support_materials.py`（只收代码+数据+图表，终扫未过不得交付，2026-08-B1；`compile_mode=external` 时须先过下方"编译降级专项条款"再打包） | `packaging_report.json` |
 | 任意阶段转换（工作区卫生） | `check_workspace_hygiene.py`（扫描项目根设计外垃圾，2026-08-B2） | `workspace_hygiene_report.json` |
 | 任意共享文件落地后 | `check_prompt_budget.py` | 终端输出即可 |
 | 惯例/共享规则落地后（`国赛公开惯例.md` 或引用惯例的文件改动时） | `check_convention_refs.py`（编号引用完整性 + 条款锚点目录对账） | 终端输出即可 |
@@ -84,6 +85,10 @@ HG0_INTAKE → MODELING → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
 **编排器自证条款（堵"登记了≠执行了"）**：每次阶段转换推进前，编排器须在阶段转换声明（向用户的状态更新 / 下游调用 prompt）中**复述本次每个机查报告的文件路径 + 报告内 error_count 数值**（如"contract_check_report.json: 0 ERROR / 2 WARN"）。`machine_checks` 由编排器自填、不可自证；复述使其对用户与 `check_machine_checks.py` 双向可见，虚报会在复述与报告实际值对账时暴露。未复述即推进，视同该机查未执行。
 
 WARN 的裁定权维持下游 agent 制度（惯例 五.1）不变——编排器只保证**机查被执行、报告存在、ERROR 清零**，不越权裁定 WARN。
+
+**复审修复点 diff 协议**（REVIEW_FIX，2026-09 批次 4）：初审调用前，编排器快照 `paper.tex` 与 `result_bundle/solution.json` 至 `decision_logs/_review_snapshots/r0/`；每轮 `fix_round{N}.md` 交付后、复审调用前，用 `git diff --no-index` 对比上一快照与当前版本（tex 节级 + JSON 字段级），汇总修复点清单写入 `decision_logs/fix_points_round{N}.md`，随复审调用 prompt 下发为修复点锚，随后更新快照。reviewer 全文通读义务不变（`AGENTS.md` 修复回路第 3 条），清单仅作验证锚点、不替代通读；R3 复核前同此办理。
+
+**编译降级专项条款**（条件触发：`compile_mode=external`，2026-09 批次 4；摘要 ≤1 页与正文页数为官方/红线硬约束，降级模式下由本条款兜底为交付前 ERROR 级门）：交付前编排器逐项确认——①最新 `paper.tex` 对应的用户回传件 `.aux`/`.log`/`.pdf` 三件齐备且同源（同一轮外部编译），缺件不得交付；②以回传件补跑 `check_latex_compliance.py`，ERROR 清零；③若 `.aux` 缺失或无 `abstract:end` 锚点：摘要 ≤1 页与正文页数（≥10 且尽量 ≤30）改为 PDF 人工实测——pymupdf 渲染摘要页与附录起始页 PNG 存 `decision_logs/page_check_evidence/`，实测结论（摘要页数 / 正文起止页 / 正文页数）写入 `decision_logs/manual_page_check.md`，无实测记录不得交付；④补跑与实测完成后删除项目根 `.aux`/`.log` 等编译副产物（`paper.pdf` 保留），再执行工作区卫生与打包终扫。
 
 ## 5. 质量红线执行协议（状态机守卫）
 

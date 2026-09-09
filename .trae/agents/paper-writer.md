@@ -102,7 +102,7 @@ tools: Read, Write, Bash, Grep, WebSearch, WebFetch, TodoWrite
 
 ### 编译
 
-编译命令以 `.trae/papers/LaTeX格式规范.md` §五为准。读编排器 WRITING 预检 `check_latex_env.py` 报告：可用则编译 → 版面 QA → 合规机查；不可用则进入**编译降级模式**——不执行 xelatex，改做静态自检（符号 / 去 AI 味 / 图表引用 / 术语），`handoff_notes_2.md` 标记「⚠️ 本运行未编译验证」；用户回传 `.aux`/`.log`/`.pdf` 后由编排器补跑 `check_latex_compliance.py`（补跑前不得终审通过）。
+编译命令以 `.trae/papers/LaTeX格式规范.md` §五为准。读编排器 WRITING 预检 `check_latex_env.py` 报告：可用则编译 → 版面 QA → 合规机查；不可用则进入**编译降级模式**——不执行 xelatex，改做静态自检（符号 / 去 AI 味 / 图表引用 / 术语），`handoff_notes_2.md` 标记「⚠️ 本运行未编译验证」；用户回传 `.aux`/`.log`/`.pdf`（三件缺一不可）后由编排器补跑 `check_latex_compliance.py`（补跑前不得终审通过；缺 `.aux` 时摘要/正文页数按编排器 COMPLIANCE 降级专项条款人工实测）。
 
 ---
 
