@@ -25,7 +25,7 @@ tools: Read, Write, Bash, Grep, TodoWrite
 2. 读取 `result_bundle/solution.json`、`modeling_plan.json` 对照数值与建模方案
 3. **若可访问 project/*.py 和 术语表.json**：读取代码和术语表，做代码-论文-术语表三方一致性核查
 4. **主动发现漏洞策略**（逐项执行，禁止走过场）：
-   - **契约机查**（P0 强制）：运行 `python .trae/code_templates/check_solution_json.py result_bundle/solution.json project/results/`，其 ERROR/WARN 直接作为必查清单 3/4/5 项的核查证据。
+   - **契约机查**（P0 强制）：运行 `python .trae/code_templates/check_solution_json.py result_bundle/solution.json project/results/ --selfcheck`（自检模式只打印不落盘，不覆写编排器权威 contract_check_report.json），其 ERROR/WARN 直接作为必查清单 3/4/5 项的核查证据。
    - **公式推导跨节交叉验证**（P0 强制）：随机选取 2 个**来自不同章节**的核心公式，从建模假设出发手工推导一遍，检查是否有跳跃或错误。禁止只查同一节内的公式。
    - **边界条件测试**：将极端值（零、负值、极大值）代入模型，检查论文是否讨论了这些边界行为
    - **反例构造**：尝试构造合法输入使论文结论不成立，测试结论普适性

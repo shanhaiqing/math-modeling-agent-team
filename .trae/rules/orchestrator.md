@@ -76,8 +76,11 @@ HG0_INTAKE → MODELING → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
 | 惯例/共享规则落地后（`国赛公开惯例.md` 或引用惯例的文件改动时） | `check_convention_refs.py`（编号引用完整性 + 条款锚点目录对账） | 终端输出即可 |
 | 绘图代码落地后（`visualization_style.py` / `figure-studio/`） | `check_viz_tests.py`（跑 4 个 `test_*` 回归测试，任一失败 ERROR） | 终端输出即可 |
 | 方法卡片或求解器模板变更后 + MODELING 门（与 `check_modeling_artifacts.py` 同批） | `check_card_refs.py`（卡片→代码模板引用完整性：路径存在性、"自实现/待补"合法性） | 终端输出即可 |
+| **每次阶段转换最后（manifest 之后）** | `check_machine_checks.py <项目根> --stage <阶段> --mode <模式>`（机查执行证据链对账：虚报 PASS / 报告缺失 / 漏登记 / 陈旧报告；元机查，校验 machine_checks 登记与报告文件是否一致） | 终端输出即可（**默认不落盘、不入注册表**，避免与 manifest 循环依赖；需留证时 `--report machine_checks_audit_report.json`） |
 
-**执行顺序铁律**：`check_pipeline_manifest.py` 是齐备性门，会校验注册表内全部报告文件的存在性——**必须在同一转换内的其他机查全部落盘后最后执行**，否则会把尚未生成的报告误报为缺失 ERROR。上表各行的脚本排列顺序即为执行顺序。
+**执行顺序铁律**：①`check_pipeline_manifest.py` 是齐备性门，会校验注册表内全部报告文件的存在性——**必须在同一转换内的其他机查全部落盘后最后执行**，否则会把尚未生成的报告误报为缺失 ERROR。②`check_machine_checks.py` 对账 machine_checks 登记，依赖 manifest 报告已落盘且已登记——**排在 manifest 之后**。故每次阶段转换的执行顺序恒为：各业务机查 → manifest → check_machine_checks。上表各行的脚本排列顺序即为执行顺序。
+
+**编排器自证条款（堵"登记了≠执行了"）**：每次阶段转换推进前，编排器须在阶段转换声明（向用户的状态更新 / 下游调用 prompt）中**复述本次每个机查报告的文件路径 + 报告内 error_count 数值**（如"contract_check_report.json: 0 ERROR / 2 WARN"）。`machine_checks` 由编排器自填、不可自证；复述使其对用户与 `check_machine_checks.py` 双向可见，虚报会在复述与报告实际值对账时暴露。未复述即推进，视同该机查未执行。
 
 WARN 的裁定权维持下游 agent 制度（惯例 五.1）不变——编排器只保证**机查被执行、报告存在、ERROR 清零**，不越权裁定 WARN。
 
@@ -102,7 +105,7 @@ subagent 返回后，编排器按 `AGENTS.md` 质量红线节逐项核验（产�
 
 ## 8. 复盘组织协议（并行）
 
-1. 确认 REVIEW_FIX/CALIBRATION 全部机查报告齐备（第 4 节）。
+1. 确认 REVIEW_FIX/CALIBRATION 全部机查报告齐备（第 4 节），并**运行 `check_machine_checks.py`（复盘前必跑）**对账全程 `machine_checks` 登记与报告文件——虚报/漏跑/陈旧报告 ERROR 清零方可进入复盘，否则复盘结论建立在虚假执行证据上。
 2. **圈定本轮可共享材料清单**：按 `AGENTS.md` 信息隔离节白名单，逐个列出本轮可读文件的具体路径（含校准产出物【可共享节】位置）；清单作为 handoff 契约第五项写入每个复盘调用 prompt。
 3. **同一消息内并发发起四个复盘 Task**（并行兼容性矩阵白名单），每个调用 prompt 显式下发该清单并声明"清单外一律禁读"。白名单材料均为复盘前已固化产物，四任务并行无读写冲突。
 4. 收齐后、汇总前，**重跑 `check_isolation.py`（复盘后内容泄漏审计）**——此时 retro_*.md 已生成，脚本检查 2 的非授权产出扫描才真正生效；ERROR 清零方可汇总，报告更新 `isolation_check_report.json` 并登记 `machine_checks`。

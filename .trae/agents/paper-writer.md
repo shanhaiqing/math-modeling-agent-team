@@ -20,7 +20,7 @@ tools: Read, Write, Bash, Grep, WebSearch, WebFetch, TodoWrite
 
 ### 步骤 0：result_bundle 完整性反向核查（P0 强制）
 
-动笔前核查 result_bundle 是否含以下产物，缺失则**反向质询上游**（handoff_notes_2.md 标记，由主智能体决定是否退回 modeling-solver）。核查前先运行契约校验器（`python .trae/code_templates/check_solution_json.py result_bundle/solution.json project/results/`）：ERROR 列入反向质询，WARN 写入 handoff_notes_2.md（**本运行属 result_bundle 反向核查自检用途，报告入 handoff_notes_2.md，不替代编排器 MODELING 门机查、不登记 machine_checks**）：
+动笔前核查 result_bundle 是否含以下产物，缺失则**反向质询上游**（handoff_notes_2.md 标记，由主智能体决定是否退回 modeling-solver）。核查前先运行契约校验器**自检模式**（`python .trae/code_templates/check_solution_json.py result_bundle/solution.json project/results/ --selfcheck`）：ERROR 列入反向质询，WARN 写入 handoff_notes_2.md（**`--selfcheck` 只打印不落盘，本运行属 result_bundle 反向核查自检用途，报告入 handoff_notes_2.md，不替代编排器 MODELING 门机查、不登记 machine_checks、不覆写 contract_check_report.json**）：
 
 | # | 产物 | 用于论文哪一节 |
 |---|------|--------------|

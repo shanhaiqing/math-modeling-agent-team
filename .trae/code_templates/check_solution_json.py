@@ -45,14 +45,21 @@ check_solution_json.py — solution.json 契约校验器（机查版）
 
 用法:
   python check_solution_json.py <solution.json路径> [project_results目录]
+                                [--selfcheck] [--report 路径]
 
   自动查找同名目录下的 modeling_plan.json 作为 A-01/A-03 检查依据；
   从 project_results 目录推导同级 project/ 目录作为代码扫描范围。
+
+  --selfcheck  subagent 自检模式：**只打印不落盘**，禁止覆写编排器权威报告。
+               paper-writer 步骤 0 等 subagent 侧调用必须带此开关
+               （orchestrator §4"机查收归编排器，不得委托 subagent 自检代替"）。
+  --report     指定报告落盘路径（默认项目根 contract_check_report.json）。
 
 退出码: 0 = 无 ERROR（可有 WARN）；1 = 存在 ERROR；2 = 用法/读取错误
 输出:   控制台逐条打印 + 在项目根写 contract_check_report.json
         （规范路径见 orchestrator.md §4 与产物注册表；solution.json 位于
         {项目根}/result_bundle/ 时项目根 = 其父级的父级，否则回退同目录）
+        --selfcheck 时不落盘，权威报告仅由编排器不带该开关的运行产生
 分级:   ERROR = 必须当场修复（阻塞打包/进入下一阶段）；WARN = 需人工判定；PASS = 通过
 """
 import json
@@ -762,8 +769,19 @@ def main():
     if len(sys.argv) < 2:
         print(__doc__)
         sys.exit(2)
-    target = Path(sys.argv[1])
-    results_dir = sys.argv[2] if len(sys.argv) > 2 else None
+    # 开关与位置参数分离：--selfcheck 只打印不落盘；--report 指定落盘路径
+    selfcheck = "--selfcheck" in sys.argv
+    report_override = None
+    if "--report" in sys.argv:
+        i = sys.argv.index("--report")
+        if i + 1 >= len(sys.argv):
+            print("✗ 用法错误：--report 后须跟路径")
+            sys.exit(2)
+        report_override = Path(sys.argv[i + 1])
+    positional = [a for a in sys.argv[1:]
+                  if not a.startswith("--") and a != str(report_override or "")]
+    target = Path(positional[0])
+    results_dir = positional[1] if len(positional) > 1 else None
     if not target.is_file():
         print(f"✗ 文件不存在: {target}")
         sys.exit(2)
@@ -824,11 +842,19 @@ def main():
     print(f"\n汇总: {n_err} ERROR / {n_warn} WARN / {n_pass} PASS")
 
     report = {"target": str(target),
+              "selfcheck": selfcheck,
               "summary": {"ERROR": n_err, "WARN": n_warn, "PASS": n_pass},
               "findings": FINDINGS}
+    if selfcheck:
+        # subagent 自检：禁止落盘，避免覆写编排器 MODELING 门的权威报告
+        print("\n[selfcheck] 自检模式：结果仅打印，不写 contract_check_report.json"
+              "（权威报告仅由编排器不带 --selfcheck 的运行产生）")
+        sys.exit(1 if n_err else 0)
     # 报告规范路径 = 项目根（orchestrator.md §4 / 产物注册表）；
     # solution.json 规范位置为 {项目根}/result_bundle/solution.json
-    if target.parent.name == "result_bundle":
+    if report_override is not None:
+        out = report_override
+    elif target.parent.name == "result_bundle":
         out = target.parent.parent / "contract_check_report.json"
     else:
         out = target.parent / "contract_check_report.json"

@@ -175,7 +175,7 @@ tools: Read, Write, Bash, Grep, Glob, WebSearch, WebFetch, TodoWrite
 
 **结果合理性自查**：量级检验、边界检验、约束松弛检验。
 
-**solution.json 字段值语义合理性自查**（P0 强制）：**机查**——打包前运行 `python .trae/code_templates/check_solution_json.py result_bundle/solution.json project/results/`，ERROR 当场修复后方可打包，WARN 逐条人工判定；**人工**——按惯例 一.10 对工具盲区逐字段判定并附四元组记录，写入 s3_reflection.md；任一 ✗ 当场修复，禁止打包带病字段。
+**solution.json 字段值语义合理性自查**（P0 强制）：**机查**——打包前运行 `python .trae/code_templates/check_solution_json.py result_bundle/solution.json project/results/ --selfcheck`（自检模式只打印不落盘，权威 contract_check_report.json 由编排器 MODELING 门产生），ERROR 当场修复后方可打包，WARN 逐条人工判定；**人工**——按惯例 一.10 对工具盲区逐字段判定并附四元组记录，写入 s3_reflection.md；任一 ✗ 当场修复，禁止打包带病字段。
 
 **代码-论文一致性预检**（P0 强制）：打包前自检代码变量名、参数数值、分段函数逻辑、参数范围与 modeling_plan.json/术语表.json/solution.json 一致。
 

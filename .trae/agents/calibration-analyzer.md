@@ -57,7 +57,7 @@ tools: Read, Write, Bash, Grep, WebSearch, WebFetch, TodoWrite
 - 读 `result_bundle/solution.json`：求解结果数值
 - 读 `result_bundle/modeling_plan.json` 和 `术语表.json`：符号定义
 - 目的：做"代码-论文-solution.json 三方一致性核查"，识别执行层差距（而非仅方法层差距）
-- **契约机查**（P0 强制）：运行 `python .trae/code_templates/check_solution_json.py result_bundle/solution.json project/results/`（机械兜底，降低审计漏报；其发现计入步骤 5b 协同统计）
+- **契约机查**（P0 强制）：运行 `python .trae/code_templates/check_solution_json.py result_bundle/solution.json project/results/ --selfcheck`（自检模式只打印不落盘，不覆写编排器权威 contract_check_report.json；机械兜底，降低审计漏报；其发现计入步骤 5b 协同统计）
 
 **1c 结构惯例对标**（P0 强制，不依赖 OCR）：先运行 `python .trae/code_templates/check_latex_compliance.py paper.tex project/` 机查兜底（其 ERROR/WARN 直接记为结构层 gap）；再对机查未覆盖项，对照 `.trae/papers/国赛公开惯例.md` 写作惯例逐条核查 AI 论文结构合规性：摘要页仅标题+摘要+关键词（无队名/日期）？主体按问题组织、建立与求解合一？符号说明单表？假设简明？参考文献可查证性由机查 P11-R 承担（正文↔列表双向核对 + DOI/URL 可达性审计），其 ERROR/WARN 直接计入结构层 gap，WARN 裁定判据见 `.trae/skills/reference-studio/SKILL.md` 步骤 2-3（一处定义）。任一不符 → 记为结构层 gap。
 
