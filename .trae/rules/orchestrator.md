@@ -77,6 +77,7 @@ HG0_INTAKE → MODELING → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
 | 绘图代码落地后（`visualization_style.py` / `figure-studio/`） | `check_viz_tests.py`（跑 4 个 `test_*` 回归测试，任一失败 ERROR） | 终端输出即可 |
 | 方法卡片或求解器模板变更后 + MODELING 门（与 `check_modeling_artifacts.py` 同批） | `check_card_refs.py`（卡片→代码模板引用完整性：路径存在性、"自实现/待补"合法性） | 终端输出即可 |
 | **每次阶段转换最后（manifest 之后）** | `check_machine_checks.py <项目根> --stage <阶段> --mode <模式>`（机查执行证据链对账：虚报 PASS / 报告缺失 / 漏登记 / 陈旧报告；元机查，校验 machine_checks 登记与报告文件是否一致） | 终端输出即可（**默认不落盘、不入注册表**，避免与 manifest 循环依赖；需留证时 `--report machine_checks_audit_report.json`） |
+| **subagent 交付反思日志后**（MODELING 门核验 s1/s2/s3、WRITING 门核验 s4） | `check_reflection.py <项目根>`（反思日志反敷衍：套话密度 / 全 ✓ 无警示 / 空依据 / 依据过短 / 红队节空洞 / 篇幅异常六类特征） | 终端输出即可（**WARN 级不阻塞**——只识别敷衍的形式特征，裁定权按惯例 五.1 归 reviewer；需留证时 `--report decision_logs/reflection_check_report.json`） |
 
 **执行顺序铁律**：①`check_pipeline_manifest.py` 是齐备性门，会校验注册表内全部报告文件的存在性——**必须在同一转换内的其他机查全部落盘后最后执行**，否则会把尚未生成的报告误报为缺失 ERROR。②`check_machine_checks.py` 对账 machine_checks 登记，依赖 manifest 报告已落盘且已登记——**排在 manifest 之后**。故每次阶段转换的执行顺序恒为：各业务机查 → manifest → check_machine_checks。上表各行的脚本排列顺序即为执行顺序。
 
