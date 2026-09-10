@@ -96,13 +96,37 @@ def read_json(path: Path):
 
 
 def report_error_count(path: Path):
-    """读取报告文件内的 error_count / error 数值；无该字段返回 None。"""
+    """读取报告文件内的 ERROR 计数；无法识别时返回 None。
+
+    B/C 两系统的机查报告存在两种字段约定，必须都支持，否则虚报通过检测失效：
+      约定一（扁平）：顶层 error_count / error / errors / err
+        —— manifest_check_report、code_hygiene_report、workspace_hygiene_report
+      约定二（嵌套）：summary.ERROR（值为整数）
+        —— contract_check_report、modeling_artifacts_report
+    2026-09-10 修复：原实现只认约定一，导致契约报告与建模产物报告的内部
+    ERROR 无法被读取，"登记 pass 但报告内有 ERROR"这一虚报情形检测不到。
+    """
     try:
         data = read_json(path)
     except Exception:
         return None
     if not isinstance(data, dict):
         return None
+
+    # 约定二优先判定：嵌套 summary.ERROR / summary.error
+    summary = data.get("summary")
+    if isinstance(summary, dict):
+        for key in ("ERROR", "error", "error_count", "err"):
+            if key in summary:
+                v = summary[key]
+                if isinstance(v, bool):
+                    continue
+                if isinstance(v, (int, float)):
+                    return int(v)
+                if isinstance(v, list):
+                    return len(v)
+
+    # 约定一：扁平字段
     for key in ("error_count", "error", "errors", "err"):
         if key in data:
             v = data[key]
