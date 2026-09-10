@@ -68,36 +68,99 @@ def split_layers(text):
     return {k: "\n".join(v) for k, v in layers.items()}
 
 
-def check_marks(text, fname):
-    """R2/R3/R4：解析逐项标注与依据质量。"""
-    # 表格形式（s4 模板）：| ... | ✓/⚠️/✗ | 依据 |
-    # 散文形式（s1-s3）：1.xxx ✓ 依据
-    rows = re.findall(r"^\|.*\|\s*(✓|⚠️|✗|✅|❌)\s*\|(.*?)\|\s*$", text, re.M)
-    marks = [(m.group(1), text[m.end():m.end() + 40]) for m in re.finditer(r"(✓|⚠️|✗)", text)]
+def collect_verdict_marks(text):
+    """只收集【表格判定列】的标记，不解析散文行内标记。
 
-    n_ok = sum(1 for m, _ in marks if m in ("✓", "✅"))
-    n_bad = sum(1 for m, _ in marks if m in ("⚠️", "✗", "❌"))
+    2026-09-10 三轮修复：
+      第一轮：原实现用 finditer 数全文 ✓，把"P1 宽度 242.98/70=c_W=3.471 ✓"这类
+              行内数值互印证标记计入判定，导致高质量日志被误判 R2「43 个 ✓」。
+      第二轮：曾尝试识别散文判定行，但层 2/层 3 证据文本里大量出现
+              "- 符号说明……三方一致 ✓"形态，其 ✓ 位于句末（后面本就无内容），
+              被误判为 R3「空依据」。散文形式下两类 ✓ 无法可靠区分，故放弃散文解析。
+      第三轮：表格判定列可能在【中间】也可能在【末列】。
+              实测 s2 的「惯例一.11 参数逐字回读」表为 | 原文参数 | 代码位置与取值 | ✓ |，
+              ✓ 在末列、证据在其前一格；原实现只取"✓ 后一格"为依据，导致该表 11 行
+              被判「空依据」——而那实际是逐字回读 + 代码定位的高质量证据。
+
+    现行判据：markdown 表格中【单元格内容恰为单个判定符号】即判定列；
+      依据取「✓ 后一格」，若 ✓ 已在末列则取「前一格」。
+    s1-s4 的层 1 按模板均为表格形式，S4 模板亦强制表格 + 「证据指针」列。
+    行内 ✓（数值互印证）不参与判定统计，属正常证据书写。
+    """
+    verdicts = []  # [(mark, basis)]
+
+    for line in text.splitlines():
+        if not line.lstrip().startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if len(cells) < 3:
+            continue
+        for idx, cell in enumerate(cells):
+            if cell in ("✓", "✅", "⚠️", "✗", "❌"):
+                if idx + 1 < len(cells):
+                    basis = cells[idx + 1]          # 判定列在中间：依据在后一格
+                else:
+                    basis = cells[idx - 1] if idx > 0 else ""   # 判定列在末列：依据在前一格
+                verdicts.append((cell, basis))
+                break
+
+    return verdicts
+
+
+def has_verdict_table(text):
+    """判断是否存在层 1 判定表格（含判定符号或模板占位符 ✓/⚠️/✗）。"""
+    for line in text.splitlines():
+        if not line.lstrip().startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if any(c in ("✓", "✅", "⚠️", "✗", "❌", "✓/⚠️/✗") for c in cells):
+            return True
+    return False
+
+
+def check_marks(text, fname):
+    """R2/R3/R4：解析逐项标注与依据质量（仅表格判定列）。"""
+    if not has_verdict_table(text):
+        warn(fname, "R0 未检出层 1 判定表格：反思日志未按模板使用表格形式"
+                    "（s4_reflection_template.md 规定层 1 为表格 + 证据指针列），"
+                    "无法机查判定质量——请人工核对")
+        return
+
+    verdicts = collect_verdict_marks(text)
+
+    n_ok = sum(1 for m, _ in verdicts if m in ("✓", "✅"))
+    n_bad = sum(1 for m, _ in verdicts if m in ("⚠️", "✗", "❌"))
+
+    # 全文标记总数仅用于消息中说明"另有行内验证标记"，不参与判定
+    n_all_ok = text.count("✓") + text.count("✅")
 
     if n_ok >= 5 and n_bad == 0:
-        warn(fname, f"R2 全 ✓ 无警示：{n_ok} 个 ✓、0 个 ⚠️/✗——层 1 逐项扫描应有区分度，"
-                    f"全部通过疑为未真实展开（AGENTS.md 红队机制禁止无差别 ✓）")
+        # 全 ✓ 时先评估依据质量：依据充分则降为中性提示，不断言敷衍
+        bases = [b for m, b in verdicts if m in ("✓", "✅") and b.strip()]
+        avg_len = (sum(len(re.sub(r"[\s|]", "", b)) for b in bases) / len(bases)) if bases else 0
+        ptr_hits = sum(1 for b in bases if EVIDENCE_HINT.search(b))
+        ptr_ratio = (ptr_hits / len(bases)) if bases else 0
+        extra = (f"；全文另有 {n_all_ok - n_ok} 个行内数值验证标记（属证据书写，不计入判定）"
+                 if n_all_ok > n_ok else "")
+        if avg_len >= 60 and ptr_ratio >= 0.7:
+            warn(fname, f"R2 判定全 ✓ 无警示：{n_ok} 项判定全为 ✓、0 个 ⚠️/✗{extra}。"
+                        f"但依据质量充分（平均 {avg_len:.0f} 字符、{ptr_ratio:.0%} 含证据指针），"
+                        f"形式上不构成敷衍——层 1 全项通过本身偏离常态，请 reviewer 抽查 2 项证伪")
+        else:
+            warn(fname, f"R2 全 ✓ 无警示：{n_ok} 项判定全为 ✓、0 个 ⚠️/✗{extra}，"
+                        f"且依据偏弱（平均 {avg_len:.0f} 字符、{ptr_ratio:.0%} 含证据指针）"
+                        f"——疑为未真实展开（AGENTS.md 红队机制禁止无差别 ✓）")
 
     empty = short = 0
-    for mark, tail in marks:
-        cleaned = re.sub(r"[\s|：:，,。\-—*#`]", "", tail)
+    for mark, basis in verdicts:
+        cleaned = re.sub(r"[\s|：:，,。\-—*#`\[\]]", "", basis)
         if not cleaned:
             empty += 1
-        elif len(cleaned) < 20 and not EVIDENCE_HINT.search(tail):
+        elif len(cleaned) < 20 and not EVIDENCE_HINT.search(basis):
             short += 1
-    if rows:  # 表格形式另查说明列
-        for _mark, note in rows:
-            cleaned = re.sub(r"[\s|：:，,。\-—*#`\[\]]", "", note)
-            if not cleaned or cleaned in ("具体依据", "依据"):
-                empty += 1
-            elif len(cleaned) < 20 and not EVIDENCE_HINT.search(note):
-                short += 1
     if empty:
-        warn(fname, f"R3 空依据 {empty} 处：标记后无任何内容——每个 ✓ 须附证据指针（文件+行号/机查报告条目）")
+        warn(fname, f"R3 空依据 {empty} 处：表格判定列后的依据单元格为空——"
+                    f"每个 ✓ 须附证据指针（文件+行号 / 机查报告条目号 / JSON 字段路径）")
     if short:
         warn(fname, f"R4 依据过短 {short} 处：<20 字符且无数字/文件引用，疑为占位")
 
