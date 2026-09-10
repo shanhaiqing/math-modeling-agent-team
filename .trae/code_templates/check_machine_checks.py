@@ -126,8 +126,9 @@ def report_error_count(path: Path):
                 if isinstance(v, list):
                     return len(v)
 
-    # 约定一：扁平字段
-    for key in ("error_count", "error", "errors", "err"):
+    # 约定一：扁平字段（大小写均查，避免顶层大写 ERROR 落到约定三被误判为 0）
+    for key in ("error_count", "error", "errors", "err",
+                "ERROR_COUNT", "ERROR", "ERRORS", "ERR"):
         if key in data:
             v = data[key]
             if isinstance(v, bool):
@@ -136,6 +137,15 @@ def report_error_count(path: Path):
                 return int(v)
             if isinstance(v, list):
                 return len(v)
+
+    # 约定三：纯 WARN 级检查器（只有 warn_count/warn，从不产生 ERROR）
+    #   —— tex_number_check_report（数值核对，0.5% 容差，只报 WARN）
+    # 这类报告无 error 字段属正常，应推断 error=0，而非判"无法核验"。
+    # 注意：必须在约定一（含大写键）全部查完之后才走到这里，
+    # 否则顶层大写 "ERROR" 会被此处吞成 0，导致"登记 pass 但报告内有 ERROR"漏检。
+    for key in ("warn_count", "warn", "warns"):
+        if key in data:
+            return 0
     return None
 
 
