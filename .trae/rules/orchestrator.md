@@ -14,14 +14,14 @@
 ### 比赛模式
 
 ```
-HG0_INTAKE → MODELING → HG1_GATE → WRITING → HG2_GATE
+HG0_INTAKE → MODELING → FIGURES → HG1_GATE → WRITING → HG2_GATE
 → REVIEW_FIX(初审⇄R1⇄复审⇄R2) → HG3_GATE → COMPLIANCE → DELIVERED
 ```
 
 ### 训练模式
 
 ```
-HG0_INTAKE → MODELING → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
+HG0_INTAKE → MODELING → FIGURES → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
 → CALIBRATION → RETRO_PARALLEL → APPROVAL → DONE
 ```
 
@@ -66,7 +66,9 @@ HG0_INTAKE → MODELING → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
 
 | 转换 | 必跑机查 | 报告规范路径（项目根） |
 |------|---------|----------------------|
-| MODELING → 下一阶段 | `check_solution_json.py` + `check_modeling_artifacts.py`（图表双格式配对/绝对路径/商业求解器，2026-08-B8）+ `check_code_hygiene.py project/`（交付代码注释卫生，2026-08-B1）+ `check_workspace_hygiene.py`（工作区卫生，本行内先于 manifest 执行）+ **最后** `check_pipeline_manifest.py --stage modeling`（齐备性门，须在本阶段其他机查报告全部落盘后执行，否则会误报缺失） | `contract_check_report.json` + `modeling_artifacts_report.json` + `code_hygiene_report.json` + `workspace_hygiene_report.json` + `manifest_check_report.json` |
+| HG0 → MODELING | `convert_problem.py`（赛题 PDF / 说明类附件转写，xlsx/csv 不转）+ `check_workspace_hygiene.py` + **最后** `check_pipeline_manifest.py --stage intake` | `赛题/ingest_report.json` + `workspace_hygiene_report.json` + 更新 `manifest_check_report.json` |
+| MODELING → 下一阶段 | `check_solution_json.py` + `check_modeling_artifacts.py --scope modeling`（绝对路径/商业求解器/指纹契约 + P11-N 过早出图）+ `check_code_hygiene.py project/`（交付代码注释卫生，2026-08-B1）+ `check_workspace_hygiene.py`（工作区卫生，本行内先于 manifest 执行）+ **最后** `check_pipeline_manifest.py --stage modeling` | `contract_check_report.json` + `modeling_artifacts_report.json` + `code_hygiene_report.json` + `workspace_hygiene_report.json` + `manifest_check_report.json` |
+| FIGURES → 下一阶段 | `check_modeling_artifacts.py --scope figures`（P11-F 双格式配对 + P11-V visual_qa）+ `check_workspace_hygiene.py` + **最后** `check_pipeline_manifest.py --stage figures` | `figures_artifacts_report.json` + `workspace_hygiene_report.json` + 更新 `manifest_check_report.json` |
 | WRITING 启动前（预检） | `check_latex_env.py`（xelatex/关键宏包/中文字体，2026-08-B1；**任一 ERROR 报告用户，禁止 subagent 自行安装 TeX 发行版**；xelatex 不可用则进入编译降级模式——不阻塞流水线，`pipeline_state.json` 写入 `compile_mode=external`，编译移交用户外部执行；用户回传 `.aux`/`.log`/`.pdf`（三件缺一不可）后编排器补跑 `check_latex_compliance.py`） | `latex_env_report.json` |
 | WRITING → 下一阶段 | `check_latex_compliance.py` + `check_tex_numbers.py`（WARN 级辅助，不阻塞）+ `check_abstract_guard.py audit paper.tex`（摘要篇幅/段落量化/关键词加粗，WARN 级辅助，2026-08-C2，终端输出即可；`verify` 仅在修复回路摘要定稿后按惯例 三.10 执行）+ `check_pipeline_manifest.py --stage writing` | `latex_compliance_report.json` + `tex_number_check_report.json` + 更新 `manifest_check_report.json` |
 | REVIEW_FIX 每轮后 | `check_pipeline_manifest.py --stage review` | 更新 `manifest_check_report.json` |
@@ -86,13 +88,30 @@ HG0_INTAKE → MODELING → WRITING → REVIEW_FIX(初审⇄R1⇄复审⇄R2)
 
 WARN 的裁定权维持下游 agent 制度（惯例 五.1）不变——编排器只保证**机查被执行、报告存在、ERROR 清零**，不越权裁定 WARN。
 
+**HG0 赛题转写协议**（两种模式均在题型判定前执行；脚本 `.trae/code_templates/convert_problem.py`）：
+
+1. 确认项目根后运行 `python .trae/code_templates/convert_problem.py --project-root <项目根>`（自动发现题面 PDF；用户也可 `--pdf` / `--attachments-dir` 指定）。
+2. 产出 `{项目根}/赛题/题面.md`（按页原文转写，**禁止改写**）+ `赛题/ingest_report.json`；说明类 `.docx` 转 `赛题/附件/*.md`（条件）；PDF 嵌入图与疑似扫描页导出 `赛题/题面图/`（条件）。xlsx/csv 数据附件不转写。
+3. `ingest_report.json` 的 `error_count` 未清零不得进入题型判定。编排器以 `赛题/题面.md` 做 HG0 题型判定。
+4. 后续 MODELING / FIGURES / WRITING / REVIEW 的强制喂料均含 `赛题/题面.md`（及存在的 `赛题/附件/`、`赛题/题面图/`）。**禁止**各 agent 自行 pymupdf 抽赛题 PDF。题面源图允许 Read；论文生成图仍禁止 Read。
+5. 过门：`check_pipeline_manifest.py --stage intake` ERROR 清零。比赛模式将转写齐备纳入 HG0 审查卡后暂停。
+
+**FIGURES 专项协议**（MODELING 红线通过后、HG1 前；训练模式同序但不为人看图停门）：
+
+1. **另起干净 Task**：禁止 inherit modeling-solver 上下文；禁止用编排器当前会话兼做绘图。模型钉 GLM（默认平台 slug `glm-5.2-high`，用户可覆盖）。
+2. **只喂**：`.trae/skills/figure-studio/SKILL.md` + `.trae/code_templates/visualization_style.py` + `赛题/题面.md` + 存在的 `赛题/附件/` 与 `赛题/题面图/` + `project/results/*.json` + `result_bundle/solution.json` + `result_bundle/modeling_plan.json` + `handoff_notes_1.md`。工作流按 figure-studio 执行（设计卡→选型→绘制→`visual_qa` 程序自检→导出登记）。
+3. **禁止 Read 生成图**（PNG/PDF/WebP：`result_bundle/figures/`、`project/figures/`、论文编译页截图）。**允许** Read `赛题/题面图/`（题面源图）。程序自检 `visual_qa.py` 的 `audit_figure` / `scan` 除外；ERROR 未清零不得导出。感知层交 HG1 人工。
+4. **产出**：`project/figures/` 与 `result_bundle/figures/`（PDF+PNG 双格式，≥6 组）+ `result_bundle/图表清单.md`。不占 `handoff_notes_5`。
+5. **隔离**：与 solver/writer/reviewer 同级，不得接触同题国赛论文。不得与 MODELING / WRITING / REVIEW 并行。
+6. **图面重绘**（修复回路或 HG1 图面退回）：同本协议重跑，覆盖双目录；数值禁止改动。HG1 图面退回反馈追加写入 `result_bundle/图表清单.md` 文末「HG1 退回反馈」节。
+
 **复审修复点 diff 协议**（REVIEW_FIX，2026-09 批次 4）：初审调用前，编排器快照 `paper.tex` 与 `result_bundle/solution.json` 至 `decision_logs/_review_snapshots/r0/`；每轮 `fix_round{N}.md` 交付后、复审调用前，用 `git diff --no-index` 对比上一快照与当前版本（tex 节级 + JSON 字段级），汇总修复点清单写入 `decision_logs/fix_points_round{N}.md`，随复审调用 prompt 下发为修复点锚，随后更新快照。reviewer 全文通读义务不变（`AGENTS.md` 修复回路第 3 条），清单仅作验证锚点、不替代通读；R3 复核前同此办理。
 
 **编译降级专项条款**（条件触发：`compile_mode=external`，2026-09 批次 4；摘要 ≤1 页与正文页数为官方/红线硬约束，降级模式下由本条款兜底为交付前 ERROR 级门）：交付前编排器逐项确认——①最新 `paper.tex` 对应的用户回传件 `.aux`/`.log`/`.pdf` 三件齐备且同源（同一轮外部编译），缺件不得交付；②以回传件补跑 `check_latex_compliance.py`，ERROR 清零；③若 `.aux` 缺失或无 `abstract:end` 锚点：摘要 ≤1 页与正文页数（≥10 且尽量 ≤30）改为 PDF 人工实测——pymupdf 渲染摘要页与附录起始页 PNG 存 `decision_logs/page_check_evidence/`，实测结论（摘要页数 / 正文起止页 / 正文页数）写入 `decision_logs/manual_page_check.md`，无实测记录不得交付；④补跑与实测完成后删除项目根 `.aux`/`.log` 等编译副产物（`paper.pdf` 保留），再执行工作区卫生与打包终扫。
 
 ## 5. 质量红线执行协议（状态机守卫）
 
-subagent 返回后，编排器按 `AGENTS.md` 质量红线节逐项核验（产物存在性以 check_pipeline_manifest.py 结果为准），结果登记 `redline_results`：
+subagent 返回后、以及 FIGURES 专项完成后，编排器按 `AGENTS.md` 质量红线节逐项核验（产物存在性以 check_pipeline_manifest.py 结果为准），结果登记 `redline_results`（FIGURES 用键 `figures`）：
 
 - 红线通过 → 更新 pipeline_state.json，推进状态机。
 - 红线不过 → 比赛模式：通知用户并暂停；训练模式：记录缺失项后继续（复盘中标注）。
@@ -100,7 +119,7 @@ subagent 返回后，编排器按 `AGENTS.md` 质量红线节逐项核验（产�
 
 ## 6. HG 退回协议与重试
 
-- **HG 退回**：退回对象 = 本阶段责任 subagent；反馈载体 = 在原 handoff_notes 追加"HG退回反馈"节（日期 + 退回理由 + 整改要求）；退回重跑后重新过同一 HG 门。**轮次衔接**：HG1/HG2 退回时修复回路尚未开始，修复回路轮次按初始状态处理；若退回发生在修复回路已消耗轮次之后，修复回路轮次计数不重置——**禁止借退回重置 R1/R2 上限**。
+- **HG 退回**：退回对象 = 本阶段责任方。HG1 按缺陷分流：数值/模型 → modeling-solver（反馈写入 `handoff_notes_1.md`「HG退回反馈」节）；图面 → 编排器按 FIGURES 专项重跑（反馈写入 `result_bundle/图表清单.md`「HG1 退回反馈」节）。其余 HG 门退回对象 = 本阶段责任 subagent；反馈载体 = 在原 handoff_notes 追加"HG退回反馈"节（日期 + 退回理由 + 整改要求）。退回重跑后重新过同一 HG 门。**轮次衔接**：HG1/HG2 退回时修复回路尚未开始，修复回路轮次按初始状态处理；若退回发生在修复回路已消耗轮次之后，修复回路轮次计数不重置——**禁止借退回重置 R1/R2 上限**。
 - **重试**：subagent 崩溃或强制产出缺失 → 重试 ≤2 次（同一调用 prompt + 补充失败信息）；仍失败：比赛模式通知用户，训练模式记录后继续。
 
 ## 7. BLOCKED 回退协议

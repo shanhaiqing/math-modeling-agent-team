@@ -159,6 +159,11 @@ class TestCheckSolutionJson(Base):
 
 class TestCheckPipelineManifest(Base):
     SCRIPT = "check_pipeline_manifest.py"
+    INTAKE_TEXT = "赛题转写占位。" * 40  # 非空白 >200 字
+
+    def write_intake(self):
+        self.write("赛题/题面.md", self.INTAKE_TEXT)
+        self.write("赛题/ingest_report.json", {"error_count": 0, "chars": 280})
 
     def run_manifest(self, stage="modeling", report=False):
         args = ["--project-root", self.root, "--stage", stage]
@@ -196,7 +201,8 @@ class TestCheckPipelineManifest(Base):
         self.assertEqual(json.loads(rep.read_text(encoding="utf-8"))["stage"], "modeling")
 
     def test_modeling_stage_full_pass(self):
-        """全齐夹具（实证）：modeling 阶段 13 项必填产物齐备 → exit 0 放行。"""
+        """全齐夹具：modeling 阶段必填产物齐备（不含出图）→ exit 0 放行。"""
+        self.write_intake()
         for rel in ("result_bundle/solution.json", "result_bundle/modeling_plan.json",
                     "result_bundle/feature_fingerprint.json", "result_bundle/术语表.json"):
             self.write(rel, {})
@@ -207,12 +213,58 @@ class TestCheckPipelineManifest(Base):
         # 卡片匹配日志须逐卡点名（新格式矩阵行），否则触发全覆盖 ERROR
         card_rows = "\n".join(f"| {i:02d} | 排除 | 特征指纹不符 |" for i in range(1, 13))
         self.write("decision_logs/method_card_matching.md", f"## 匹配矩阵\n{card_rows}\n")
-        for i in range(6):
-            self.write(f"result_bundle/figures/fig{i}.pdf", "%PDF-1.4")
         self.write("contract_check_report.json", {})
+        self.write("modeling_artifacts_report.json", {})
+        self.write("code_hygiene_report.json", {})
+        self.write("workspace_hygiene_report.json", {})
         self.write("pipeline_state.json", {})
         r = self.run_manifest(report=True)
         self.assertEqual(r.returncode, 0, r.stdout)
+
+    def test_modeling_stage_does_not_require_figures(self):
+        """出图已拆到 figures 阶段：modeling 门缺 figures 不得拦。"""
+        self.write_intake()
+        for rel in ("result_bundle/solution.json", "result_bundle/modeling_plan.json",
+                    "result_bundle/feature_fingerprint.json", "result_bundle/术语表.json"):
+            self.write(rel, {})
+        self.write("handoff_notes_1.md", "x")
+        for name in ("s1_reflection", "guided_questions_trace", "s2_reflection",
+                     "s3_reflection"):
+            self.write(f"decision_logs/{name}.md", "x")
+        card_rows = "\n".join(f"| {i:02d} | 排除 | 特征指纹不符 |" for i in range(1, 13))
+        self.write("decision_logs/method_card_matching.md", f"## 匹配矩阵\n{card_rows}\n")
+        self.write("contract_check_report.json", {})
+        self.write("modeling_artifacts_report.json", {})
+        self.write("code_hygiene_report.json", {})
+        self.write("workspace_hygiene_report.json", {})
+        self.write("pipeline_state.json", {})
+        r = self.run_manifest()
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertNotIn("figures 目录", r.stdout)
+
+    def test_intake_stage_requires_statement(self):
+        r = self.run_manifest(stage="intake")
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("题面.md", r.stdout)
+
+    def test_intake_stage_too_short_errors(self):
+        self.write("赛题/题面.md", "太短")
+        self.write("赛题/ingest_report.json", {"error_count": 0})
+        r = self.run_manifest(stage="intake")
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("题面转写过短", r.stdout)
+
+    def test_intake_stage_full_pass(self):
+        self.write_intake()
+        r = self.run_manifest(stage="intake", report=True)
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertEqual(json.loads((self.root / "manifest_check_report.json").read_text(encoding="utf-8"))["stage"], "intake")
+
+    def test_figures_stage_requires_six_pdfs_and_清单(self):
+        """figures 阶段：缺 ≥6 PDF 或图表清单 → ERROR。"""
+        r = self.run_manifest(stage="figures")
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("figures 目录", r.stdout)
 
     def test_method_card_missing_card_error(self):
         """卡片匹配日志漏掉某张卡片（早停/跳卡）→ ERROR 拦截。"""
@@ -346,6 +398,72 @@ class TestCheckIsolation(Base):
         self.write("paper.tex", f"正文引用 {self.SIG} 的内容")
         r = self.run_iso()
         self.assertEqual(r.returncode, 0, r.stdout)
+
+
+# ---------- convert_problem.py ----------
+
+class TestConvertProblem(Base):
+    SCRIPT = "convert_problem.py"
+
+    def test_missing_pdf_fails(self):
+        r = run_script(self.SCRIPT, ["--project-root", self.root])
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertTrue((self.root / "赛题" / "ingest_report.json").is_file())
+
+    def test_pdf_and_docx_to_markdown(self):
+        import fitz
+        from docx import Document
+
+        pdf = self.root / "B题.pdf"
+        doc = fitz.open()
+        page = doc.new_page()
+        line = "Problem 1: determine the shortest path and coverage range for the robot."
+        for i in range(12):
+            page.insert_text((72, 72 + i * 18), line)
+        doc.save(str(pdf))
+        doc.close()
+
+        att_dir = self.root / "附件"
+        att_dir.mkdir()
+        d = Document()
+        d.add_paragraph("协议字段说明与计时规则。" * 6)
+        table = d.add_table(rows=2, cols=2)
+        table.cell(0, 0).text = "动作"
+        table.cell(0, 1).text = "指令"
+        table.cell(1, 0).text = "前进"
+        table.cell(1, 1).text = "forward"
+        d.save(str(att_dir / "附件1.docx"))
+
+        r = run_script(self.SCRIPT, ["--project-root", self.root])
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        md = (self.root / "赛题" / "题面.md").read_text(encoding="utf-8")
+        self.assertIn("shortest path", md)
+        self.assertIn("第 1 页", md)
+        att = (self.root / "赛题" / "附件" / "附件1.md").read_text(encoding="utf-8")
+        self.assertIn("协议字段说明", att)
+        self.assertIn("forward", att)
+        rep = json.loads((self.root / "赛题" / "ingest_report.json").read_text(encoding="utf-8"))
+        self.assertEqual(rep["error_count"], 0)
+        self.assertGreaterEqual(rep["chars"], 200)
+
+
+# ---------- check_modeling_artifacts.py ----------
+
+class TestCheckModelingArtifacts(Base):
+    SCRIPT = "check_modeling_artifacts.py"
+
+    def test_p11n_leaked_figure_errors(self):
+        fig = self.root / "project" / "figures"
+        fig.mkdir(parents=True)
+        (fig / "fig_q1.png").write_bytes(b"\x89PNG\r\n")
+        r = run_script(self.SCRIPT, [self.root, "--scope", "modeling"])
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("P11-N", r.stdout)
+        self.assertIn("生成图", r.stdout)
+
+    def test_p11n_pass_without_figures_dir(self):
+        r = run_script(self.SCRIPT, [self.root, "--scope", "modeling"])
+        self.assertIn("无生成图泄漏", r.stdout)
 
 
 if __name__ == "__main__":

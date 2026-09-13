@@ -27,8 +27,8 @@
 全篇图表中指定 1-2 张 **hero 图**——评审第一眼记住的那张。判定标准：承载论文最核心论证（如最优性权衡、策略临界点、方法框架）。hero 图要求：
 
 - 编码维度 ≥3（如 x/y + 颜色第三维 + 标注），信息密度显著高于普通图；
-- 必须过 `visual_review.md` 的四轴验收（Depth·Elegance·Unimpeachable·Visible gap）；
-- 打磨投入 ≥3 倍于普通图（至少一轮"读图→回改→重渲"）。
+- 必须过 `visual_review.md` 的四轴验收（Depth·Elegance·Unimpeachable·Visible gap）——由 **HG1 人工**判定，禁止模型 Read 生成图；
+- 打磨投入 ≥3 倍于普通图（程序自检通过后交人看；人指出缺陷再改脚本重渲）。
 
 ## 四、同一批数据、不同论点 → 不同图（对照示例）
 

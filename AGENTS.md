@@ -17,9 +17,11 @@
 | Subagent | 职责 | 投入时机 |
 |------|------|------|
 | @modeling-solver | 读题→建模→算法选择→求解→灵敏度→S1/S2/S3 反思门→打包 | 赛题就绪后 |
-| @paper-writer | 读取 result_bundle → 写 LaTeX → 编译 PDF → S4 反思 → 自审 → **接收评审反馈执行修复（R1-R2）** | result_bundle/ 产出后 |
+| @paper-writer | 读取 result_bundle（含已成图）→ 写 LaTeX → 编译 PDF → S4 反思 → 自审 → **接收评审反馈执行修复（R1-R2）** | FIGURES 与 HG1 之后 |
 | @independent-reviewer | 盲审五维度评分 → B 题 12 项核查 → 双盲 → **复审修复轮** | paper.pdf 产出后 |
 | @calibration-analyzer | 对标获奖论文 → 差距分析 → 通用性审计（含维度零防过拟合）→ 审批清单 + **执行层修复工单** | 训练模式：论文+参考论文就绪后 |
+
+**编排器专项 FIGURES**（非独立团队 agent，不占 handoff_notes 编号）：modeling-solver 交付后、HG1 前，编排器另起干净上下文出图（协议见 `.trae/rules/orchestrator.md` FIGURES 专项）。禁止把出图塞进 solver / writer / reviewer。
 
 每个 Subagent 同时承担**复盘职责**（训练模式终点，见"复盘"节）：被主智能体以复盘目的再次调用时，审视自身过程产出并提交 retro 报告。
 
@@ -27,7 +29,7 @@
 
 ## 信息隔离（铁律）
 
-- @modeling-solver / @paper-writer / @independent-reviewer：**不得接触任何同题国赛论文**
+- @modeling-solver / @paper-writer / @independent-reviewer / **编排器 FIGURES 专项 Task**：**不得接触任何同题国赛论文**
 - @calibration-analyzer：**唯一可读取同题参考论文**
 - 复盘阶段读物实行**白名单+黑名单**（一处定义；替代原"只读自身"全称表述——复盘任务书本就要求对照下游处置记录，全称表述与之矛盾）：
   - **白名单**（均为复盘前已固化产物，并行复盘无读写冲突）：自身 decision_logs 与产出物；下游处置记录 `fix_round*.md`、`fix_order.md`；`review_report.json` 与 `review_scores.md`；校准产出物的【可共享节】（惯例 四.13，一处定义）。具体可读文件以主智能体按 handoff 契约第五项下发的本轮可共享材料清单为准，清单外一律禁读。
@@ -41,7 +43,8 @@
 | 阶段 | 时间盒 | 压缩预案（超时时） |
 |------|:---:|------|
 | 读题 + 建模（含 S1/S2） | ≤20h | 多模型候选从 ≥2 降为 1+备选说明 |
-| 求解 + 验证（含 S3） | ≤14h | 多算例从 ≥2 降为 2 个代表性场景 |
+| 求解 + 验证（含 S3，**不含出图**） | ≤14h | 多算例从 ≥2 降为 2 个代表性场景 |
+| 出图（FIGURES） | ≤4h | hero 打磨、其余配方直出 |
 | 论文写作（含 S4/自审） | ≤18h | 图表解析段落保 150 字底线，不扩展 |
 | 评审⇄修复（≤2 轮） | ≤10h | 第 2 轮后残留项交 HG3 裁决 |
 | 摘要精修 + 合规 + 提交 | ≤10h | **不可压缩**（提交合规是硬约束） |
@@ -50,20 +53,21 @@
 
 ## 编排顺序
 
-### 比赛模式（7 步，逐门暂停）
+### 比赛模式（8 步，逐门暂停）
 
-1. **HG0 准入**：题型判定 + 声明模式与时间预算 → **暂停等用户确认**
-2. **@modeling-solver** → 产出 result_bundle/ + decision_logs/（5 份日志）
-3. **HG1 用户审查**（按审查卡，建模+求解合并一次审查）→ 放行/退回
-4. **@paper-writer** → 产出 paper.pdf + paper.tex + S4 反思日志 + 摘要候选
-5. **HG2 用户审查**：确认论文初稿 → 放行/退回
-6. **@independent-reviewer 初审** → **修复回路 R1-R2**（paper-writer 修复 ⇄ reviewer 复审，≤2 轮）→ **HG3 用户裁决**
-7. **合规检查 + 摘要定稿** → 交付
+1. **HG0 准入**：赛题转写（`convert_problem.py` → `赛题/题面.md`）+ 题型判定 + 声明模式与时间预算 → **暂停等用户确认**
+2. **@modeling-solver** → 产出 result_bundle/（不含 figures）+ decision_logs/（5 份日志）
+3. **FIGURES**（编排器专项出图）→ `result_bundle/figures/` + `图表清单.md`
+4. **HG1 用户审查**（按审查卡，建模+求解+成图一次审查）→ 放行/退回
+5. **@paper-writer** → 产出 paper.pdf + paper.tex + S4 反思日志 + 摘要候选
+6. **HG2 用户审查**：确认论文初稿 → 放行/退回
+7. **@independent-reviewer 初审** → **修复回路 R1-R2**（paper-writer 修复 ⇄ reviewer 复审，≤2 轮）→ **HG3 用户裁决**
+8. **合规检查 + 摘要定稿** → 交付
 
 ### 训练模式（5 步，全程自动不暂停）
 
-1. HG0（仅记录判定与模式，不暂停；非优化题记为 fallback 并继续）
-2. @modeling-solver → @paper-writer（BLOCKED 仅记录，不暂停）
+1. HG0（转写赛题 + 记录判定与模式，不暂停；非优化题记为 fallback 并继续）
+2. @modeling-solver → FIGURES → @paper-writer（BLOCKED 仅记录，不暂停；FIGURES 后不为人看图停门）
 3. @independent-reviewer 初审 + 修复回路 R1-R2（同比赛模式，残留问题记录待复盘）
 4. @calibration-analyzer → 校准报告 + 执行层修复工单 + 方法学改进提案（全部入总审批清单）
 5. **主智能体组织复盘**（见下）→ 汇总**总审批清单**一次性提交用户审批 → 结束
@@ -89,11 +93,13 @@
 
 矩阵未覆盖的情形一律视为**禁止并行**。判定维度仅两项：①是否存在产物生产-消费依赖；②是否共触隔离敏感资源（参照论文）。复盘阶段 calibration-analyzer 读取参照论文属其独占授权，不与其他 agent 构成冲突。
 
+**FIGURES 串行约束**（编排器专项，不占上表 agent 对）：FIGURES 不得与 MODELING / WRITING / REVIEW 并行（产物依赖）。
+
 ## HG 审查卡（比赛模式，用户逐项勾选后放行）
 
-- **HG0**：①题型判定是否认可？②运行模式是否正确？③项目根路径是否正确？
-- **HG1**（建模+求解合并审查）：①问题归类与特征指纹是否认可？②假设与隐含约束有无遗漏？③多模型/多算法候选对比是否可信？④求解数值量级是否合理？⑤最优性验证与模型验证两维度是否齐全？
-- **HG2**（论文初稿）：①摘要四要素 + 一页以内？②符号说明与术语表一致？③图表 ≥6 且无凑数图？④模型验证（蒙特卡洛）子节独立存在？
+- **HG0**：①题型判定是否认可？②运行模式是否正确？③项目根路径是否正确？④`赛题/题面.md` 是否齐备、抽查公式/表是否可读？
+- **HG1**（建模+求解+成图）：①问题归类与特征指纹是否认可？②假设与隐含约束有无遗漏？③多模型/多算法候选对比是否可信？④求解数值量级是否合理？⑤最优性验证与模型验证两维度是否齐全？⑥打开 PNG：遮挡/对齐/字号/图表清单 claim 是否成立？**退回分流**：数值/模型 → modeling-solver；图面 → 编排器重跑 FIGURES
+- **HG2**（论文初稿）：①摘要四要素 + 一页以内？②符号说明与术语表一致？③图表 ≥6 且无凑数图；正文引用的图型/颜色/子图标签与 PDF 是否一致（人看 PDF）？④模型验证（蒙特卡洛）子节独立存在？
 - **HG3**（评审后裁决）：①红队 high severity 问题是否全部修复或合理反驳？②两轮后残留问题是否接受？③是否触发 BLOCKED 回退 modeling-solver？
 
 ## 修复回路（R1-R2，两种模式通用）
@@ -103,7 +109,7 @@
 3. reviewer 复审：**仍全文通读**（禁止增量评审），重点验证已修复项是否真修复、是否引入跨节新错 → 更新 review_report.json（标注轮次）。若修复涉及数值改动、段落拆分或内容移位，除逐项验证修复点外，须对修复点所在小节做全节数值重算（不限于工单列出的数值）
 4. 仍有 high severity → 进入第 2 轮；**最多 2 轮**
 5. 第 2 轮后仍残留 high severity：比赛模式 → HG3 用户裁决；训练模式 → 记录进入复盘
-6. 修复仅限表达/一致性/遗漏补充；发现建模根源性错误 → 标记 BLOCKED，回退 modeling-solver（比赛模式需用户确认）。**图面级修复**（数值不变、仅图面表达层重绘）属"表达"范畴，授权 paper-writer 执行（一处定义见其 prompt"修复回路"节图面级修复授权条）
+6. 修复仅限表达/一致性/遗漏补充；发现建模根源性错误 → 标记 BLOCKED，回退 modeling-solver（比赛模式需用户确认）。**图面级修复**（数值不变、仅图面表达层重绘）属"表达"范畴，**由编排器按 FIGURES 专项重跑**（覆盖 `project/figures/` 与 `result_bundle/figures/`）；paper-writer 只改 caption / 解析段 / `\includegraphics` 路径，禁止重绘、禁止 Read 生成图。缺陷根源为数值错误时仍走 BLOCKED 回退 modeling-solver
 7. 校准触发的执行层修复工单（fix_order）独立计数为 R3，不占 R1-R2 轮次；范围限制同第 6 条。R3 修复完成后，主智能体须安排 @independent-reviewer 对修复处做全文通读式复核（重点：修复引入的跨节新错、引用编号一致性、修复点数值未漂移、新增来源/条目的内容级真实性），复核记录写入 review_report.json 或 review_scores.md；训练模式下复核可并入复盘阶段，但须在总审批清单提交前完成或在 retrospective.md 中显式列为未闭环项
 8. **R1 工单执行强制**（2023B 校准反馈，通用规则）：R1 修复工单未全部执行（或逐项显式记录不执行理由）不得进入下一阶段；训练模式下不执行也须由主智能体在 decision_logs 记录理由。校准阶段（@calibration-analyzer）发现 R1 工单未执行时，应在校准报告中显式标注并提示主智能体补执行或显式记录理由。
 
@@ -133,10 +139,12 @@
 - 产物的名称 / 规范路径 / 生产者 / 消费者 / 产出阶段以 `.trae/papers/产物注册表.md` 为**唯一注册源**；阶段转换时由主智能体运行 `.trae/code_templates/check_pipeline_manifest.py` 机查齐备性，不齐不得推进（执行协议见 orchestrator.md）。
 - 主智能体每次调用 Subagent，必须在调用 prompt 中显式给出四项：**运行模式、项目根绝对路径、上游产出清单（路径 + 一句话用途）、本阶段强制产出清单**。
 - 复盘调用在上述四项之外增加**第五项：本轮可共享材料清单**——主智能体按"信息隔离"节白名单圈定具体文件路径逐个列出（含校准产出物【可共享节】位置），清单外一律禁读。
-- **result_bundle/ 契约**（modeling-solver 产出，paper-writer 消费，reviewer/calibration 核查）：
+- **result_bundle/ 契约**（solver 产出数值与方案，FIGURES 产出图表，paper-writer 消费，reviewer/calibration 核查）：
   - `solution.json`：每个子问题含 `objective_value`、`decision_variables`、`solver`、`optimality`（MIPGap / 枚举完备性 / 启发式统计）、`active_constraints`（各约束 active/slack + 最优解处派生量数值——slack 量/边际响应/局部灵敏度其一，判据见 `.trae/papers/国赛公开惯例.md`"活跃约束附派生量数值"条）、`sensitivity`（参数 + 扰动范围 + 数据）、`critical_points`（临界点 + source）、`monte_carlo`（次数 / 收敛 / 偏差，不适用则为 null 并说明）
   - `modeling_plan.json`：含 `design_critique`、`cost_decomposition`、`alternative_algorithm_discussion`、`joint_constraint_check`
-  - `feature_fingerprint.json`、`术语表.json`、`figures/`（PDF+PNG 双格式）
+  - `feature_fingerprint.json`、`术语表.json`（modeling-solver）
+  - `figures/`（PDF+PNG 双格式）与 `图表清单.md`（编排器 FIGURES）
+- **赛题转写契约**（编排器 HG0，MODELING 前）：`赛题/题面.md` 为后续 agent 唯一题面阅读入口；说明类附件见 `赛题/附件/`；题面源图见 `赛题/题面图/`。xlsx/csv 数据附件仍按原文件读取，不转写。禁止各 agent 自行对赛题 PDF 做 pymupdf 抽取。
 - **支撑材料卫生契约**（2026-08 批次 2026-08-B1）：modeling-solver 负责产出时代码注释不含内部流程词（黑名单见 `check_code_hygiene.py`，MODELING 过门机查）；编排器在 COMPLIANCE 阶段运行 `package_support_materials.py` 一键打包并终扫（只收代码+数据+图表，内部契约 JSON 一律不入包）；**不新增打包 agent**
 - **工作区卫生契约**（2026-08 批次 2026-08-B2）：临时脚本与测试文件用完即删；result_bundle/ 内文件禁止在项目根重复存在；LaTeX 编译副产物不得滞留工作区；机查见 `check_workspace_hygiene.py`（每次阶段转换前执行，ERROR 清零方可推进）
 - **pipeline_state.json 为编排器专属读写**：任何 Subagent 禁止创建/修改/删除该文件（状态唯一载体协议见 orchestrator.md §3）。
@@ -146,7 +154,8 @@
 
 红线是**关卡**而非散文义务：编排器按 orchestrator.md 协议逐项核验并登记 pipeline_state.json，缺失产物同时触发 check_pipeline_manifest.py ERROR。
 
-- **@modeling-solver**：result_bundle/solution.json 存在且非空 + figures/ ≥6 张图表 + **5 份** decision_logs 全部存在（s1_reflection / guided_questions_trace / s2_reflection / method_card_matching / s3_reflection）
+- **@modeling-solver**：result_bundle/solution.json 存在且非空 + **5 份** decision_logs 全部存在（s1_reflection / guided_questions_trace / s2_reflection / method_card_matching / s3_reflection）
+- **FIGURES**（编排器专项）：result_bundle/figures/ ≥6 组 PDF+PNG + result_bundle/图表清单.md 存在 + `visual_qa.py scan` 无 ERROR
 - **@paper-writer**：**正文（摘要页之后、不含附录）≥10 页且尽量 ≤30 页**（超 30 页不自动拦截，必须报告用户作最终决断）+ 图表引用 ≥6 处 + abstract_candidates.md ≥2 版
 - **@independent-reviewer**：五维度均有 ≥3 句具体依据 + B 题 12 项核查齐全 + 红队搜查范围与证据记录（含虚惊标注）。**评审红线只约束评审行为，不设分数下限**——低分是论文信号，如实报告是评审职责；评分仅作为修复回路触发信号
 - **@calibration-analyzer**：calibration_report.md 含 ≥3 条差距 + **每条附三维度通用性判决** + 维度零（同题污染）检查通过 + 审批清单 + 执行层修复工单
@@ -165,8 +174,9 @@
 
 - 比赛模式跳过用户审查自动推进；训练模式中途暂停等人工（终点批量审批除外）
 - **存在信息依赖或隔离冲突的 agent 对并行执行**（按"并行兼容性矩阵"节查表，白名单外一律串行；Subagent 内部并行不受限）
-- 代写任何 Subagent 的专业产出
-- 允许 @modeling-solver / @paper-writer / @independent-reviewer 接触同题参考论文，或在 @calibration-analyzer 被调用前将参考论文路径暴露给其他 Subagent
+- 代写任何 Subagent 的专业产出。FIGURES 是编排器专项：禁止用当前会话兼做绘图，必须另起干净 Task
+- 允许 @modeling-solver / @paper-writer / @independent-reviewer / FIGURES 专项接触同题参考论文，或在 @calibration-analyzer 被调用前将参考论文路径暴露给其他 Subagent
+- **任何 agent（含编排器 FIGURES 专项）Read 生成图**（PNG/PDF/WebP：`result_bundle/figures/`、`project/figures/`、用于看图面的论文编译页截图）。`visual_qa.py` 程序自检除外。**允许** Read `赛题/题面图/`（题面源图，非论文生成图）。感知层交 HG1（PNG）与 HG2（PDF）人工。
 - **将同题特定信息写入任何共享文件**（防过拟合铁律）
 - **虚构红队 high severity 问题凑数**（见"红队自查机制"节）
 - 删除验证项（最优性验证 / 模型验证 / 灵敏度分析）来赶进度

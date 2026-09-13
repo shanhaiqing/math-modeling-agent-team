@@ -19,7 +19,7 @@ check_machine_checks.py — 机查执行证据链对账（编排器阶段转换�
   5. 登记结构：machine_checks 条目缺 time/result/report_path 任一 → WARN
 
 用法：
-  python check_machine_checks.py <项目根> --stage <modeling|writing|review|
+  python check_machine_checks.py <项目根> --stage <intake|modeling|figures|writing|review|
              calibration|retro|approval|compliance> [--mode competition|training]
              [--report 路径]
   **默认仅终端输出，不落盘**——本报告不注册入产物注册表，避免与 manifest 形成
@@ -35,7 +35,7 @@ from datetime import datetime
 from pathlib import Path
 
 # 与 check_pipeline_manifest.py 同源，修订须同步（含 compliance，2026-09 批次1 追加）
-STAGE_ORDER = ["modeling", "writing", "review", "calibration", "retro", "approval", "compliance"]
+STAGE_ORDER = ["intake", "modeling", "figures", "writing", "review", "calibration", "retro", "approval", "compliance"]
 
 # manifest 自身报告不参与本脚本对账：本脚本在其之后执行，且它已由 manifest 自查
 SELF_EXEMPT = {"manifest_check_report.json", "machine_checks_audit_report.json"}
@@ -102,7 +102,7 @@ def report_error_count(path: Path):
       约定一（扁平）：顶层 error_count / error / errors / err
         —— manifest_check_report、code_hygiene_report、workspace_hygiene_report
       约定二（嵌套）：summary.ERROR（值为整数）
-        —— contract_check_report、modeling_artifacts_report
+        —— contract_check_report、modeling_artifacts_report、figures_artifacts_report
     2026-09-10 修复：原实现只认约定一，导致契约报告与建模产物报告的内部
     ERROR 无法被读取，"登记 pass 但报告内有 ERROR"这一虚报情形检测不到。
     """
@@ -224,6 +224,9 @@ def main():
     for r in parse_registry_reports(registry):
         fname = Path(r["path"]).name
         if fname in SELF_EXEMPT:
+            continue
+        if r["stage"] not in STAGE_ORDER:
+            err(r["name"], f"注册表产出阶段未知：{r['stage']}")
             continue
         if STAGE_ORDER.index(r["stage"]) > stage_idx:
             continue

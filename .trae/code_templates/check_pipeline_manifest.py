@@ -10,13 +10,14 @@ check_pipeline_manifest.py — 产物齐备性机查（编排器阶段转换前�
   [防跳过] method_card_matching.md 卡片编号全覆盖校验（卡片集动态取自 papers/优化方法卡片/）
 
 用法：
-  python check_pipeline_manifest.py --project-root <项目根> --stage <modeling|writing|review|calibration|retro|approval> [--mode competition|training] [--report]
+  python check_pipeline_manifest.py --project-root <项目根> --stage <intake|modeling|figures|writing|review|calibration|retro|approval> [--mode competition|training] [--report]
   --report 时把结果写入 <项目根>/manifest_check_report.json
 """
 import argparse, json, re, sys
 from pathlib import Path
 
-STAGE_ORDER = ["modeling", "writing", "review", "calibration", "retro", "approval", "compliance"]
+STAGE_ORDER = ["intake", "modeling", "figures", "writing", "review", "calibration", "retro", "approval", "compliance"]
+MIN_STATEMENT_CHARS = 200  # 须与 convert_problem.MIN_STATEMENT_CHARS 一致
 
 # 契约外产物检测（历史漂移对账节，一处定义）
 FORBIDDEN_PATTERNS = [
@@ -112,6 +113,9 @@ def main():
 
     checked = 0
     for r in rows:
+        if r["stage"] not in STAGE_ORDER:
+            err(r["name"], f"注册表产出阶段未知：{r['stage']}（合法：{', '.join(STAGE_ORDER)}）")
+            continue
         if STAGE_ORDER.index(r["stage"]) > stage_idx:
             continue  # 未到该产物的产出阶段
         req = r["required"]
@@ -127,6 +131,14 @@ def main():
             pdf_count = len(list(p.glob("*.pdf"))) if p.is_dir() else 0
             if not p.is_dir() or pdf_count < 6:
                 err(r["name"], f"figures 目录缺失或 PDF 数量不足（{pdf_count}/6）")
+            continue
+        if r["name"] == "题面.md":
+            if not exists:
+                err(r["name"], f"缺失必填产物：{r['path']}")
+            else:
+                n = len(re.sub(r"\s+", "", p.read_text(encoding="utf-8", errors="replace")))
+                if n < MIN_STATEMENT_CHARS:
+                    err(r["name"], f"题面转写过短（{n} 字 < {MIN_STATEMENT_CHARS}）——须原文转写而非占位")
             continue
         if not exists:
             if r["name"] == "paper.pdf" and compile_mode == "external":

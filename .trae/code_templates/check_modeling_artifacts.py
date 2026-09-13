@@ -3,27 +3,37 @@
 """
 check_modeling_artifacts.py — MODELING 产物格式与代码卫生机查（总审批清单 P11-b）
 
-[契约] 总审批清单 P11：把三项确定性检查从"靠注意力"转为机查，
-       缺陷从 COMPLIANCE 打包阶段提前到 MODELING 过门拦截。
+[契约] 总审批清单 P11：把确定性检查从"靠注意力"转为机查。
+       --scope modeling：绝对路径 / 商业求解器 / 指纹契约（MODELING 门）。
+       --scope figures：图表双格式配对 + visual_qa 程序自检（FIGURES 门）。
 检查项：
   [P11-F] figures/ PDF+PNG 双格式配对：按文件名主干配对，
           单格式（只有 PDF 或只有 PNG）→ ERROR；总数 <6 → ERROR
+          （仅 --scope figures / all）
   [P11-A] project/*.py 绝对路径扫描：命中 C:\\ / /Users/ / /home/ 等
           硬编码绝对路径 → ERROR（应改为 __file__ 派生相对路径）
+          （仅 --scope modeling / all）
   [P11-G] 商业求解器 import 扫描：命中 gurobi/cplex/mosek/xpress → ERROR
           （硬约束：求解器必须使用开源后端）
+          （仅 --scope modeling / all）
   [P11-V] 图表视觉程序自检：调用 skills/figure-studio/scripts/visual_qa.py scan
           扫描 figures PNG——空图 → ERROR；文件过小/dpi<200 → WARN
-          prompt 位置：.trae/agents/modeling-solver.md 可视化规范（figure-studio 指针）
+          （仅 --scope figures / all；这是零 token 程序自检，不是模型读图）
   [P11-FP] feature_fingerprint.json 契约校验：枚举字段取值合法 +
           data_quality 结构化四要素（shape/missing/outlier/distribution）齐全
-          prompt 位置：.trae/agents/modeling-solver.md 阶段 1 第 5 条
+          （仅 --scope modeling / all）
+  [P11-N] MODELING 门时 result_bundle/figures 与 project/figures 不得已有
+          PNG/PDF/WebP 生成图（出图在后续 FIGURES 专项；过早出图 → ERROR）
+          （仅 --scope modeling / all）
 用法:
-  python check_modeling_artifacts.py <项目根> [--report 路径]
+  python check_modeling_artifacts.py <项目根> [--scope modeling|figures|all] [--report 路径]
+  默认 --scope all（兼容旧调用）。编排器 MODELING 门传 --scope modeling，FIGURES 门传 --scope figures。
+  --scope modeling 默认报告 modeling_artifacts_report.json；
+  --scope figures 默认报告 figures_artifacts_report.json。
   figures 目录默认 <项目根>/result_bundle/figures/（回退 <项目根>/project/figures/）
   代码目录默认 <项目根>/project/
 退出码: 0 = 无 ERROR；1 = 存在 ERROR；2 = 用法错误
-输出:   控制台逐条打印 + 写 modeling_artifacts_report.json（项目根）
+输出:   控制台逐条打印 + 按 --scope 写 modeling_artifacts_report.json 或 figures_artifacts_report.json（项目根）
 """
 import json
 import re
@@ -201,6 +211,26 @@ def check_fingerprint(root):
         error("P11-FP", "$.linearized", "取值须为 true/false/na")
 
 
+GENERATED_FIG_EXTS = {".png", ".pdf", ".webp", ".jpg", ".jpeg", ".svg"}
+
+
+def check_no_premature_figures(root):
+    """P11-N：MODELING 门不得已有生成图（出图归后续 FIGURES）。"""
+    leaked = []
+    for rel in ("result_bundle/figures", "project/figures"):
+        d = root / rel
+        if not d.is_dir():
+            continue
+        for p in d.iterdir():
+            if p.is_file() and p.suffix.lower() in GENERATED_FIG_EXTS:
+                leaked.append(str(p.relative_to(root)).replace("\\", "/"))
+    if leaked:
+        error("P11-N", leaked[0],
+              f"MODELING 阶段已出现 {len(leaked)} 张生成图，出图归后续 FIGURES 专项")
+    else:
+        ok("P11-N", "本阶段无生成图泄漏")
+
+
 def main():
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -208,30 +238,48 @@ def main():
         pass
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     if not args:
-        print("用法：python check_modeling_artifacts.py <项目根> [--report 路径]")
+        print("用法：python check_modeling_artifacts.py <项目根> [--scope modeling|figures|all] [--report 路径]")
         sys.exit(2)
     root = Path(args[0])
     if not root.is_dir():
         print(f"用法错误：目录不存在 {root}")
         sys.exit(2)
-    report_path = root / "modeling_artifacts_report.json"
+    scope = "all"
+    if "--scope" in sys.argv:
+        try:
+            scope = sys.argv[sys.argv.index("--scope") + 1]
+        except IndexError:
+            print("用法错误：--scope 后须跟 modeling|figures|all")
+            sys.exit(2)
+    if scope not in ("modeling", "figures", "all"):
+        print(f"用法错误：未知 --scope {scope}（合法：modeling|figures|all）")
+        sys.exit(2)
+    default_report = {
+        "modeling": "modeling_artifacts_report.json",
+        "figures": "figures_artifacts_report.json",
+        "all": "modeling_artifacts_report.json",
+    }[scope]
+    report_path = root / default_report
     if "--report" in sys.argv:
         report_path = Path(sys.argv[sys.argv.index("--report") + 1])
 
-    # figures 目录：result_bundle 优先（过门时已复制），回退 project/figures
+    # figures 目录：result_bundle 优先，回退 project/figures
     fig_dir = root / "result_bundle" / "figures"
     if not fig_dir.is_dir():
         fig_dir = root / "project" / "figures"
     code_dir = root / "project"
 
-    check_figure_pairs(fig_dir)
-    check_visual_qa(fig_dir, Path(__file__).resolve().parent)
-    check_fingerprint(root)
-    if code_dir.is_dir():
-        check_abs_paths(code_dir)
-        check_commercial_solvers(code_dir)
-    else:
-        error("P11-A", str(code_dir), "project/ 目录不存在")
+    if scope in ("figures", "all"):
+        check_figure_pairs(fig_dir)
+        check_visual_qa(fig_dir, Path(__file__).resolve().parent)
+    if scope in ("modeling", "all"):
+        check_fingerprint(root)
+        check_no_premature_figures(root)
+        if code_dir.is_dir():
+            check_abs_paths(code_dir)
+            check_commercial_solvers(code_dir)
+        else:
+            error("P11-A", str(code_dir), "project/ 目录不存在")
 
     n_err = sum(1 for f in FINDINGS if f["level"] == "ERROR")
     n_warn = sum(1 for f in FINDINGS if f["level"] == "WARN")
@@ -242,7 +290,7 @@ def main():
     print(f"\n汇总: {n_err} ERROR / {n_warn} WARN")
 
     report_path.write_text(json.dumps(
-        {"checker": "check_modeling_artifacts", "root": str(root),
+        {"checker": "check_modeling_artifacts", "scope": scope, "root": str(root),
          "summary": {"ERROR": n_err, "WARN": n_warn},
          "findings": FINDINGS},
         ensure_ascii=False, indent=2), encoding="utf-8")
