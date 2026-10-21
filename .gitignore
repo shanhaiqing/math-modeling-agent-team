@@ -26,3 +26,16 @@ shared-agent-system/
 test20*/
 准入判定测试/
 agent质量排查/
+
+# DSH 运行目录（每道题一个 run；不入系统仓）
+runs/
+
+# 测试赛题/第三方题面（含版权材料，不随仓库公开）
+测试赛题/
+比赛赛题/
+
+# 本地检查报告与系统文件
+code_hygiene_report.json
+workspace_hygiene_report.json
+desktop.ini
+.dsh-office-*/

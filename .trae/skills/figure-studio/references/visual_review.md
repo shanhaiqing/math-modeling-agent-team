@@ -9,11 +9,11 @@
 
 ```python
 from visual_qa import audit_figure
-problems = audit_figure(fig)   # 缺字形/文本裁切/刻度重叠
+problems = audit_figure(fig)   # 缺字形/文本裁切/刻度重叠；shuwei_en 另禁图内 CJK
 assert not any(lv == "ERROR" for lv, _, _ in problems)
 ```
 
-ERROR（空图/缺字形/完全越界）未清零**禁止导出**；WARN（部分裁切/刻度重叠/dpi）逐条交 HG1 人工看图裁定。
+ERROR（空图/缺字形/完全越界；**`shuwei_en` 另含图内 CJK**）未清零**禁止导出**；WARN（部分裁切/刻度重叠/dpi）逐条交 HG1 人工看图裁定。
 
 ## 二、感知层：人工 8 项清单（HG1 打开 PNG，模型不得 Read）
 

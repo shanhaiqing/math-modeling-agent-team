@@ -3,8 +3,7 @@
 """
 check_viz_tests.py — 绘图板块测试冒烟机查
 
-用途：绘图共享代码（visualization_style.py / figure-studio/）改动后，运行 4 个
-      test_* 回归测试，任一失败判 ERROR；跑后清理测试残留 _test_out/。
+用途：绘图共享代码（visualization_style.py / figure-studio/）改动后，运行回归测试，任一失败判 ERROR；跑后清理测试残留 _test_out/。
       根治"测试脚本未纳入机查、API 脱节无人发现"的问题（2026-08 批次）。
 
 用法：python check_viz_tests.py [code_templates_dir]
@@ -20,6 +19,7 @@ VIS_TESTS = [
     "test_cmasher.py",
     "test_visualization.py",
     "test_fontfamily.py",
+    "test_visual_qa_profile.py",
 ]
 
 

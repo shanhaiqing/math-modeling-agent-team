@@ -1,0 +1,7 @@
+# Host-only bundle: registers the modeling pipeline kernel tools.
+# repoRoot is the checkout that owns system/framework.json and tools/pipeline_kernel.py.
+- insert:
+    - id: modeling-pipeline
+      name: '@local/modeling-pipeline'
+      config:
+        repoRoot: 'C:/Users/35399/Desktop/数模B题专家团'

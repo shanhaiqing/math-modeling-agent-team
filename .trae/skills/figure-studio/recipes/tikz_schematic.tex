@@ -1,13 +1,18 @@
 % !TEX program = xelatex
 % ============================================================
 % 配方：概念示意图（机理/几何/物理关系类，对标"轨道六根数几何定义"类图）
-% 编译：xelatex tikz_schematic.tex → 产出 PDF → 正文 \includegraphics 引入
+% 编译：国赛 `xelatex`（加载 ctex）；shuwei_en `pdflatex`（不加载 ctex，标注必须英文）
 % 用途：题目机理本身需要"画出来才讲得清"时（坐标系/几何关系/作用链路），
 %       替代 matplotlib 硬画的扁平示意图。
 % 本模板演示可复用词汇：坐标轴 / 平面 / 矢量 / 角度弧 / 标注引线 / 参数框。
 % ============================================================
 \documentclass[border=8pt]{standalone}
-\usepackage{ctex}
+\usepackage{ifxetex}
+\ifxetex
+  \usepackage{ctex}
+\else
+  \usepackage{newtxtext}
+\fi
 \usepackage{newtxmath}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,angles,quotes,positioning,calc}

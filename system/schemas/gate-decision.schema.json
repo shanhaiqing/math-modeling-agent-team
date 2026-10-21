@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dsh.local/modeling/gate-decision.schema.json",
+  "title": "Gate Decision",
+  "description": "One append-only human or automatic gate decision. Approval binds artifact hashes; any change reopens the gate.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "gate_id",
+    "run_id",
+    "stage",
+    "decision",
+    "reason",
+    "return_target",
+    "return_scope",
+    "artifact_hashes",
+    "decided_by",
+    "decided_at",
+    "timebox_met",
+    "recommendation",
+    "waiver_risk"
+  ],
+  "properties": {
+    "gate_id": {"enum": ["G0", "G1", "G2", "G3", "G4", "G5"]},
+    "run_id": {"type": "string"},
+    "stage": {"type": "string"},
+    "decision": {"enum": ["approve", "fix", "stop", "proceed", "rollback", "return_modeling", "return_figures", "return_writing", "accept", "deliver"]},
+    "reason": {"type": "string", "minLength": 1},
+    "return_target": {"type": ["string", "null"]},
+    "return_scope": {"type": ["string", "null"]},
+    "artifact_hashes": {"type": "object", "additionalProperties": {"type": "string"}, "description": "artifact id -> sha256 at decision time"},
+    "decided_by": {"enum": ["human", "auto"]},
+    "decided_at": {"type": "string", "format": "date-time"},
+    "timebox_met": {"type": "boolean"},
+    "recommendation": {"type": "string", "description": "the system recommendation shown to the human"},
+    "waiver_risk": {"type": ["string", "null"], "description": "explicit risk text when a quality check or gate is overridden"},
+    "human_available": {"type": "boolean"},
+    "notes": {"type": "string"}
+  }
+}

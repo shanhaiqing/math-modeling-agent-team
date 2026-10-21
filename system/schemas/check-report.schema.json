@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dsh.local/modeling/check-report.schema.json",
+  "title": "Normalized Check Report",
+  "description": "Kernel-normalized report for any checker. Raw checker reports keep their own shape; the kernel adapts them to this schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["checker", "stage", "status", "error_count", "warn_count", "findings", "report_path", "hash", "duration_ms", "started_at", "finished_at"],
+  "properties": {
+    "checker": {"type": "string"},
+    "stage": {"type": "string"},
+    "status": {"enum": ["pass", "warn", "fail", "skipped", "error"]},
+    "error_count": {"type": "integer", "minimum": 0},
+    "warn_count": {"type": "integer", "minimum": 0},
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["level", "rule", "location", "message"],
+        "properties": {
+          "level": {"enum": ["ERROR", "WARN", "PASS", "INFO"]},
+          "rule": {"type": "string"},
+          "location": {"type": "string"},
+          "message": {"type": "string"}
+        }
+      }
+    },
+    "report_path": {"type": ["string", "null"]},
+    "hash": {"type": ["string", "null"]},
+    "duration_ms": {"type": "integer", "minimum": 0},
+    "started_at": {"type": "string", "format": "date-time"},
+    "finished_at": {"type": "string", "format": "date-time"},
+    "exit_code": {"type": ["integer", "null"]},
+    "command": {"type": "array", "items": {"type": "string"}},
+    "notes": {"type": "string"}
+  }
+}

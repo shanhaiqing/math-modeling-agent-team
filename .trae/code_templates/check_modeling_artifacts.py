@@ -18,6 +18,7 @@ check_modeling_artifacts.py — MODELING 产物格式与代码卫生机查（总
           （仅 --scope modeling / all）
   [P11-V] 图表视觉程序自检：调用 skills/figure-studio/scripts/visual_qa.py scan
           扫描 figures PNG——空图 → ERROR；文件过小/dpi<200 → WARN
+          shuwei_en（读项目根 pipeline_state.json）：配对 PDF 抽出 CJK → ERROR
           （仅 --scope figures / all；这是零 token 程序自检，不是模型读图）
   [P11-FP] feature_fingerprint.json 契约校验：枚举字段取值合法 +
           data_quality 结构化四要素（shape/missing/outlier/distribution）齐全
@@ -112,7 +113,18 @@ def check_commercial_solvers(code_dir):
         ok("P11-G", "零商业求解器 import（开源后端约束满足）")
 
 
-def check_visual_qa(fig_dir, checker_dir):
+def _contest_profile_from_root(root):
+    p = Path(root) / "pipeline_state.json"
+    if not p.is_file():
+        return "cumcm"
+    try:
+        v = str(json.loads(p.read_text(encoding="utf-8")).get("contest_profile") or "").strip().lower()
+    except Exception:
+        return "cumcm"
+    return v if v in ("cumcm", "shuwei_zh", "shuwei_en") else "cumcm"
+
+
+def check_visual_qa(fig_dir, checker_dir, contest_profile="cumcm"):
     """P11-V：调用 figure-studio visual_qa.py 对 PNG 做程序视觉自检（兜底）。"""
     import subprocess
     vqa = checker_dir.parent / "skills" / "figure-studio" / "scripts" / "visual_qa.py"
@@ -121,9 +133,11 @@ def check_visual_qa(fig_dir, checker_dir):
         return
     if not fig_dir.is_dir():
         return  # figures 缺失已由 P11-F 报告
+    cmd = [sys.executable, str(vqa), "scan", str(fig_dir),
+           f"--contest-profile={contest_profile}"]
     try:
         proc = subprocess.run(
-            [sys.executable, str(vqa), "scan", str(fig_dir)],
+            cmd,
             capture_output=True, text=True, timeout=300, encoding="utf-8", errors="replace")
     except Exception as e:
         warn("P11-V", str(vqa), f"visual_qa 调用失败（{e}）——跳过，请人工看图")
@@ -166,8 +180,35 @@ OVERLAY_ALLOWED = {"MOO", "Network", "Combinatorial", "Queueing", "Game", "DP_ca
 LINEARIZED_ALLOWED = {"true", "false", "na", True, False}
 
 
+STATS_ENUMS = {
+    "problem_type": {"Regression", "Forecasting", "Classification", "Evaluation",
+                     "Clustering", "Reduction", "Inference", "Descriptive", "Other"},
+    "data_structure": {"cross_section", "time_series", "panel", "mixed"},
+    "sample_scale": {"small<100", "medium100-10000", "large>10000"},
+    "dimension": {"low(p<<n)", "high(p≳n)"},
+    "data_role": {"附件给定", "自搜集", "混合"},
+    "downstream_optimization": {"yes", "no"},
+    "experimental_design": {"yes", "no"},
+    "confidence": {"high", "medium", "low"},
+}
+
+
+def _problem_track(root):
+    ps = root / "pipeline_state.json"
+    if not ps.is_file():
+        return None
+    try:
+        data = json.loads(ps.read_text(encoding="utf-8-sig"))
+    except Exception:
+        return None
+    return data.get("problem_track") if isinstance(data, dict) else None
+
+
 def check_fingerprint(root):
-    """P11-FP：feature_fingerprint.json 枚举取值 + data_quality 四要素。"""
+    """P11-FP：feature_fingerprint.json 枚举。opt 用规划类枚举；stats 用任务类型枚举。"""
+    if _problem_track(root) == "stats":
+        check_fingerprint_stats(root)
+        return
     fp = root / "result_bundle" / "feature_fingerprint.json"
     if not fp.is_file():
         error("P11-FP", "result_bundle/feature_fingerprint.json", "缺失（红线必填产物）")
@@ -209,6 +250,35 @@ def check_fingerprint(root):
     lin = data.get("linearized")
     if lin is not None and lin not in LINEARIZED_ALLOWED:
         error("P11-FP", "$.linearized", "取值须为 true/false/na")
+
+
+def check_fingerprint_stats(root):
+    """stats 轨指纹：不套 opt 的 variable_type / MIP 枚举。"""
+    fp = root / "result_bundle" / "feature_fingerprint.json"
+    if not fp.is_file():
+        error("P11-FP", "result_bundle/feature_fingerprint.json", "缺失（红线必填产物）")
+        return
+    try:
+        data = json.loads(fp.read_text(encoding="utf-8"))
+    except Exception:
+        error("P11-FP", "result_bundle/feature_fingerprint.json", "JSON 解析失败")
+        return
+    for key, allowed in STATS_ENUMS.items():
+        v = data.get(key)
+        if v is None:
+            error("P11-FP", f"$.{key}", "字段缺失")
+        elif v not in allowed:
+            error("P11-FP", f"$.{key}",
+                  f"取值 '{v}' 非 stats 枚举（合法值：{'/'.join(sorted(allowed))}）")
+    if not isinstance(data.get("task_types"), list) or not data.get("task_types"):
+        error("P11-FP", "$.task_types", "须为非空数组")
+    dq = data.get("data_quality")
+    if isinstance(dq, str) and dq.strip():
+        ok("P11-FP", "stats 指纹枚举与 data_quality 文本通过")
+    elif isinstance(dq, dict) and dq:
+        ok("P11-FP", "stats 指纹枚举与 data_quality 对象通过")
+    else:
+        error("P11-FP", "$.data_quality", "字段缺失")
 
 
 GENERATED_FIG_EXTS = {".png", ".pdf", ".webp", ".jpg", ".jpeg", ".svg"}
@@ -271,7 +341,8 @@ def main():
 
     if scope in ("figures", "all"):
         check_figure_pairs(fig_dir)
-        check_visual_qa(fig_dir, Path(__file__).resolve().parent)
+        check_visual_qa(fig_dir, Path(__file__).resolve().parent,
+                        contest_profile=_contest_profile_from_root(root))
     if scope in ("modeling", "all"):
         check_fingerprint(root)
         check_no_premature_figures(root)

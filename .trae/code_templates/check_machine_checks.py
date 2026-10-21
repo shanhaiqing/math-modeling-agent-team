@@ -19,8 +19,7 @@ check_machine_checks.py — 机查执行证据链对账（编排器阶段转换�
   5. 登记结构：machine_checks 条目缺 time/result/report_path 任一 → WARN
 
 用法：
-  python check_machine_checks.py <项目根> --stage <intake|modeling|figures|writing|review|
-             calibration|retro|approval|compliance> [--mode competition|training]
+  python check_machine_checks.py <项目根> --stage <intake|modeling|method|figures|writing|review|compliance>
              [--report 路径]
   **默认仅终端输出，不落盘**——本报告不注册入产物注册表，避免与 manifest 形成
   循环依赖（manifest 校验注册表内报告，本脚本校验 manifest 的登记）。
@@ -34,8 +33,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-# 与 check_pipeline_manifest.py 同源，修订须同步（含 compliance，2026-09 批次1 追加）
-STAGE_ORDER = ["intake", "modeling", "figures", "writing", "review", "calibration", "retro", "approval", "compliance"]
+# 与 check_pipeline_manifest.py 同源，修订须同步（含 method / compliance）
+STAGE_ORDER = ["intake", "modeling", "method", "figures", "writing", "review", "compliance"]
 
 # manifest 自身报告不参与本脚本对账：本脚本在其之后执行，且它已由 manifest 自查
 SELF_EXEMPT = {"manifest_check_report.json", "machine_checks_audit_report.json"}
@@ -157,7 +156,7 @@ def main():
     ap = argparse.ArgumentParser(add_help=True)
     ap.add_argument("project_root")
     ap.add_argument("--stage", required=True, choices=STAGE_ORDER)
-    ap.add_argument("--mode", default="competition", choices=["competition", "training"])
+    ap.add_argument("--mode", default="competition", choices=["competition"])
     ap.add_argument("--registry", default=None)
     ap.add_argument("--report", default=None)
     args = ap.parse_args()
@@ -232,8 +231,6 @@ def main():
             continue
         if "可选" in r["required"]:
             continue
-        if "训练" in r["required"] and args.mode == "competition":
-            continue
 
         p = root / r["path"]
         registered = None
@@ -252,12 +249,17 @@ def main():
                                f"（{r['stage']} 阶段{r['required']}）")
             continue
 
-        # 检查 4：陈旧报告
-        if p.is_file() and stage_start is not None:
+        # 检查 4：陈旧报告（按该报告自身所属阶段的 start 对比，而非当前阶段 start；
+        #          否则前一阶段的机查报告会因早于当前阶段 start 被误判「上轮遗留」）
+        r_start = None
+        ts_r = (state.get("stage_timestamps") or {}).get(r["stage"])
+        if isinstance(ts_r, dict):
+            r_start = parse_time(ts_r.get("start"))
+        if p.is_file() and r_start is not None:
             mtime = datetime.fromtimestamp(p.stat().st_mtime)
-            if mtime < stage_start:
+            if mtime < r_start:
                 err(r["name"], f"报告 {r['path']} mtime {mtime:%Y-%m-%d %H:%M:%S} 早于"
-                               f"本阶段 start {stage_start:%Y-%m-%d %H:%M:%S}——疑为上轮遗留未重跑")
+                               f"其所属阶段（{r['stage']}）start {r_start:%Y-%m-%d %H:%M:%S}——疑为上轮遗留未重跑")
     if stage_start is None:
         warn("stage_timestamps", f"未记录 {args.stage} 阶段 start 时间，陈旧报告检查（第 4 项）已跳过")
 

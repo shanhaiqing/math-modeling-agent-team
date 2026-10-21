@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-check_isolation.py — 信息隔离泄漏审计（复盘前编排器强制执行）
+check_isolation.py — 校准/复盘提取物泄漏审计（复盘前编排器强制执行；比赛活流水线不调用）
 
-[契约] AGENTS.md 信息隔离节：参照论文提取物强制入 decision_logs/_quarantine/，
-       禁止散放；@calibration-analyzer 为唯一授权读者，其他 agent 产出不得含参照论文内容。
-[执行] rules/orchestrator.md 第 4 节（CALIBRATION → RETRO 转换前必跑）。
+[契约] 进化工具包/隔离规程.md：参照论文提取物强制入 decision_logs/_quarantine/，
+       禁止散放。赛时 agent 可检索同题论文（AGENTS.md 开放检索）；本脚本只拦校准提取物散放与写入非授权产出。
+[执行] 进化工具包（CALIBRATION → RETRO 转换前必跑）。
 
 检查项：
   1. 全项目递归扫描（_quarantine/.venv/.git 等除外）散放的提取物文件

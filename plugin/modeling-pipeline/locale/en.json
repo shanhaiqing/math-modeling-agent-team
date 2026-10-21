@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Modeling Pipeline",
+    "description": "Deterministic state machine, artifact checks, human gates, budgets and rework policy for the math-modeling team."
+  }
+}

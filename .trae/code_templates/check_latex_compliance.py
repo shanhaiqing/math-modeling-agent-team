@@ -5,7 +5,7 @@ check_latex_compliance.py — 论文 LaTeX 合规校验器（机查版）
 
 把以下判据从"靠注意力执行的 prompt 检查"转为确定性机器检查：
   [合规] AGENTS.md "合规检查"节 + reviewer B 题第 8 项 COMPLIANCE-FAIL
-        —— 无目录 / 不用 \\maketitle / 匿名性 / 附录可运行代码 / 页数提示
+        —— cumcm：无目录 / 不用 \\maketitle；shuwei_en：必须目录与 \\maketitle（赛制/shuwei_en.md）
         prompt 位置：.trae/agents/paper-writer.md "篇幅与合规红线"节 + "LaTeX 格式规范"节
   [结构] paper-writer S4 层 1 —— 10 项结构、参考文献 ≥10、图表 ≥6、摘要要素
         prompt 位置：.trae/agents/paper-writer.md "论文结构"节 + S4 层 1
@@ -16,19 +16,19 @@ check_latex_compliance.py — 论文 LaTeX 合规校验器（机查版）
         未提供 → WARN 提示；晚于赛题年份 → ERROR（时代错位）
         prompt 位置：.trae/agents/independent-reviewer.md B 题核查 #8 来源子项（指针至惯例一.22）
   [P11-R] skills/reference-studio —— 参考文献双向核对 + DOI/URL 可达性审计
-        调用 citation_check.py（幽灵引用 ERROR/僵尸文献与括注提点 WARN，惯例 一.22b）
+        调用 citation_check.py（幽灵引用 ERROR/僵尸文献与括注提点 WARN，惯例 一.22b；
+        shuwei_en 经 --contest-profile 跳过纯西文 (Author, 2023) 括注）
         与 doi_audit.py scan（确定死链 ERROR/网络存疑与无出处 WARN，惯例 二.3）；
         prompt 位置：.trae/skills/reference-studio/SKILL.md + paper-writer.md 论文结构第 9 项
         + independent-reviewer.md B 题核查 #8 来源子项 + calibration-analyzer.md 1c
   [去AI味·六] papers/去AI味写作规范.md 第六节（惯例 二.16 承载细则）—— 内部高频短语（≥5 次）与超长段落（>300 字）自查
+        shuwei_en：改读 去AI味写作规范_en.md；检查 7 英文精简词/句；检查 12 为 2–4 词短语与 >180 词段落（不做四字 n-gram）
         （W-4 机查化，2015B 校准反馈，WARN 项；正文统计，排除附录与各浮动体/代码环境）
         prompt 位置：.trae/agents/paper-writer.md 去 AI 味自查（S4/阶段 5 自审）
   [摘要页页码] papers/LaTeX格式规范.md §七.1 —— titlepage 环境吞页码检查
         prompt 位置：.trae/code_templates/paper_minimal_template.tex 摘要页注释
-  [摘要单页] 官方硬约束"摘要 ≤1 页"确定性机查（2026-08-B3）——读 .aux 中
-        abstract:end 锚点页码：=1 通过；>1 ERROR；无 aux/锚点降级 WARN
-        prompt 位置：.trae/agents/paper-writer.md "篇幅与合规红线"节（摘要 ≤1 页要求）
-        + paper_minimal_template.tex 摘要页锚点注释
+  [正文页数] cumcm：摘要后、附录前 ≥10 且 ≤30；shuwei_en：Summary+目录+正文 = appendix:start-1 ≤25
+        无 aux/无锚点 → ERROR。prompt：paper-writer.md 篇幅与合规红线 / 赛制/shuwei_en.md
   [西文/数学字体] papers/LaTeX格式规范.md §二（西文 Times / 数学 newtxmath 行）
         prompt 位置：.trae/code_templates/paper_minimal_template.tex 字体节注释
   [图幅] papers/LaTeX格式规范.md §四（图幅统一 0.9\textwidth，<0.8 WARN）
@@ -43,7 +43,9 @@ check_latex_compliance.py — 论文 LaTeX 合规校验器（机查版）
 明确推荐样式同步对齐。
 
 用法:
-  python check_latex_compliance.py <paper.tex路径> [project代码目录] [paper.pdf路径] [--contest-year=YYYY]
+  python check_latex_compliance.py <paper.tex路径> [project代码目录] [paper.pdf路径]
+      [--contest-year=YYYY] [--contest-profile=cumcm|shuwei_zh|shuwei_en]
+  --contest-profile 缺省时读 paper.tex 同目录或 cwd 的 pipeline_state.json；非法/缺失视为 cumcm
 
 退出码: 0 = 无 ERROR（可有 WARN）；1 = 存在 ERROR；2 = 用法/读取错误
 输出:   控制台逐条打印 + 在 paper.tex 同目录写 latex_compliance_report.json
@@ -86,6 +88,30 @@ def strip_comments(text):
     return "\n".join(out)
 
 
+LEGAL_PROFILES = ("cumcm", "shuwei_zh", "shuwei_en")
+
+
+def resolve_contest_profile(cli_value, tex_path, project_dir=None):
+    """--contest-profile 优先；否则读 pipeline_state.json；非法/缺失 → cumcm。"""
+    if cli_value:
+        v = cli_value.strip().lower()
+        return v if v in LEGAL_PROFILES else "cumcm"
+    candidates = [tex_path.parent / "pipeline_state.json", Path.cwd() / "pipeline_state.json"]
+    if project_dir:
+        pd = Path(project_dir)
+        candidates.extend([pd / "pipeline_state.json", pd.parent / "pipeline_state.json"])
+    for p in candidates:
+        if not p.is_file():
+            continue
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        v = str(data.get("contest_profile") or "").strip().lower()
+        return v if v in LEGAL_PROFILES else "cumcm"
+    return "cumcm"
+
+
 def extract_env(text, env):
     """提取指定环境的内容列表。"""
     pat = re.compile(r"\\begin\{" + re.escape(env) + r"\}(.*?)\\end\{" + re.escape(env) + r"\}", re.S)
@@ -94,7 +120,20 @@ def extract_env(text, env):
 
 # ---------- 检查 1：目录 / maketitle / author / date ----------
 
-def check_toc_maketitle(text):
+def check_toc_maketitle(text, profile="cumcm"):
+    has_toc = any("\\tableofcontents" in line for line in text.splitlines())
+    has_maketitle = any("\\maketitle" in line for line in text.splitlines())
+    if profile == "shuwei_en":
+        if not has_toc:
+            error("合规", "", "shuwei_en 必须 \\tableofcontents（Summary 后第 2 页为目录，见 赛制/shuwei_en.md）")
+        if not has_maketitle:
+            error("合规", "", "shuwei_en 必须 \\maketitle（官方 Summary Sheet）")
+        m = re.search(r"\\author\{([^}]+)\}", text)
+        if m and m.group(1).strip():
+            warn("合规", "", f"\\author 含内容（{m.group(1).strip()[:30]!r}）——匿名性风险，请人工确认未泄露身份")
+        if has_toc and has_maketitle:
+            ok("合规", "shuwei_en：已含目录与 \\maketitle")
+        return
     for i, line in enumerate(text.splitlines(), 1):
         if "\\tableofcontents" in line:
             error("合规", f"第{i}行", "检测到 \\tableofcontents——官方明确'不要目录'，必须删除")
@@ -112,9 +151,14 @@ def check_toc_maketitle(text):
 
 # ---------- 检查 1b：排版颜值（对标真实国赛 Word 论文） ----------
 
-def check_visual_style(text):
-    """真实国赛论文视觉惯例（2023B 对标 B226/B311/B477 固化）：
-    页脚居中页码无页眉 / 一级标题'一、'黑三居中 / 宽行距。"""
+def check_visual_style(text, profile="cumcm"):
+    """cumcm：页脚居中无页眉 / 一级标题'一、'。shuwei_en：Team # 页眉，不查「一、」。"""
+    if profile == "shuwei_en":
+        if re.search(r"swmcmthesis|\\baominghao\s*\{|\\lhead\{", text):
+            ok("排版", "shuwei_en：页眉 Team # 由 swmcmthesis / \\baominghao 承载")
+        else:
+            error("排版", "", "shuwei_en 未检出 swmcmthesis 或 \\baominghao——正文页须有 Team # 页眉")
+        return
     if not re.search(r"\\pagestyle\{plain\}|\\fancypagestyle|\\fancyfoot", text):
         warn("排版", "", "未检出 \\pagestyle{plain} 或 fancyhdr 页脚设置——ctexart 默认 headings 会产生页眉+右上角页码，与真实论文（页脚居中、无页眉）不符")
         return
@@ -140,11 +184,26 @@ STRUCTURE = [
 ]
 
 
-def check_structure(text):
+STRUCTURE_SHUWEI = [
+    ("Summary", re.compile(r"\\abstract\s*\{|Summary", re.I), "ERROR"),
+    ("Introduction/Restatement", re.compile(r"Introduction|Problem Restatement|Restatement of the Problem", re.I), "WARN"),
+    ("Problem Analysis", re.compile(r"Problem Analysis", re.I), "WARN"),
+    ("Assumptions", re.compile(r"Assumption", re.I), "WARN"),
+    ("Notation", re.compile(r"Notation|Symbol Description|Symbolic Notation", re.I), "WARN"),
+    ("Model Formulation", re.compile(r"Model Formulation|Model Construction|Model Development", re.I), "ERROR"),
+    ("Sensitivity", re.compile(r"Sensitivity", re.I), "WARN"),
+    ("Evaluation", re.compile(r"Model Evaluation|Strengths", re.I), "WARN"),
+    ("References", re.compile(r"thebibliography|bibliography|References", re.I), "ERROR"),
+    ("Appendix", re.compile(r"\\appendix", re.I), "ERROR"),
+]
+
+
+def check_structure(text, profile="cumcm"):
     # 先剥掉 \hspace{...} 等间距命令，使 "摘\hspace{2em}要" 等写法可匹配
     text = re.sub(r"\\hspace\{[^}]*\}", "", text)
+    items = STRUCTURE_SHUWEI if profile == "shuwei_en" else STRUCTURE
     missing_err, missing_warn = [], []
-    for name, pat, sev in STRUCTURE:
+    for name, pat, sev in items:
         if not pat.search(text):
             (missing_err if sev == "ERROR" else missing_warn).append(name)
     if missing_err:
@@ -157,8 +216,22 @@ def check_structure(text):
 
 # ---------- 检查 3：摘要要素 ----------
 
-def check_abstract(text):
+def check_abstract(text, profile="cumcm"):
     text = re.sub(r"\\hspace\{[^}]*\}", "", text)
+    if profile == "shuwei_en":
+        m = re.search(r"\\keywords\s*\{([^}]+)\}", text) or re.search(
+            r"Key\s*words?\s*[:：]([^\n]+)", text, re.I)
+        if not m:
+            warn("摘要", "", "未检出 \\keywords / Key word 行——Summary 页须含关键词")
+        else:
+            line = re.sub(r"\\[a-zA-Z]+\*?(\[[^\]]*\])?(\{)?", "", m.group(1))
+            line = line.replace("}", "")
+            kws = [k for k in re.split(r"[;；,，、\s]+", line.strip().rstrip("。.")) if k]
+            if not (3 <= len(kws) <= 5):
+                warn("摘要", "", f"关键词数量 {len(kws)} 个，不在 3-5 个范围内: {kws}")
+            else:
+                ok("摘要", f"关键词 {len(kws)} 个 ✓")
+        return
     m = re.search(r"关键词[}\s]*[:：]([^\n]+)", text) or re.search(r"关键字[}\s]*[:：]([^\n]+)", text)
     if not m:
         warn("摘要", "", "未检出'关键词：'行——摘要页须含关键词 3-5 个")
@@ -248,19 +321,54 @@ AI_PATTERNS = [
 ]
 
 
-def check_ai_words(text):
+AI_WORDS_EN = [
+    "furthermore",
+    "moreover",
+    "it is worth noting",
+    "in conclusion",
+]
+AI_STEMS_EN = [
+    ("delve", re.compile(r"\bdelv(?:e|es|ed|ing)\b", re.I)),
+    ("underscore", re.compile(r"\bunderscor(?:e|es|ed|ing)\b", re.I)),
+]
+AI_PATTERNS_EN = [
+    ("not only...but also", re.compile(r"not\s+only.{0,80}but\s+also", re.I | re.S)),
+    ("paves the way", re.compile(r"paves?\s+the\s+way", re.I)),
+    ("In recent years", re.compile(r"\bin\s+recent\s+years\b", re.I)),
+    ("to the best of our knowledge", re.compile(r"to\s+the\s+best\s+of\s+our\s+knowledge", re.I)),
+]
+
+
+def check_ai_words(text, profile="cumcm"):
     hits = {}
-    for w in AI_WORDS:
-        c = text.count(w)
-        if c:
-            hits[w] = c
-    for name, pat in AI_PATTERNS:
-        c = len(pat.findall(text))
-        if c:
-            hits[name] = c
+    if profile == "shuwei_en":
+        body = text.lower()
+        for w in AI_WORDS_EN:
+            c = len(re.findall(r"\b" + re.escape(w) + r"\b", body))
+            if c:
+                hits[w] = c
+        for name, pat in AI_STEMS_EN:
+            c = len(pat.findall(text))
+            if c:
+                hits[name] = c
+        for name, pat in AI_PATTERNS_EN:
+            c = len(pat.findall(text))
+            if c:
+                hits[name] = c
+        spec = "去AI味写作规范_en.md"
+    else:
+        for w in AI_WORDS:
+            c = text.count(w)
+            if c:
+                hits[w] = c
+        for name, pat in AI_PATTERNS:
+            c = len(pat.findall(text))
+            if c:
+                hits[name] = c
+        spec = "惯例 二.16 黑名单"
     if hits:
         detail = ", ".join(f"'{w}'×{c}" for w, c in sorted(hits.items(), key=lambda x: -x[1]))
-        warn("AI味", "", f"检出 AI 高频词/句型（惯例 二.16 黑名单）: {detail}")
+        warn("AI味", "", f"检出 AI 高频词/句型（{spec}）: {detail}")
     else:
         ok("AI味", "无 AI 高频词")
 
@@ -362,7 +470,8 @@ def check_appendix_filelist(text):
     # 定位"支撑材料文件列表"节：允许中文节名或显式 \section{支撑材料文件列表}
     # 节结束标志：下一个 \section 或 \end{document}
     sec_match = re.search(
-        r"(?:\\section\{[^}]*支撑材料[^}]*\}|支撑材料文件列表)", appendix_text)
+        r"(?:\\section\{[^}]*(?:支撑材料|Supporting Materials|Support Materials)[^}]*\}|"
+        r"支撑材料文件列表)", appendix_text, re.I)
     if not sec_match:
         # 没有明确的"支撑材料文件列表"节——可能论文没有支撑材料，
         # 但按规则仍需显式声明，给出 WARN
@@ -402,43 +511,69 @@ def check_appendix_filelist(text):
     error("附录文件列表", "", f"支撑材料文件列表表格缺少 booktabs 线命令：{', '.join(missing)}——三线表必须包含 \\toprule/\\midrule/\\bottomrule")
 
 
-# ---------- 检查 10：页数（PDF 代理） ----------
-
-def check_pages(tex_path, pdf_path):
-    pdf = Path(pdf_path) if pdf_path else tex_path.with_suffix(".pdf")
-    if not pdf.is_file():
-        warn("页数", "", "未找到编译后 PDF——正文页数（≥10 且尽量 ≤30）需编译后人工核对")
-        return
-    try:
-        from pypdf import PdfReader
-        n = len(PdfReader(str(pdf)).pages)
-        warn("页数", "", f"PDF 共 {n} 页（含附录）。正文（摘要页后、附录前）须 ≥10 且尽量 ≤30——附录起止页需人工核对后判定")
-    except Exception as e:
-        warn("页数", "", f"PDF 页数读取失败（{e}）——请人工核对正文页数")
-
-
-# ---------- 检查 10b：摘要单页（aux 锚点法，官方硬约束 ≤1 页，2026-08-B3） ----------
+# ---------- 检查 10：正文页数 + 摘要单页（aux 锚点） ----------
 
 ABSTRACT_END_LABEL = re.compile(r"\\newlabel\{abstract:end\}\{\{[^}]*\}\{([^}]*)\}")
+APPENDIX_START_LABEL = re.compile(r"\\newlabel\{appendix:start\}\{\{[^}]*\}\{([^}]*)\}")
+
+
+def _aux_page(aux_text, pattern):
+    m = pattern.search(aux_text)
+    if not m:
+        return None
+    page = m.group(1).strip()
+    return int(page) if page.isdigit() else None
+
+
+def check_pages(tex_path, pdf_path, profile="cumcm"):
+    """cumcm：body = appendix:start - abstract:end - 1，∈[10,30]。
+    shuwei_en：total = appendix:start - 1（Summary+目录+正文）≤25。"""
+    aux = tex_path.with_suffix(".aux")
+    if not aux.is_file():
+        if profile == "shuwei_en":
+            error("正文页数", "", "未找到 .aux——Summary+目录+正文 ≤25 无法机查，编译后重跑本脚本")
+        else:
+            error("正文页数", "", "未找到 .aux——正文页数（≥10 且 ≤30）无法机查，编译后重跑本脚本")
+        return
+    aux_text = aux.read_text(encoding="utf-8", errors="ignore")
+    abs_end = _aux_page(aux_text, ABSTRACT_END_LABEL)
+    app_start = _aux_page(aux_text, APPENDIX_START_LABEL)
+    if abs_end is None:
+        error("正文页数", "", ".aux 无 abstract:end 锚点——请在摘要页末加 \\label{abstract:end}")
+        return
+    if app_start is None:
+        error("正文页数", "", ".aux 无 appendix:start 锚点——请在 \\appendix 后立即 \\label{appendix:start}")
+        return
+    if profile == "shuwei_en":
+        total = app_start - 1
+        if total > 25:
+            error("正文页数", "", f"Summary+目录+正文共 {total} 页 > 25（附录起={app_start}）——"
+                                 "须压缩后重编译；见 赛制/shuwei_en.md")
+        else:
+            ok("正文页数", f"Summary+目录+正文共 {total} 页 ≤25 ✓（附录起={app_start}）")
+        return
+    body = app_start - abs_end - 1
+    if body < 10:
+        error("正文页数", "", f"正文 {body} 页 < 10（摘要页={abs_end}，附录起={app_start}）")
+    elif body > 30:
+        error("正文页数", "", f"正文 {body} 页 > 30（摘要页={abs_end}，附录起={app_start}）——"
+                             "须压缩正文后重编译；WRITING 门 ERROR，不得进 HG2")
+    else:
+        ok("正文页数", f"正文 {body} 页（摘要页={abs_end}，附录起={app_start}）≤30 ✓")
 
 
 def check_abstract_onepage(tex_path):
-    """读 .aux 中 \\label{abstract:end} 的页码：=1 通过；>1 摘要溢出（ERROR）。
-    模板锚点见 paper_minimal_template.tex 摘要页注释；无 aux/无锚点降级 WARN。"""
+    """读 .aux 中 \\label{abstract:end} 的页码：=1 通过；>1 摘要溢出（ERROR）。"""
     aux = tex_path.with_suffix(".aux")
     if not aux.is_file():
         warn("摘要单页", "", "未找到 .aux——摘要 ≤1 页（官方硬约束）无法机查，编译后重跑本脚本")
         return
-    m = ABSTRACT_END_LABEL.search(aux.read_text(encoding="utf-8", errors="ignore"))
-    if not m:
+    page = _aux_page(aux.read_text(encoding="utf-8", errors="ignore"), ABSTRACT_END_LABEL)
+    if page is None:
         warn("摘要单页", "", ".aux 中无 abstract:end 锚点——请在摘要页末（\\end{titlepage} 前）加 "
                             "\\label{abstract:end}（见 paper_minimal_template.tex 摘要页注释）")
         return
-    page = m.group(1).strip()
-    if not page.isdigit():
-        warn("摘要单页", "", f"锚点页码 {page!r} 非阿拉伯数字——请人工核对摘要 ≤1 页")
-        return
-    if int(page) == 1:
+    if page == 1:
         ok("摘要单页", "abstract:end 页码=1，摘要未超页 ✓（官方硬约束满足）")
     else:
         error("摘要单页", "", f"abstract:end 落在第 {page} 页——摘要超页（官方硬约束：≤1 页），"
@@ -493,13 +628,14 @@ def check_reference_years(text, tex_path, contest_year):
         ok("来源年份", f"{n_year} 条可提取年份的文献均 ≤ {contest_year} ✓")
 
 
-def check_reference_audit(tex_path):
+def check_reference_audit(tex_path, profile="cumcm"):
     """P11-R：调用 reference-studio 两脚本——双向核对（惯例 一.22b）+ DOI/URL
     可达性审计（惯例 二.3）。脚本缺失/调用失败降级 WARN，不阻塞（同 P11-V 模式）。"""
     import subprocess
     scripts = Path(__file__).resolve().parent.parent / "skills" / "reference-studio" / "scripts"
+    cite_args = [str(tex_path), f"--contest-profile={profile}"]
     targets = [
-        (scripts / "citation_check.py", [str(tex_path)], "双向核对"),
+        (scripts / "citation_check.py", cite_args, "双向核对"),
         (scripts / "doi_audit.py", ["scan", str(tex_path)], "可达性审计"),
     ]
     n_err = n_warn = 0
@@ -534,6 +670,17 @@ EXCLUDE_ENVS = ("figure", "table", "lstlisting", "verbatim", "equation", "equati
 ENV_PAT = re.compile(r"\\begin\{(" + "|".join(EXCLUDE_ENVS) + r")\}.*?\\end\{\1\}", re.S)
 CJK_RUN = re.compile(r"[一-鿿]+")
 LONG_PARA_THRESHOLD = 300
+LONG_PARA_THRESHOLD_EN = 180
+EN_WORD = re.compile(r"[A-Za-z][A-Za-z']*")
+EN_STOP = frozenset(
+    "the a an of and to in for we is are this that with on as by from or be at it its "
+    "our was were been being have has had not can may than then so if but".split()
+)
+EN_SKIP_TOKENS = frozenset({"fig", "eq", "tab", "sec", "figure", "table", "ref"})
+EN_TERM_KEEP = frozenset({
+    "monte carlo", "decision variable", "decision variables", "objective function",
+    "integer program", "sensitivity analysis", "active constraint", "mip gap",
+})
 
 
 def _main_body_lines(text):
@@ -550,7 +697,93 @@ def _strip_tex(s):
     return re.sub(r"[{}\s$\\]", "", t)
 
 
-def check_repetition_paragraphs(text):
+def _strip_tex_keep_words(s):
+    t = re.sub(r"\\(?:ref|eqref|label|cite|citep|citet|includegraphics)\*?(\[[^\]]*\])?\{[^}]*\}", " ", s)
+    t = re.sub(r"\\[a-zA-Z]+\*?(\[[^\]]*\])?", " ", t)
+    return re.sub(r"[{}$\\]", " ", t)
+
+
+def _en_tokens(s):
+    return [w.lower() for w in EN_WORD.findall(_strip_tex_keep_words(s))]
+
+
+def _check_repetition_en(text):
+    lines = _main_body_lines(text)
+    tokens = []
+    for _, line in lines:
+        tokens.extend(_en_tokens(line))
+    counts = {}
+    for n in (2, 3, 4):
+        for i in range(0, max(0, len(tokens) - n + 1)):
+            g = tuple(tokens[i:i + n])
+            if all(t in EN_STOP for t in g):
+                continue
+            if all(t in EN_SKIP_TOKENS for t in g):
+                continue
+            counts[g] = counts.get(g, 0) + 1
+    freq = {g: c for g, c in counts.items() if c >= 5}
+    maximal = [(g, c) for g, c in freq.items()
+               if not any(g != h and _ngram_in(g, h) and freq[h] == c for h in freq)]
+    blacklist_bits = set(AI_WORDS_EN)
+    kept = []
+    for g, c in maximal:
+        phrase = " ".join(g)
+        if phrase in EN_TERM_KEEP:
+            continue
+        if any(w in phrase for w in blacklist_bits):
+            continue
+        kept.append((phrase, c))
+    kept.sort(key=lambda x: (-x[1], -len(x[0])))
+    if kept:
+        detail = "; ".join(f"'{p}'×{c}" for p, c in kept[:8])
+        more = f" 等 {len(kept)} 个" if len(kept) > 8 else ""
+        warn("AI味", "", f"内部高频短语（≥5 次，去AI味写作规范_en.md 第六节）: {detail}{more}"
+                        f"——术语身份可保留；套话请换成具体指代")
+    else:
+        ok("AI味", "无 ≥5 次的内部高频 2–4 词自造短语")
+    _warn_long_paragraphs(lines, LONG_PARA_THRESHOLD_EN, words=True)
+
+
+def _ngram_in(inner, outer):
+    if len(inner) > len(outer):
+        return False
+    for i in range(len(outer) - len(inner) + 1):
+        if outer[i:i + len(inner)] == inner:
+            return True
+    return False
+
+
+def _warn_long_paragraphs(lines, threshold, words=False):
+    paras, cur, start = [], [], None
+    for ln, line in lines:
+        if line.strip():
+            if start is None:
+                start = ln
+            cur.append(line)
+        elif cur:
+            paras.append((start, "\n".join(cur)))
+            cur, start = [], None
+    if cur:
+        paras.append((start, "\n".join(cur)))
+    long_ps = []
+    for st, p in paras:
+        n = len(_en_tokens(p)) if words else len(_strip_tex(p))
+        if n > threshold:
+            long_ps.append((st, n))
+    unit = "词" if words else "字"
+    spec = "去AI味写作规范_en.md" if words else "去AI味写作规范.md"
+    if long_ps:
+        detail = "; ".join(f"第{st}行起约{n}{unit}" for st, n in long_ps[:6])
+        more = f" 等 {len(long_ps)} 段" if len(long_ps) > 6 else ""
+        warn("AI味", "", f"超长段落（>{threshold} {unit}，{spec} 第六节）: {detail}{more}——请拆分或记录理由")
+    else:
+        ok("AI味", f"无超过 {threshold} {unit}的超长段落")
+
+
+def check_repetition_paragraphs(text, profile="cumcm"):
+    if profile == "shuwei_en":
+        _check_repetition_en(text)
+        return
     lines = _main_body_lines(text)
     # (a) 内部高频短语：连续中文串内 n-gram（n=4..12）计数 ≥5，保留极大短语
     runs = [rm.group(0) for _, line in lines for rm in CJK_RUN.finditer(line)]
@@ -570,30 +803,11 @@ def check_repetition_paragraphs(text):
     if maximal:
         detail = "; ".join(f"'{g}'×{c}" for g, c in maximal[:8])
         more = f" 等 {len(maximal)} 个" if len(maximal) > 8 else ""
-        warn("AI味", "", f"内部高频短语（≥5 次，去AI味写作规范 第六节）: {detail}{more}"
+        warn("AI味", "", f"内部高频短语（≥5 次，去AI味写作规范.md 第六节）: {detail}{more}"
                         f"——请人工判定是否需将部分实例替换为具体指代或近义表述")
     else:
         ok("AI味", "无 ≥5 次的内部高频四字及以上自造短语")
-    # (b) 超长段落：空行分段，去 LaTeX 命令后统计字数
-    paras, cur, start = [], [], None
-    for ln, line in lines:
-        if line.strip():
-            if start is None:
-                start = ln
-            cur.append(line)
-        elif cur:
-            paras.append((start, "\n".join(cur)))
-            cur, start = [], None
-    if cur:
-        paras.append((start, "\n".join(cur)))
-    long_ps = [(st, len(_strip_tex(p))) for st, p in paras]
-    long_ps = [(st, n) for st, n in long_ps if n > LONG_PARA_THRESHOLD]
-    if long_ps:
-        detail = "; ".join(f"第{st}行起约{n}字" for st, n in long_ps[:6])
-        more = f" 等 {len(long_ps)} 段" if len(long_ps) > 6 else ""
-        warn("AI味", "", f"超长段落（>{LONG_PARA_THRESHOLD} 字，去AI味写作规范 第六节）: {detail}{more}——请拆分或记录理由")
-    else:
-        ok("AI味", f"无超过 {LONG_PARA_THRESHOLD} 字的超长段落")
+    _warn_long_paragraphs(lines, LONG_PARA_THRESHOLD, words=False)
 
 
 # ---------- 检查 13：摘要页页码（titlepage 吞页码，§七.1） ----------
@@ -612,7 +826,13 @@ def check_abstract_pagestyle(text):
 
 # ---------- 检查 14：西文/数学字体（§二，对齐国赛标杆 Times 观感） ----------
 
-def check_western_fonts(text):
+def check_western_fonts(text, profile="cumcm"):
+    if profile == "shuwei_en":
+        if re.search(r"swmcmthesis|newtxtext|newtxmath|\\setmainfont\{", text):
+            ok("西文字体", "shuwei_en：Times 系由 swmcmthesis / newtx 承载")
+        else:
+            warn("西文字体", "", "shuwei_en 未检出 swmcmthesis/newtx——请确认 12pt Times")
+        return
     if not re.search(r"\\setmainfont\{", text):
         warn("西文字体", "", "未检出 \\setmainfont——西文/数字将回落 Latin Modern，"
                             "与国赛标杆（Times 系）观感不符，请人工确认")
@@ -675,7 +895,7 @@ def main():
     if not argv:
         print(__doc__)
         sys.exit(2)
-    contest_year, positional = None, []
+    contest_year, contest_profile_cli, positional = None, None, []
     for a in argv:
         if a.startswith("--contest-year="):
             try:
@@ -683,6 +903,8 @@ def main():
             except ValueError:
                 print(f"✗ --contest-year 参数无法解析: {a!r}，应为 --contest-year=YYYY")
                 sys.exit(2)
+        elif a.startswith("--contest-profile="):
+            contest_profile_cli = a.split("=", 1)[1].strip()
         elif not a.startswith("--"):
             positional.append(a)
     if not positional:
@@ -696,25 +918,26 @@ def main():
         sys.exit(2)
     raw = tex_path.read_text(encoding="utf-8", errors="ignore")
     text = strip_comments(raw)
+    profile = resolve_contest_profile(contest_profile_cli, tex_path, project_dir)
 
-    check_toc_maketitle(text)
-    check_visual_style(text)
-    check_structure(text)
-    check_abstract(text)
+    check_toc_maketitle(text, profile)
+    check_visual_style(text, profile)
+    check_structure(text, profile)
+    check_abstract(text, profile)
     check_bibliography(text, tex_path)
     check_reference_years(text, tex_path, contest_year)
-    check_reference_audit(tex_path)
+    check_reference_audit(tex_path, profile)
     check_figures(text)
     check_avoidance(text)
-    check_ai_words(text)
-    check_repetition_paragraphs(text)
+    check_ai_words(text, profile)
+    check_repetition_paragraphs(text, profile)
     check_anonymity(text)
     check_appendix_code(text, tex_path, project_dir)
     check_appendix_filelist(text)
-    check_pages(tex_path, pdf_path)
+    check_pages(tex_path, pdf_path, profile)
     check_abstract_onepage(tex_path)
     check_abstract_pagestyle(text)
-    check_western_fonts(text)
+    check_western_fonts(text, profile)
     check_figure_width(text)
     check_subfigure_refs(text)
 
@@ -728,7 +951,8 @@ def main():
         print(f"{icon[f['level']]} {f['level']:<5} [{f['rule']}]{loc} {f['message']}")
     print(f"\n汇总: {n_err} ERROR / {n_warn} WARN / {n_pass} PASS")
 
-    report = {"target": str(tex_path),
+    report = {"target": str(tex_path), "contest_profile": profile,
+              "error_count": n_err, "warn_count": n_warn,
               "summary": {"ERROR": n_err, "WARN": n_warn, "PASS": n_pass},
               "findings": FINDINGS}
     out = tex_path.parent / "latex_compliance_report.json"

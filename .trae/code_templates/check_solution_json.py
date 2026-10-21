@@ -100,6 +100,16 @@ def is_num(x):
     return isinstance(x, (int, float)) and not isinstance(x, bool)
 
 
+def _has_key(node, key):
+    if isinstance(node, dict):
+        if key in node:
+            return True
+        return any(_has_key(v, key) for v in node.values())
+    if isinstance(node, list):
+        return any(_has_key(v, key) for v in node)
+    return False
+
+
 def common_prefix_len(a, b):
     n = 0
     for ca, cb in zip(a, b):
@@ -153,7 +163,10 @@ def find_subproblems(data):
 def check_contract(data):
     subs = find_subproblems(data)
     if not subs:
-        warn("契约", "$", "未识别子问题结构（未找到含 ≥3 个契约字段的字典），必填字段检查跳过")
+        if _has_key(data, "task_type"):
+            error("契约", "$", "含 task_type，属 stats 契约，不能用 check_solution_json.py")
+        else:
+            warn("契约", "$", "未识别子问题结构（未找到含 ≥3 个契约字段的字典），必填字段检查跳过")
         return
     for name, sub in subs.items():
         score = sum(1 for f in REQUIRED if f in sub)

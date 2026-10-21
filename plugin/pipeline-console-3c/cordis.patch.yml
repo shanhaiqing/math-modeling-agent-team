@@ -1,0 +1,7 @@
+- insert:
+    - id: pipeline-console-3c
+      name: '@local/pipeline-console-3c'
+      config:
+        repoRoot: C:/Users/35399/Desktop/数模B题专家团
+        runsDir: runs
+        annotator: C:/Users/35399/Desktop/数模B题专家团/tools/annotate_figure.py

@@ -1,0 +1,18 @@
+{
+  "problem_type": "Regression | Forecasting | Classification | Evaluation | Clustering | Reduction | Inference | Descriptive | Other",
+  "task_types": ["按子问题逐一列出，复合任务记数组"],
+  "target_variable": "有（名称+口径）| 无",
+  "data_structure": "cross_section | time_series | panel | mixed",
+  "data_shape": "行数 × 列数（大附件按大附件处理规范实测填入）",
+  "sample_scale": "small<100 | medium100-10000 | large>10000",
+  "dimension": "low(p<<n) | high(p≳n)",
+  "data_role": "附件给定 | 自搜集 | 混合",
+  "data_quality": "阶段1大附件处理规范产出的数据质量结论（行列规模/缺失值/异常值/分布摘要）",
+  "downstream_optimization": "yes | no",
+  "downstream_decision_kind": "na | structured_planning | rule_threshold | queueing_simulation（no 时填 na；yes 时按卡片 12 分叉，禁止填 na）",
+  "experimental_design": "yes | no",
+  "sub_problems": [],
+  "theoretical_challenge": "small_sample | high_dimensional | imbalanced | nonstationary | data_leakage_risk | none_obvious",
+  "confidence": "high | medium | low",
+  "source_parameters": "题目原文核心数值参数逐字抄录（阈值/比例/日期范围/边界条件等，惯例 一.11）"
+}

@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dsh.local/modeling/failure-dossier.schema.json",
+  "title": "Failure Dossier",
+  "description": "Kernel-assembled negative memory for a rejected approach. Fresh agents inherit this dossier, not the old conversation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "dossier_id",
+    "run_id",
+    "created_at",
+    "created_by",
+    "source",
+    "root_cause",
+    "failed_approach",
+    "rejected_signature",
+    "failure_modes",
+    "must_not_repeat",
+    "acceptance_tests",
+    "attic_paths"
+  ],
+  "properties": {
+    "dossier_id": {"type": "string"},
+    "run_id": {"type": "string"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "created_by": {"enum": ["kernel", "method", "reviewer", "human"]},
+    "source": {"type": "string", "description": "gate/ticket/review finding/human instruction that triggered the rejection"},
+    "root_cause": {
+      "enum": [
+        "method_mismatch",
+        "model_structure",
+        "data_or_leakage",
+        "numeric_or_code",
+        "missing_verification",
+        "assumption",
+        "writing_or_compliance",
+        "unknown"
+      ]
+    },
+    "failed_approach": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary", "method", "algorithm", "assumptions"],
+      "properties": {
+        "summary": {"type": "string"},
+        "method": {"type": "string"},
+        "algorithm": {"type": "string"},
+        "assumptions": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "rejected_signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["problem_type", "algorithm", "model_structure", "data_split", "objective", "subproblem_count"],
+      "properties": {
+        "problem_type": {"type": "string"},
+        "algorithm": {"type": "string"},
+        "model_structure": {"type": "string"},
+        "data_split": {"type": "string"},
+        "objective": {"type": "string"},
+        "subproblem_count": {"type": "integer", "minimum": 1}
+      }
+    },
+    "failure_modes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "description", "evidence", "severity", "affected_subproblems", "affected_sections"],
+        "properties": {
+          "id": {"type": "string"},
+          "description": {"type": "string"},
+          "evidence": {"type": "string"},
+          "severity": {"enum": ["high", "medium", "low"]},
+          "affected_subproblems": {"type": "array", "items": {"type": "string"}},
+          "affected_sections": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "must_not_repeat": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "acceptance_tests": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "description", "command", "expected", "failure_mode_id"],
+        "properties": {
+          "id": {"type": "string"},
+          "description": {"type": "string"},
+          "command": {"type": "string"},
+          "expected": {"type": "string"},
+          "failure_mode_id": {"type": "string"}
+        }
+      }
+    },
+    "attic_paths": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "notes": {"type": "string"}
+  }
+}

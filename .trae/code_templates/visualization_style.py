@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
 可视化样式模板
-建模与写作阶段统一使用。确保图表符合论文规范（中文衬线字体自动检测优先 SimSun、300dpi、PDF+PNG 双格式）。
+建模与写作阶段统一使用。确保图表符合论文规范（300dpi、PDF+PNG 双格式）。
+缺省 `cumcm`：中文衬线优先 SimSun。`contest_profile=shuwei_en`：西文衬线（Times New Roman），
+不强制 CJK；无中文字体不警告。读项目根 `pipeline_state.json` 或 `setup_style(contest_profile=)`。
 
 === 视觉体系三原则（出图前对照 .trae/papers/图表类型参考库.md 第五节） ===
   1. 低饱和学术配色：禁止 matplotlib 默认 tab10 高饱和色，统一用本模板 PALETTE；
@@ -35,6 +37,9 @@
       自定义/特殊图表用 matplotlib 自绘（灵活度更高）。
 """
 
+import json
+from pathlib import Path
+
 import matplotlib
 matplotlib.use("Agg")  # 无头环境兜底（Bash 执行/比赛环境无显示，防止 TkAgg 崩溃）
 import matplotlib.pyplot as plt
@@ -42,6 +47,9 @@ import matplotlib as mpl
 import matplotlib.font_manager as fm
 import numpy as np
 import seaborn as sns
+
+LEGAL_PROFILES = ("cumcm", "shuwei_zh", "shuwei_en")
+ACTIVE_CONTEST_PROFILE = "cumcm"
 
 # ============================================================
 # 全局样式设置
@@ -67,6 +75,69 @@ if _cjk_font is None:
         if _font in _available_fonts:
             _cjk_font = _font
             break
+
+_WESTERN_SERIF_CANDIDATES = [
+    "Times New Roman", "Times", "Liberation Serif", "Nimbus Roman No9 L", "DejaVu Serif",
+]
+
+
+def resolve_contest_profile(cli_value=None, search_roots=None):
+    """--contest-profile / 显式参数优先；否则读 pipeline_state.json；非法/缺失 → cumcm。"""
+    if cli_value:
+        v = str(cli_value).strip().lower()
+        return v if v in LEGAL_PROFILES else "cumcm"
+    roots = []
+    for r in search_roots or []:
+        roots.append(Path(r))
+    cwd = Path.cwd()
+    roots.extend([cwd, *list(cwd.parents)[:6]])
+    seen = set()
+    for r in roots:
+        p = r if r.name == "pipeline_state.json" else r / "pipeline_state.json"
+        key = str(p.resolve()) if p.exists() else str(p)
+        if key in seen:
+            continue
+        seen.add(key)
+        if not p.is_file():
+            continue
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        v = str(data.get("contest_profile") or "").strip().lower()
+        return v if v in LEGAL_PROFILES else "cumcm"
+    return "cumcm"
+
+
+def _first_available_font(candidates):
+    for name in candidates:
+        if name in _available_fonts:
+            return name
+    return None
+
+
+def _western_serif_font():
+    return _first_available_font(_WESTERN_SERIF_CANDIDATES) or "DejaVu Serif"
+
+
+def _cjk_font_rc():
+    return {
+        "font.family": [_cjk_family],
+        "font.serif": [_cjk_font, "DejaVu Serif"] if _cjk_font else ["DejaVu Serif"],
+        "font.sans-serif": [_cjk_font, "DejaVu Sans"] if _cjk_font else ["DejaVu Sans"],
+        "mathtext.fontset": "dejavusans",
+    }
+
+
+def _western_font_rc():
+    west = _western_serif_font()
+    return {
+        "font.family": ["serif"],
+        "font.serif": [west, "DejaVu Serif"],
+        "font.sans-serif": ["DejaVu Sans"],
+        "mathtext.fontset": "stix",
+    }
+
 
 if _cjk_font:
     plt.rcParams['font.family'] = [_cjk_family]
@@ -153,24 +224,47 @@ COLORMAPS = {
 SCIENCE_STYLE_ACTIVE = False
 
 
-def setup_style():
+def _shared_style_rc(en):
+    """SciencePlots / 降级共用的网格、字号、字体嵌入。字体栈按剖面覆盖。"""
+    rc = {
+        "axes.unicode_minus": False,
+        "axes.formatter.use_mathtext": False,
+        "grid.alpha": 0.15,
+        "grid.linestyle": "-",
+        "grid.linewidth": 0.5,
+        "figure.dpi": 100,
+        "savefig.bbox": "tight",
+        "pdf.fonttype": 42,
+        "ps.fonttype": 42,
+    }
+    rc.update(_western_font_rc() if en else _cjk_font_rc())
+    return rc
+
+
+def setup_style(contest_profile=None):
     """
     设置全局 matplotlib + seaborn 样式。
 
     优先应用 SciencePlots 的 'science' 期刊风格（提升视觉期刊度）；
     若未安装 scienceplots 或风格加载失败，优雅降级到内置 rcParams 直设。
     降级策略确保无该依赖时团队仍可正常出图。
+
+    contest_profile 缺省时读 pipeline_state.json（非法/缺失 → cumcm）。
+    shuwei_en：Times 系衬线，不把 CJK 放进回退栈，无中文字体不警告。
     """
-    global SCIENCE_STYLE_ACTIVE
+    global SCIENCE_STYLE_ACTIVE, ACTIVE_CONTEST_PROFILE
+    profile = resolve_contest_profile(contest_profile)
+    ACTIVE_CONTEST_PROFILE = profile
+    en = profile == "shuwei_en"
     applied_science = False
 
     # --- 尝试 SciencePlots 期刊风格（P0：视觉呈现升级） ---
     try:
         import scienceplots  # noqa: F401（注册 science 风格）
-        # 优先用带网格的 'science' 变体；若 CJK 中文字体可用，附 'no-latex' 避免依赖 LaTeX
-        style_list = ['science', 'grid']
-        if _cjk_font:
-            style_list.append('no-latex')
+        # 优先用带网格的 'science' 变体；CJK 或英文赛附 'no-latex' 避免依赖 LaTeX
+        style_list = ["science", "grid"]
+        if en or _cjk_font:
+            style_list.append("no-latex")
         plt.style.use(style_list)
         applied_science = True
     except Exception as e:
@@ -179,51 +273,26 @@ def setup_style():
     if applied_science:
         SCIENCE_STYLE_ACTIVE = True
         print("[可视化] 已应用 SciencePlots 'science' 期刊风格")
-        # science 风格默认 font.family=['serif']，会迫使中文走 STIX 导致方框；
-        # 按检测到的字体族（serif/sans-serif）覆盖，保证中文正常回落。
-        mpl.rcParams.update({
-            'font.family': [_cjk_family],
-            'font.serif': [_cjk_font, 'DejaVu Serif'] if _cjk_font else ['DejaVu Serif'],
-            'font.sans-serif': [_cjk_font, 'DejaVu Sans'] if _cjk_font else ['DejaVu Sans'],
-            'axes.unicode_minus': False,
-            'axes.formatter.use_mathtext': False,
-            # science 风格默认 mathtext.fontset='cm'，会重置模块级设置；
-            # 强制固定 DejaVu 系，避免负号/数学符号缺字形渲染为方框（修订建议 #10）
-            'mathtext.fontset': 'dejavusans',
-            # 全局统一淡网格（science 默认灰虚线过抢），与 _apply_grid 一致
-            'grid.alpha': 0.15,
-            'grid.linestyle': '-',
-            'grid.linewidth': 0.5,
-            'figure.dpi': 100,
-            'savefig.bbox': 'tight',
-            # PDF/PS 字体嵌入（Type 42），避免期刊系统报错
-            'pdf.fonttype': 42,
-            'ps.fonttype': 42,
-        })
+        mpl.rcParams.update(_shared_style_rc(en))
+        if en:
+            print(f"[可视化] shuwei_en 西文衬线: {_western_serif_font()}（无 CJK 回退）")
         return
 
     # --- 降级分支：内置 rcParams 直设 ---
     sns.set_style("whitegrid")  # seaborn 全局样式
-    mpl.rcParams.update({
-        'font.family': [_cjk_family],
-        'font.serif': [_cjk_font, 'DejaVu Serif'] if _cjk_font else ['DejaVu Serif'],
-        'font.sans-serif': [_cjk_font, 'DejaVu Sans'] if _cjk_font else ['DejaVu Sans'],
-        'font.size': 10,
-        'axes.titlesize': 12,
-        'axes.labelsize': 10,
-        'xtick.labelsize': 9,
-        'ytick.labelsize': 9,
-        'legend.fontsize': 9,
-        'mathtext.fontset': 'dejavusans',
-        'figure.dpi': 100,
-        'savefig.bbox': 'tight',
-        'lines.linewidth': 1.5,
-        'grid.alpha': 0.15,
-        'grid.linestyle': '-',
-        'grid.linewidth': 0.5,
-        'pdf.fonttype': 42,
-        'ps.fonttype': 42,
-    })
+    fallback = {
+        "font.size": 10,
+        "axes.titlesize": 12,
+        "axes.labelsize": 10,
+        "xtick.labelsize": 9,
+        "ytick.labelsize": 9,
+        "legend.fontsize": 9,
+        "lines.linewidth": 1.5,
+    }
+    fallback.update(_shared_style_rc(en))
+    mpl.rcParams.update(fallback)
+    if en:
+        print(f"[可视化] shuwei_en 西文衬线: {_western_serif_font()}（无 CJK 回退）")
 
 
 def save_figure(fig, filename: str, formats: list = None):
@@ -395,7 +464,8 @@ def plot_distribution(data, x=None, kde=True, bins="auto", xlabel="",
     sns.histplot(data=data, x=x, kde=kde, bins=bins, ax=ax, color=COLORS["primary"])
 
     ax.set_xlabel(xlabel)
-    ax.set_ylabel("频数")
+    ylabel_default = "Frequency" if ACTIVE_CONTEST_PROFILE == "shuwei_en" else "频数"
+    ax.set_ylabel(ylabel_default)
     save_figure(fig, filename)
     plt.close(fig)
     return fig

@@ -1,16 +1,18 @@
 {
   "system": "B",
-  "mode": null,
+  "mode": "competition",
+  "contest_profile": "cumcm",
+  "problem_track": null,
   "compile_mode": null,
   "project_root": "",
-  "reference_paper_dir": null,
   "current_stage": "HG0_INTAKE",
   "passed_gates": [],
-  "fix_rounds_used": {"R1": false, "R2": false, "R3": false},
+  "fix_rounds_used": {"R1": false, "R2": false},
   "stage_timestamps": {},
   "machine_checks": {},
-  "isolation_signatures": [],
   "blocked_history": [],
   "redline_results": {},
-  "subagent_ids": {}
+  "subagent_ids": {},
+  "rework_brief_active": false,
+  "stale_stages": []
 }

@@ -15,7 +15,9 @@ check_latex_env.py — LaTeX 编译环境预检（机查版）
   3. 中文字体：Windows 检查 SimSun/SimHei 字体文件；其他平台尝试 fc-list；
      均不可判定时 WARN
 用法:
-  python check_latex_env.py [--report latex_env_report.json]
+  python check_latex_env.py [--contest-profile=cumcm|shuwei_zh|shuwei_en] [--report latex_env_report.json]
+  --contest-profile 缺省 cumcm：检 xelatex + ctexart + 中文字体。
+  shuwei_en：检 pdflatex + article.cls + vendored swmcmthesis.cls；中文字体缺失不升 ERROR。
 退出码: 0 = 无 ERROR；1 = 存在 ERROR；2 = 用法错误
 输出:   控制台逐条打印 + 写 latex_env_report.json（默认当前目录）
 """
@@ -69,25 +71,55 @@ REQUIRED_PACKAGES = [
     "setspace.sty", "enumitem.sty", "caption.sty",
 ]
 
+REQUIRED_PACKAGES_SHUWEI = [
+    "article.cls", "fvextra.sty", "booktabs.sty", "geometry.sty",
+    "enumitem.sty", "caption.sty",
+]
 
-def check_packages():
+
+def check_pdflatex():
+    exe = shutil.which("pdflatex")
+    if not exe:
+        error("pdflatex", "未找到 pdflatex——shuwei_en 官方模板推荐 pdflatex；"
+                          "请安装系统级 TeX 发行版后重试；禁止子代理自行安装便携版发行版")
+        return False
+    rc, out = run([exe, "--version"])
+    if rc != 0:
+        error("pdflatex", f"pdflatex 存在但无法运行（{out.strip()[:200]}）")
+        return False
+    ok("pdflatex", f"pdflatex 可用：{out.splitlines()[0].strip()}")
+    return True
+
+
+def check_packages(profile="cumcm"):
+    pkgs = REQUIRED_PACKAGES_SHUWEI if profile == "shuwei_en" else REQUIRED_PACKAGES
     kpse = shutil.which("kpsewhich")
     if not kpse:
         warn("宏包", "kpsewhich 不可用，无法定位宏包——请以空模板冒烟编译结果为准")
-        return
-    missing = []
-    for pkg in REQUIRED_PACKAGES:
-        rc, out = run([kpse, pkg])
-        if rc != 0 or not out.strip():
-            missing.append(pkg)
-    if missing:
-        error("宏包", f"关键宏包缺失：{', '.join(missing)}——"
-                      f"请用发行版包管理器安装（MiKTeX 需设为自动安装免询问）")
     else:
-        ok("宏包", f"关键宏包齐全（{len(REQUIRED_PACKAGES)} 个）")
+        missing = []
+        for pkg in pkgs:
+            rc, out = run([kpse, pkg])
+            if rc != 0 or not out.strip():
+                missing.append(pkg)
+        if missing:
+            error("宏包", f"关键宏包缺失：{', '.join(missing)}——"
+                          f"请用发行版包管理器安装（MiKTeX 需设为自动安装免询问）")
+        else:
+            ok("宏包", f"关键宏包齐全（{len(pkgs)} 个）")
+    if profile == "shuwei_en":
+        cls = Path(__file__).resolve().parent / "shuwei" / "swmcmthesis.cls"
+        cfg = cls.with_suffix(".cfg")
+        if cls.is_file() and cfg.is_file():
+            ok("文档类", f"vendored swmcmthesis 在 {cls.parent}")
+        else:
+            error("文档类", f"缺少 {cls.name} 或 {cfg.name}——从 数维杯格式规范 拷贝至 .trae/code_templates/shuwei/")
 
 
-def check_fonts():
+def check_fonts(profile="cumcm"):
+    if profile == "shuwei_en":
+        ok("中文字体", "shuwei_en 不要求 SimSun/SimHei（全文英文）")
+        return
     if sys.platform == "win32":
         fonts_dir = Path("C:/Windows/Fonts")
         simsun = any(fonts_dir.glob(n) for n in ("simsun.ttc", "SimSun.ttf"))
@@ -111,16 +143,28 @@ def check_fonts():
 
 def main():
     report_path = Path("latex_env_report.json")
-    if "--report" in sys.argv:
-        i = sys.argv.index("--report")
-        if i + 1 >= len(sys.argv):
-            print("用法错误：--report 需要路径参数")
-            sys.exit(2)
-        report_path = Path(sys.argv[i + 1])
+    profile = "cumcm"
+    argv = sys.argv[1:]
+    i = 0
+    while i < len(argv):
+        a = argv[i]
+        if a.startswith("--contest-profile="):
+            v = a.split("=", 1)[1].strip().lower()
+            profile = v if v in ("cumcm", "shuwei_zh", "shuwei_en") else "cumcm"
+        elif a == "--report":
+            if i + 1 >= len(argv):
+                print("用法错误：--report 需要路径参数")
+                sys.exit(2)
+            report_path = Path(argv[i + 1])
+            i += 1
+        i += 1
 
-    check_xelatex()
-    check_packages()
-    check_fonts()
+    if profile == "shuwei_en":
+        check_pdflatex()
+    else:
+        check_xelatex()
+    check_packages(profile)
+    check_fonts(profile)
 
     n_err = sum(1 for f in FINDINGS if f["level"] == "ERROR")
     n_warn = sum(1 for f in FINDINGS if f["level"] == "WARN")
@@ -130,7 +174,8 @@ def main():
     print(f"汇总：{n_err} ERROR / {n_warn} WARN / {n_pass} PASS")
 
     report_path.write_text(json.dumps(
-        {"checker": "check_latex_env", "error": n_err, "warn": n_warn,
+        {"checker": "check_latex_env", "contest_profile": profile,
+         "error": n_err, "warn": n_warn,
          "pass": n_pass, "findings": FINDINGS},
         ensure_ascii=False, indent=2), encoding="utf-8")
     sys.exit(1 if n_err else 0)

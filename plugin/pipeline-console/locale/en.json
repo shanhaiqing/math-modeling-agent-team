@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Pipeline Console",
+    "description": "Read-only console for modeling pipeline runs, gates, figures and paper."
+  }
+}

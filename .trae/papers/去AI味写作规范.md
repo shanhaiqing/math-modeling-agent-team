@@ -4,7 +4,7 @@
 
 **来源**：垂直优化自 Humanizer-zh / blader-humanizer 的 24 种 AI 模式检测规则（基于 Wikipedia:Signs of AI writing），针对数学建模国赛论文文体（LaTeX + ctex、学术严谨、数值驱动）适配。
 
-**引用入口**：国赛公开惯例 二.16（本文档为其承载细则）。
+**引用入口**：国赛公开惯例 二.16（本文档为其承载细则）。**`shuwei_en`**：改读《去AI味写作规范_en.md》。
 
 ---
 

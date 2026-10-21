@@ -17,7 +17,10 @@ import re
 import sys
 from pathlib import Path
 
-CONV = Path(__file__).resolve().parent.parent / "papers" / "国赛公开惯例.md"
+PAPERS = Path(__file__).resolve().parent.parent / "papers"
+CONV = PAPERS / "国赛公开惯例.md"
+OPT_CONV = PAPERS / "优化专项惯例.md"
+STATS_CONV = PAPERS / "数据题专项惯例.md"
 SEC_RE = re.compile(r"^##\s+([一二三四五六七])、")
 ITEM_RE = re.compile(r"^(\d+)\.\s")
 TOC_SEC_RE = re.compile(r"^- \*\*([一二三四五六七])、")
@@ -25,7 +28,7 @@ REF_RE = re.compile(r"惯例\s*([一二三四五六七])\.(\d+)")
 
 N2I = {"一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7}
 EXCLUDE_DIRS = {".git", "_quarantine", "_isolated_refs", ".venv", "venv",
-                "node_modules", "__pycache__"}
+                "node_modules", "__pycache__", "进化工具包"}
 
 FINDINGS = []
 
@@ -143,6 +146,26 @@ def main():
                       f"目录与正文不一致：目录缺 {missing or '无'}，目录多 {extra or '无'}")
             else:
                 ok("目录", f"{sec}节：目录 {len(toc_nums)} 条与正文一致")
+
+    opt_text = OPT_CONV.read_text(encoding="utf-8") if OPT_CONV.is_file() else ""
+    opt_ids = set(int(m.group(1)) for m in re.finditer(r"^优\.(\d+)\s", opt_text, re.M))
+    pointed = set(int(m.group(1)) for m in re.finditer(r"优化专项惯例\.md`?\s*优\.(\d+)", text))
+    missing_opt = sorted(pointed - opt_ids)
+    if not OPT_CONV.is_file():
+        error("专项", "优化专项惯例", "文件缺失")
+    elif missing_opt:
+        error("专项", "优化专项惯例", f"公开惯例指向的优编号不存在：{missing_opt}")
+    elif pointed:
+        ok("专项", f"优化专项 {len(opt_ids)} 条，公开指针 {len(pointed)} 条均有落地")
+
+    stats_text = STATS_CONV.read_text(encoding="utf-8") if STATS_CONV.is_file() else ""
+    stats_ids = set(int(m.group(1)) for m in re.finditer(r"^##\s+数\.(\d+)\s", stats_text, re.M))
+    if not STATS_CONV.is_file():
+        error("专项", "数据题专项惯例", "文件缺失")
+    elif 1 not in stats_ids:
+        error("专项", "数据题专项惯例", "缺数.1，公开惯例二.13 无法落地")
+    else:
+        ok("专项", f"数据题专项 {len(stats_ids)} 条，含数.1")
 
     n_err = sum(1 for f in FINDINGS if f["level"] == "ERROR")
     for f in FINDINGS:

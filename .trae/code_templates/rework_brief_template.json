@@ -1,0 +1,13 @@
+{
+  "active": true,
+  "trigger": "METHOD_TICKET",
+  "ticket_index": null,
+  "keep": [],
+  "change": [],
+  "forbidden": [],
+  "must_read": [
+    "赛题/题面.md",
+    "decision_logs/rework_brief.md"
+  ],
+  "user_decision": ""
+}

@@ -1,0 +1,323 @@
+% ============================================================
+% ShuWei Cup English paper template (shuwei_en), v1.0
+% Shell: official swmcmthesis (2025 autumn). Skeleton: this system's
+% problem-organized modeling paper (sensitivity / validation kept).
+% Compile: copy swmcmthesis.cls + swmcmthesis.cfg next to paper.tex, then
+%   pdflatex paper.tex
+%   pdflatex paper.tex
+% Do NOT use ctexart. Do NOT delete \label{abstract:end} / \label{appendix:start}.
+% Page cap: Summary + Content + body <= 25; appendix unlimited.
+% Identity: only \baominghao / \zubie; never \schoolname / \membera / advisor.
+% ============================================================
+
+\documentclass{swmcmthesis}
+
+\usepackage{float}
+\usepackage{fvextra}
+\usepackage{verbatim}
+\setlength{\headheight}{20pt}
+
+\fvset{frame=single,numbers=left,numbersep=6pt,fontsize=\small,
+       baselinestretch=1.05,tabsize=4,breaklines=true,breakanywhere=true}
+
+\title{[Concise, Specific Paper Title]}
+\baominghao{BSHUWEICUP26XXXXXX}  % official team control number, unchanged
+\zubie{B}                         % problem letter A/B/C/D
+\date{2026}                       % contest year on the Summary Sheet (not an author date)
+
+\abstract{%
+Paragraph 1 (1--3 sentences): problem setting and overall approach.
+
+For Problem 1, we formulated [model name], solved it with [solver/algorithm],
+and obtained [quantitative result: objective, gap, or policy parameters].
+
+For Problem 2, we formulated [model name], solved it with [tool],
+and obtained [quantitative result].
+
+For Problem 3, we formulated [model name], solved it with [tool],
+and obtained [quantitative result].
+
+Keep this Summary on a single page. No school, advisor, or member names.
+\label{abstract:end}%
+}
+
+\keywords{keyword1, keyword2, keyword3, keyword4}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{Introduction}
+
+\subsection{Background}
+
+[Problem background. If the statement defines proper nouns or attachments,
+a three-line table of terms may go here.]
+
+\subsection{Problem Restatement}
+
+\textbf{Problem 1.} [Restate as a precise mathematical task; do not copy the
+statement verbatim.]
+
+\textbf{Problem 2.} [Same.]
+
+\textbf{Problem 3.} [Same.]
+
+% ============================================================
+\section{Problem Analysis}
+
+% Subsection titles must be research-oriented (e.g.\ ``Coupling between
+% indicator X and parameter Y''). Do not use ``Analysis of Question 1''.
+
+\subsection{[Research-oriented title for Problem 1]}
+
+[Core difficulty, candidate method and why, link to other problems.
+About 200--400 words.]
+
+% ============================================================
+\section{Model Assumptions}
+
+% 3--6 items, each a pure assertion. Reasons belong in Problem Analysis
+% or Sensitivity, not after the item.
+\begin{enumerate}
+    \item Assumption (pure assertion);
+    \item Assumption;
+    \item Assumption.
+\end{enumerate}
+
+% ============================================================
+\section{Notation}
+
+% Single table aligned with 术语表.json. Gloss in English at first use
+% in the body: ``travel cost of unit $X$ ($c_X$)''.
+\begin{table}[H]
+\centering
+\caption{Notation}
+\label{tab:notation}
+\begin{tabular}{ccc}
+\toprule
+Symbol & Description & Unit \\
+\midrule
+$x_1$ & [specific meaning] & [unit, or /] \\
+$x_2$ & [meaning] & [unit] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+\section{Model Formulation and Solution}
+
+% One problem at a time: formulate $\to$ solve $\to$ verify $\to$ interpret.
+% Derivations stay in the body. Appendix holds code, file lists, and
+% algebra that truly does not fit.
+
+\subsection{[Research-oriented title for Problem 1]}
+
+\subsubsection{Data exploration or problem structure}
+
+[If data attachments are used: scatter/distribution $\to$ pattern $\to$
+outliers and preprocessing. Otherwise: structural reading of the instance.]
+
+\subsubsection{Model formulation}
+
+[How assumptions become mathematics. State the form, then define each term.]
+\begin{equation}
+y = f(x_1, x_2, \ldots; \theta)
+\end{equation}
+where $\theta$ is [meaning] and $x_i$ is [meaning].
+
+\subsubsection{Solution method}
+
+[At least two algorithm candidates and the selection reason ($\ge 1$ paragraph).]
+
+\begin{table}[H]
+\centering
+\caption{Model / algorithm comparison}
+\label{tab:model_compare}
+\begin{tabular}{lcccc}
+\toprule
+Model / algorithm & Objective & Optimality & Time & Note \\
+\midrule
+MIP exact & {value} & MIPGap = {x}\% & {s} & small / exact \\
+Heuristic & {value} & gap to exact {x}\% & {s} & large / real-time \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Verification and result analysis}
+
+[Optimality: MIPGap / exhaustive enumeration / heuristic statistics.
+Model validation, when randomness or a steady-state assumption is present:
+Monte Carlo replications, convergence, deviation from the analytic value,
+and a cause if the deviation exceeds 5\%. The two checks are not substitutes.]
+
+[Table + figure + $\ge 150$ words: trend / peak / kink, link to the model,
+and practical meaning.]
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{fig_result_p1.pdf}
+\caption{Problem 1 main result}
+\label{fig:result_p1}
+\end{figure}
+
+% Repeat the same subsection pattern for remaining problems.
+\subsection{[Research-oriented title for Problem 2]}
+
+[Formulate, solve, verify, interpret. Cite Fig.~\ref{fig:result_p2}.]
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{fig_result_p2.pdf}
+\caption{Problem 2 main result}
+\label{fig:result_p2}
+\end{figure}
+
+\subsection{[Research-oriented title for Problem 3]}
+
+[Formulate, solve, verify, interpret. Cite Fig.~\ref{fig:result_p3}.]
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{fig_result_p3.pdf}
+\caption{Problem 3 main result}
+\label{fig:result_p3}
+\end{figure}
+
+% ============================================================
+\section{Sensitivity and Error Analysis}
+
+\subsection{Sensitivity analysis}
+
+[Perturb core parameters by $\pm 5\%/\pm 10\%/\pm 20\%$. Tornado chart plus
+ranking. Ranges must match the code.]
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{fig_sensitivity.pdf}
+\caption{Parameter sensitivity tornado chart}
+\label{fig:tornado}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Sensitivity summary}
+\label{tab:sensitivity}
+\begin{tabular}{ccccc}
+\toprule
+Parameter & Base & Perturbation & Change in result & Rank \\
+\midrule
+{param 1} & {base} & $\pm 5\%$ & $+{x}\%$ & 1 (most sensitive) \\
+{param 2} & {base} & $\pm 5\%$ & $-{x}\%$ & 2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{fig_a.pdf}\\
+{\small (a) Case A}
+\end{minipage}
+\hspace{0.04\textwidth}
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{fig_b.pdf}\\
+{\small (b) Case B}
+\end{minipage}
+\caption{Paired comparison (subfigures (a)(b); caption states the claim)}
+\label{fig:twin}
+\end{figure}
+
+\subsection{Policy switching thresholds (optional)}
+
+[If the optimal policy switches with a parameter, report the critical value
+with a figure or table sourced from the solver.]
+
+\subsection{Active constraints (optional)}
+
+[At the optimum, each constraint active/slack; gain from relaxing a tight one.]
+
+\subsection{Error sources and robustness}
+
+[Source, magnitude, impact, acceptability; robustness check.]
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{fig_flow.pdf}
+\caption{Solution workflow}
+\label{fig:flow}
+\end{figure}
+
+% ============================================================
+\section{Model Evaluation}
+
+\subsection{Strengths}
+
+[Strengths.]
+
+\subsection{Limitations}
+
+[Limitations. Absorb METHOD \texttt{PASS\_WITH\_NOTES} tickets here.]
+
+\subsection{Improvements and extensions}
+
+[Improvements and transferable settings.]
+
+% Do not add a section that critiques the problem statement.
+
+% ============================================================
+\begin{thebibliography}{99}
+% Official style (2025 autumn): numbered in citation order; books / journals /
+% web as specified. Not GB/T 7714. Years must not post-date the contest.
+\bibitem{ref1} Author, Book Title, Place: Publisher, 2000.
+\bibitem{ref2} Author, Paper Title, Journal Name, vol.(no.): pages, 2010.
+\bibitem{ref3} Author, Resource Title, URL, accessed YYYY-MM-DD.
+\bibitem{ref4} Dantzig G B, Linear Programming and Extensions, Princeton: Princeton University Press, 1963.
+\bibitem{ref5} Bertsimas D, Tsitsiklis J N, Introduction to Linear Optimization, Belmont: Athena Scientific, 1997.
+\bibitem{ref6} Boyd S, Vandenberghe L, Convex Optimization, Cambridge: Cambridge University Press, 2004.
+\bibitem{ref7} Wolsey L A, Integer Programming, New York: Wiley, 1998.
+\bibitem{ref8} Ahuja R K, Magnanti T L, Orlin J B, Network Flows, Englewood Cliffs: Prentice Hall, 1993.
+\bibitem{ref9} Lawler E L, Combinatorial Optimization: Networks and Matroids, New York: Holt, Rinehart and Winston, 1976.
+\bibitem{ref10} Nemhauser G L, Wolsey L A, Integer and Combinatorial Optimization, New York: Wiley, 1988.
+\end{thebibliography}
+
+% Body page count: appendix:start - 1 (Summary + Content + body). Cap 25.
+% Do not rename the label.
+\clearpage
+\appendix
+\section{Supporting Materials}
+\label{appendix:start}
+
+\begin{table}[H]
+\centering
+\caption{Supporting materials}
+\label{tab:support}
+\begin{tabular}{p{5cm}p{9cm}}
+\toprule
+\multicolumn{1}{c}{File} & \multicolumn{1}{c}{Description} \\
+\midrule
+Code & [n] Python files (entry: main.py / problem1\_solver.py, \ldots) \\
+Results & [CSV outputs + sensitivity + figures] \\
+{other.pdf} & [e.g.\ AI-tool disclosure] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Source Code}
+
+[All runnable source used in the paper. \texttt{\textbackslash VerbatimInput}
+must point at \texttt{project/} files; do not rewrite the listing by hand.]
+
+\VerbatimInput{project/problem1_solver.py}
+
+\section{Supplementary derivations}
+
+[Only intermediate algebra that cannot fit in the body. The body must cite
+``see Appendix C''. Do not write ``the derivation is omitted''.]
+
+\end{document}

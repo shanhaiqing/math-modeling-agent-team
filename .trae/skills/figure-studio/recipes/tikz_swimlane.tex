@@ -1,14 +1,19 @@
 % !TEX program = xelatex
 % ============================================================
 % 配方：泳道式框架图（P2 范式，数模论文"模型框架图/技术路线图"模板）
-% 编译：xelatex tikz_swimlane.tex → 产出 PDF → 正文 \includegraphics 引入
-%       （standalone 独立编译，主文档零编译风险）
+% 编译：国赛 `xelatex`（加载 ctex，节点可中文）；shuwei_en `pdflatex`（不加载 ctex，节点必须英文）
+%       standalone 独立编译 → PDF → 正文 \includegraphics 引入（主文档零编译风险）
 % 铁律：禁止空框+箭头——每个框内必须嵌入真实方法对象（公式/参数/缩略结构），
 %       hero 框（本文贡献核心）视觉最重（红框+底色）。
 % 借鉴：Icarus-Figures framework-figures.md P2/T1-T3（重绘原创，非复制）
 % ============================================================
 \documentclass[border=8pt]{standalone}
-\usepackage{ctex}
+\usepackage{ifxetex}
+\ifxetex
+  \usepackage{ctex}
+\else
+  \usepackage{newtxtext}
+\fi
 \usepackage{newtxmath}
 \usepackage{tikz}
 \usetikzlibrary{positioning,fit,backgrounds,shapes.geometric,arrows.meta}

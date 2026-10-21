@@ -8,6 +8,7 @@
 优势：比分面直方图省版面、比重叠 KDE 不遮挡，组间位移一目了然。
 
 用法：修改 PARAMETERS 区块；组数建议 3-6（>6 改多面板）。
+图内语言：缺省 cumcm 可用中文占位。shuwei_en 时 XLAB/组名必须全英文。
 """
 import os
 import sys
@@ -40,8 +41,9 @@ def load_data():
 def main():
     assert TITLE_CLAIM != "This figure shows that ___", "先填设计卡一句话职责"
     groups = load_data()
-    labels = GROUP_LABELS or [f"组{i + 1}" for i in range(len(groups))]
     vs.setup_style()
+    g_prefix = "G" if vs.ACTIVE_CONTEST_PROFILE == "shuwei_en" else "组"
+    labels = GROUP_LABELS or [f"{g_prefix}{i + 1}" for i in range(len(groups))]
 
     xs = np.linspace(min(g.min() for g in groups), max(g.max() for g in groups), 400)
     fig, ax = plt.subplots(figsize=(vs.CU_TEXTWIDTH_IN, 0.9 * len(groups) + 1.6))

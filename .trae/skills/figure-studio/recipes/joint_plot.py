@@ -9,6 +9,8 @@
 
 用法：修改 PARAMETERS 区块的数据来源与标签，CORE 区块一般不动。
 依赖：团队 visualization_style.py（样式/配色/保存），visual_qa.py（程序自检）。
+图内语言：缺省 cumcm 可用中文占位。shuwei_en 时本区块（轴标/图例/callout）必须全英文；
+setup_style() / audit_figure() 读项目根 pipeline_state.json，英文赛图内 CJK → ERROR。
 """
 import os
 import sys

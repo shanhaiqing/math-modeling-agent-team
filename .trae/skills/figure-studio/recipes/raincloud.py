@@ -13,6 +13,7 @@
 用法：修改 PARAMETERS 区块（load_data 返回分组数组），CORE 区块一般不动。
 依赖：团队 visualization_style.py，visual_qa.py，scipy（gaussian_kde）。
 规范：图内不放中文大标题（标题职能由论文 caption 承担）；图中标注总样本数 N。
+图内语言：缺省 cumcm 可用中文占位。shuwei_en 时 XLAB/组名必须全英文。
 """
 import os
 import sys
@@ -45,8 +46,9 @@ def load_data():
 def main():
     assert TITLE_CLAIM != "This figure shows that ___", "先填设计卡一句话职责"
     groups = [np.asarray(g, dtype=float) for g in load_data()]
-    labels = GROUP_LABELS or [f"组{i + 1}" for i in range(len(groups))]
     vs.setup_style()
+    g_prefix = "G" if vs.ACTIVE_CONTEST_PROFILE == "shuwei_en" else "组"
+    labels = GROUP_LABELS or [f"{g_prefix}{i + 1}" for i in range(len(groups))]
 
     from scipy.stats import gaussian_kde
 

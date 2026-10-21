@@ -11,6 +11,7 @@
 用法：修改 PARAMETERS 区块（LABELS/CHANGES 与数据来源），CORE 区块一般不动。
 依赖：团队 visualization_style.py（样式/配色/保存），visual_qa.py（程序自检）。
 规范：图内不放中文大标题（标题职能由论文 caption 承担）；数值可溯源到 solution.json。
+图内语言：缺省 cumcm 可用中文占位。shuwei_en 时 LABELS/轴标必须全英文（见 赛制/shuwei_en.md）。
 """
 import os
 import sys

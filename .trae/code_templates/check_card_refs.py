@@ -13,20 +13,29 @@ check_card_refs.py — 优化方法卡片 → 代码模板 引用完整性机查
 
 用法：
   python .trae/code_templates/check_card_refs.py
+  python .trae/code_templates/check_card_refs.py --cards-dir <目录> [--allow-missing-meta]
+缺省只扫优化方法卡片，且缺少「代码模板」行仍为 FAIL。
+数据方法卡片没有该行，扫描时加 --allow-missing-meta。
 退出码：0 = 通过；1 = 存在悬空引用或格式违规。
 """
+import argparse
 import os
 import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-CARDS_DIR = os.path.join(HERE, "..", "papers", "优化方法卡片")
 TEMPLATES_DIR = HERE
 PATH_RE = re.compile(r"code_templates/([\w.]+)")
 META_RE = re.compile(r"^\s*> 代码模板：(.*)$")
 
 
 def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--cards-dir", default=os.path.join(HERE, "..", "papers", "优化方法卡片"))
+    ap.add_argument("--allow-missing-meta", action="store_true")
+    args = ap.parse_args()
+    CARDS_DIR = args.cards_dir
+    allow_missing = args.allow_missing_meta
     if not os.path.isdir(CARDS_DIR):
         print(f"FAIL: 卡片目录不存在 {CARDS_DIR}")
         return 1
@@ -47,6 +56,9 @@ def main() -> int:
         meta_lines = [META_RE.match(l) for l in lines]
         meta_lines = [m for m in meta_lines if m]
         if not meta_lines:
+            if allow_missing:
+                skip_cnt += 1
+                continue
             fail_cnt += 1
             problems.append(f"{f}: 缺少头部「代码模板」元数据行")
             continue

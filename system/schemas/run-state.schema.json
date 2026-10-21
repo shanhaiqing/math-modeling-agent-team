@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dsh.local/modeling/run-state.schema.json",
+  "title": "Modeling Run State",
+  "description": "Kernel-owned run state. The kernel is the only writer; pipeline_state.json is a compatibility view.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "framework_version",
+    "run_id",
+    "status",
+    "stage",
+    "project_root",
+    "contest_profile",
+    "problem_track",
+    "profile",
+    "route_version",
+    "created_at",
+    "updated_at",
+    "gates",
+    "artifacts",
+    "checks",
+    "budget",
+    "stale_stages",
+    "rework",
+    "human"
+  ],
+  "properties": {
+    "schema_version": {"const": "2026-10-19"},
+    "framework_version": {"type": "string"},
+    "run_id": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$"},
+    "status": {"enum": ["RUNNING", "WAITING_HUMAN", "BLOCKED", "PAUSED", "DELIVERED", "STOPPED"]},
+    "stage": {"type": "string"},
+    "project_root": {"type": "string"},
+    "contest_profile": {"enum": ["cumcm", "shuwei_zh", "shuwei_en"]},
+    "problem_track": {"enum": ["opt", "stats"]},
+    "profile": {"enum": ["quality", "balanced", "economy"]},
+    "route_version": {"type": "string"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "updated_at": {"type": "string", "format": "date-time"},
+    "gates": {"type": "object", "additionalProperties": {"$ref": "#/$defs/gate_state"}},
+    "artifacts": {"type": "object", "additionalProperties": {"$ref": "#/$defs/artifact_state"}},
+    "checks": {"type": "object", "additionalProperties": {"$ref": "#/$defs/check_state"}},
+    "budget": {"$ref": "#/$defs/budget_state"},
+    "stale_stages": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "rework": {"$ref": "#/$defs/rework_state"},
+    "human": {"$ref": "#/$defs/human_state"},
+    "blocked": {"type": ["object", "null"]},
+    "cost": {"type": "object"},
+    "events_count": {"type": "integer", "minimum": 0}
+  },
+  "$defs": {
+    "gate_state": {
+      "type": "object",
+      "required": ["id", "status"],
+      "properties": {
+        "id": {"type": "string"},
+        "status": {"enum": ["pending", "waiting", "decided", "stale"]},
+        "decision": {"type": ["string", "null"]},
+        "decided_at": {"type": ["string", "null"]},
+        "artifact_hashes": {"type": "object", "additionalProperties": {"type": "string"}},
+        "auto": {"type": "boolean"}
+      }
+    },
+    "artifact_state": {
+      "type": "object",
+      "required": ["id", "path", "stage", "status"],
+      "properties": {
+        "id": {"type": "string"},
+        "path": {"type": "string"},
+        "sha256": {"type": ["string", "null"]},
+        "stage": {"type": "string"},
+        "status": {"enum": ["missing", "present", "valid", "invalid", "stale"]},
+        "validated_at": {"type": ["string", "null"]}
+      }
+    },
+    "check_state": {
+      "type": "object",
+      "required": ["id", "stage", "status"],
+      "properties": {
+        "id": {"type": "string"},
+        "stage": {"type": "string"},
+        "status": {"enum": ["pending", "running", "pass", "warn", "fail", "skipped"]},
+        "error_count": {"type": "integer", "minimum": 0},
+        "warn_count": {"type": "integer", "minimum": 0},
+        "report_path": {"type": ["string", "null"]},
+        "duration_ms": {"type": "integer", "minimum": 0},
+        "started_at": {"type": ["string", "null"]},
+        "finished_at": {"type": ["string", "null"]}
+      }
+    },
+    "budget_state": {
+      "type": "object",
+      "required": ["wall_minutes", "token_baseline", "soft_multiplier", "hard_multiplier"],
+      "properties": {
+        "wall_minutes": {"type": "number", "minimum": 0},
+        "human_minutes": {"type": "number", "minimum": 0},
+        "token_baseline": {"type": ["number", "null"]},
+        "soft_multiplier": {"type": "number", "minimum": 1},
+        "hard_multiplier": {"type": "number", "minimum": 1},
+        "stage_started_at": {"type": ["string", "null"]},
+        "stage_elapsed_minutes": {"type": "number", "minimum": 0}
+      }
+    },
+    "rework_state": {
+      "type": "object",
+      "required": ["active", "counts"],
+      "properties": {
+        "active": {"type": "boolean"},
+        "brief_path": {"type": ["string", "null"]},
+        "counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}}
+      }
+    },
+    "human_state": {
+      "type": "object",
+      "required": ["available_windows", "decisions"],
+      "properties": {
+        "available_windows": {"type": "array", "items": {"type": "string"}},
+        "decisions": {"type": "integer", "minimum": 0},
+        "last_decision_at": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

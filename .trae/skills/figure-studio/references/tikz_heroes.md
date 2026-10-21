@@ -27,7 +27,7 @@
 ## 四、standalone 编译路线（主文档零风险）
 
 1. 编辑 `.tex` 模板（standalone 文档类，自含全部依赖）；
-2. **独立编译**：`xelatex tikz_xxx.tex` → 得到 PDF（失败不影响主文档）；
+2. **独立编译**：国赛 `xelatex tikz_xxx.tex`；`shuwei_en` `pdflatex tikz_xxx.tex`（配方按引擎加载/跳过 ctex）→ 得到 PDF（失败不影响主文档）；
 3. 正文 `\includegraphics{tikz_xxx.pdf}` 引入，与 matplotlib 图同等对待（双格式要求豁免——TikZ 产出即矢量 PDF；PNG 预览图可用 pymupdf 渲染 PDF 得到）；
 4. 导出 PNG 后**禁止模型读图**；感知层清单交 HG1 人工看 PNG。
 

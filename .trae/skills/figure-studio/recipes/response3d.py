@@ -39,7 +39,7 @@ X, Y = np.meshgrid(PARAM_X, PARAM_Y)
 Z = (np.sin(1.2 * X * Y / 8.0) * X - 0.03 * (Y - 7.0) ** 2
      + 0.15 * X * Y - 0.4 * X ** 2)
 
-# --- 标签（图内不放中文大标题；坐标轴标签可含中文，标题职能归 caption）---
+# --- 标签（图内不放中文大标题；cumcm 轴标可含中文；shuwei_en 必须全英文）---
 XL = "参数 $\\alpha$"
 YL = "参数 $\\beta$"
 ZL = "目标函数值"
@@ -116,7 +116,7 @@ best = np.unravel_index(np.nanargmax(Z), Z.shape)
 ax.scatter([X[best]], [Y[best]], [Z[best]],
            color="#D55E00", s=26, depthshade=False)
 ax.text(X[best], Y[best], float(Z[best]) * 0.9 if zmin < 0 else float(Z[best]) * 0.985,
-        " 最高点", fontsize=8, ha="left", color="#7A3B00")
+        " 最高点", fontsize=8, ha="left", color="#7A3B00")  # shuwei_en 须改为英文，如 " peak"
 
 # ============================================================
 # 程序自检 + 导出

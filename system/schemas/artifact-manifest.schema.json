@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dsh.local/modeling/artifact-manifest.schema.json",
+  "title": "Artifact Manifest",
+  "description": "Snapshot of artifact hashes at a gate. The kernel writes it; gates bind to it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["run_id", "gate_id", "generated_at", "artifacts"],
+  "properties": {
+    "run_id": {"type": "string"},
+    "gate_id": {"enum": ["G0", "G1", "G2", "G3", "G4", "G5"]},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "path", "stage", "sha256", "size", "required", "validated"],
+        "properties": {
+          "id": {"type": "string"},
+          "path": {"type": "string"},
+          "stage": {"type": "string"},
+          "sha256": {"type": ["string", "null"]},
+          "size": {"type": ["integer", "null"], "minimum": 0},
+          "required": {"type": "boolean"},
+          "validated": {"type": "boolean"},
+          "stale": {"type": "boolean"},
+          "condition": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "stale_stages": {"type": "array", "items": {"type": "string"}},
+    "check_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "error_count": {"type": "integer", "minimum": 0},
+        "warn_count": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}
