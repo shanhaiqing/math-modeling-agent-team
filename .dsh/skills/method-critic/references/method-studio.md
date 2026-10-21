@@ -45,7 +45,7 @@ description: 数模方法学批评工作室。modeling-solver 红线通过后、
 ## 产出（两份都写，缺一不得结束）
 
 1. `{项目根}/decision_logs/method_critique.json` — 编排器读 `verdict` 与 `recommend`。字段：`verdict`（`PASS` | `PASS_WITH_NOTES` | `BLOCKED`）、`gate`（`pass` 布尔 + `findings` 字符串列表）、`tickets`（≤2；每项 `level` / `alternative` / `structure_reason` / `conclusion_changes` / `redo_cost` / `action`）、`recommend`（必填：`choice` 为 `proceed` | `rollback`；`ticket_index` 为 `null` 或 0/1；`reason` 一至三句）。无票时 `tickets` 为 `[]`。
-2. `{项目根}/decision_logs/method_critique.md` — 按 `.trae/code_templates/method_critique_template.md` 填写。闸门节、天花板节与**推荐方案**节都要有实质句子。
+2. `{项目根}/decision_logs/method_critique.md` — 按 `tools/checks/method_critique_template.md` 填写。闸门节、天花板节与**推荐方案**节都要有实质句子。
 
 `action` 只许：`blocked` | `optional` | `limitations_only`。`blocked` 仅当 `verdict=BLOCKED`。
 

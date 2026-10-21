@@ -31,9 +31,9 @@ whenToUse: problem_track=stats and the current stage is MODELING (initial run or
 ## 提交前自检
 
 ```powershell
-.venv\Scripts\python.exe .trae\code_templates\check_solution_json_stats.py result_bundle/solution.json project/results --selfcheck
-.venv\Scripts\python.exe .trae\code_templates\check_leakage.py project
-.venv\Scripts\python.exe .trae\code_templates\check_modeling_artifacts.py <项目根> --scope modeling
+.venv\Scripts\python.exe tools\checks\check_solution_json_stats.py result_bundle/solution.json project/results --selfcheck
+.venv\Scripts\python.exe tools\checks\check_leakage.py project
+.venv\Scripts\python.exe tools\checks\check_modeling_artifacts.py <项目根> --scope modeling
 ```
 
 `check_leakage` 只报 WARN，不因此停；ERROR 先修。再加一条**覆盖自检**：

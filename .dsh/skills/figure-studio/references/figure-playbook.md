@@ -7,7 +7,7 @@ description: 数模论文图表工作室。凡涉及出图/修图/重绘图（�
 
 > 定位：不是绘图工具说明，而是**出图工作流**。跳过设计卡直接写代码 = 产出平庸图的根因。
 > 调用方：编排器 FIGURES 专项（modeling-solver / paper-writer / METHOD **禁止**出图或 Read 生成图；independent-reviewer 禁止出图，核图文按 `AGENTS.md` 白名单）。
-> 配套资产：选型判据见 `chart-library.md`；样式函数见 `.trae/code_templates/visualization_style.py`。
+> 配套资产：选型判据见 `chart-library.md`；样式函数见 `tools/checks/visualization_style.py`。
 > **`contest_profile=shuwei_en`**：必读 `赛制/shuwei_en.md`。`setup_style()` / `audit_figure()` 读项目根 `pipeline_state.json`；轴标/图例/callout 必须英文；图内 CJK → ERROR。
 
 ## 通道规则（先选通道，再动手）

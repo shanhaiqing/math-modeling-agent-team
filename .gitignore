@@ -15,9 +15,6 @@ _minted/
 *.tmp
 ~$*
 
-# �ڲ�ֿⱸ�ݣ�Cursor ���������������汾���ƣ�
-.trae/.git_backup/
-
 # 共享仓库子目录（独立 git 仓库，供队友协作编辑智能体系统，主仓库不跟踪）
 shared-agent-system/
 
@@ -32,7 +29,6 @@ runs/
 
 # 测试赛题/第三方题面（含版权材料，不随仓库公开）
 测试赛题/
-比赛赛题/
 
 # 本地检查报告与系统文件
 code_hygiene_report.json

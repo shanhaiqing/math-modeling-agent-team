@@ -1,6 +1,0 @@
-- insert:
-    - id: pipeline-console-3b
-      name: '@local/pipeline-console-3b'
-      config:
-        repoRoot: C:/Users/35399/Desktop/数模B题专家团
-        runsDir: runs

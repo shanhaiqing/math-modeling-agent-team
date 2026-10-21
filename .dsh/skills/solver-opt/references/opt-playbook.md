@@ -46,11 +46,11 @@
 - `fresh_dossier`：先读 `failure_dossier.json`，写 `rework_plan.json`，过计划门再写代码；旧产物只作负证据。
 - `resume`：只修 brief 的点；交接末尾写「相对返工单的交代」。
 
-## 6. 自检（工具脚本暂留 `.trae/code_templates/`，Phase 3 迁 `tools/`）
+## 6. 自检（工具脚本暂留 `tools/checks/`，Phase 3 迁 `tools/`）
 
 ```powershell
-.venv\Scripts\python.exe .trae\code_templates\check_solution_json.py result_bundle/solution.json project/results --selfcheck
-.venv\Scripts\python.exe .trae\code_templates\check_modeling_artifacts.py <项目根> --scope modeling
+.venv\Scripts\python.exe tools\checks\check_solution_json.py result_bundle/solution.json project/results --selfcheck
+.venv\Scripts\python.exe tools\checks\check_modeling_artifacts.py <项目根> --scope modeling
 ```
 
 ERROR 当场修；WARN 记录。然后调用 `pipeline_submit(stage="MODELING", role="solver", produced_by="solver")`。
@@ -60,4 +60,4 @@ ERROR 当场修；WARN 记录。然后调用 `pipeline_submit(stage="MODELING", 
 - 跳过最优性/模型验证/灵敏度。
 - 出图、写 `result_bundle/figures/`。
 - 写 `method_critique`、论文、`run_state.json`、`pipeline_state.json`。
-- 把同题专有符号/数据写入 `.trae/` 或 skill references。
+- 把同题专有符号/数据写入 `tools/checks/` 或 skill references。

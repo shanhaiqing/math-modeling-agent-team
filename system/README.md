@@ -1,7 +1,7 @@
-# system/ · 数模 B 题运行框架 v3（Phase 0）
+# system/ · 数模 B 题运行框架 v3
 
-> 这是**目标框架**，不是当前运行中的流水线。
-> 现行 Trae 流水线仍是根目录 [AGENTS.md](../AGENTS.md) + `.trae/`；Phase 0 不改变其行为。
+> 这是当前运行框架。
+> 旧 Trae 流水线已归档到 `legacy-trae-archive` 分支；当前以 [AGENTS.md](../AGENTS.md) + `system/framework.md` + `tools/pipeline_kernel.py` 为准。
 > 框架规格：`framework.json`；机查清单：`checks.json`；主文档：`framework.md`。
 
 ## 5 分钟入口
@@ -59,7 +59,7 @@ Phase 0 验收还要求：迁移矩阵覆盖 100%、8 个 tabletop 与 `framewor
 - **Phase 1.5（已完成）**：live 会话调用 `pipeline_status` 成功返回 `run_id=plugin-test-run`、`stage=INTAKE`、`gate=G0`；插件→Python Kernel 闭环。
 - **Phase 2A（已完成）**：7 个 project-local DSH skills 在 [`.dsh/skills/`](../.dsh/skills/pipeline-protocol/SKILL.md)；Team 编制与派活模板见 [`system/team/team-blueprint.md`](team/team-blueprint.md)。本阶段不新建 plugin/preset，避免再影响 live profile。
 - **Phase 2B（已完成，2024B 交付）**：2024B 全链路跑通并交付：Q1-Q4 全覆盖、10 图、正文 29 页/摘要 1 页、review 94/100 ACCEPT、R1 high 修复、COMPLIANCE 0 ERROR、G5 `DELIVERED`；过程问题与修复见 [`lessons/2024b-run.md`](lessons/2024b-run.md)。
-- **Phase 2C（已完成）**：7 个 skill 已自包含；领域知识在 `.dsh/skills/*/references/`（solver 方法卡/惯例、method gate、figure playbook/recipes、writing specs、review checklists）；运行期不再引用 `.trae/agents|papers|skills`，旧角色全文归档在 `system/archive/legacy/`。代码检查器仍走 `.trae/code_templates`（Phase 3 迁 `tools/`）。记录见 [`lessons/skill-distillation.md`](lessons/skill-distillation.md)。
+- **Phase 2C（已完成）**：7 个 skill 已自包含；领域知识在 `.dsh/skills/*/references/`（solver 方法卡/惯例、method gate、figure playbook/recipes、writing specs、review checklists）；运行期不再引用旧 Trae 长文，旧角色全文归档在 `system/archive/legacy/`；代码检查器位于 `tools/checks/`。记录见 [`lessons/skill-distillation.md`](lessons/skill-distillation.md)。
 - **Phase 3（只读 MVP，已完成）**：`plugin/pipeline-console` 侧栏 **Pipeline** + 中央面板；run/stage/gate/checks/figures/paper/gate packet。旧 bundle 已停用。
 - **Phase 3b（已完成）**：`plugin/pipeline-console-3b` 门决策按钮（approve/fix/rollback/return_*/stop/deliver + reason，走 Kernel `gate`）和图区域反馈（拖矩形 + 评论 → `decision_logs/figure_feedback.json`）。
 - **Phase 3c（已完成）**：`plugin/pipeline-console-3c` 已安装：图 overlay 编辑器（新增/选中/拖动/删除文字框、改内容/字号/颜色/背景、空白处加字、保存 `figure_annotations.json`、导出 `*.annotated.png/.pdf`）。Host API `/annotations`、`/annotations/export` 已验证；旧 3b 已停用。记录见 [`lessons/figure-editor-design.md`](lessons/figure-editor-design.md)。

@@ -31,8 +31,8 @@ whenToUse: problem_track=opt and the current stage is MODELING (initial run or r
 ## 提交前自检
 
 ```powershell
-.venv\Scripts\python.exe .trae\code_templates\check_solution_json.py result_bundle/solution.json project/results --selfcheck
-.venv\Scripts\python.exe .trae\code_templates\check_modeling_artifacts.py <项目根> --scope modeling
+.venv\Scripts\python.exe tools\checks\check_solution_json.py result_bundle/solution.json project/results --selfcheck
+.venv\Scripts\python.exe tools\checks\check_modeling_artifacts.py <项目根> --scope modeling
 ```
 
 ERROR 先修；WARN 记录。再加一条**覆盖自检**：
@@ -54,4 +54,4 @@ pipeline_submit(stage="MODELING", role="solver", produced_by="solver", summary="
 - 不得伪造 MIPGap、临界点、蒙特卡洛结果。
 - 不得出图、不得写 `result_bundle/figures/`。
 - 不得写 `method_critique`、论文、`run_state.json`、`pipeline_state.json`。
-- 不得把同题专有符号/数据写入 `.trae/`。
+- 不得把同题专有符号/数据写入 `tools/checks/` 或技能 references。

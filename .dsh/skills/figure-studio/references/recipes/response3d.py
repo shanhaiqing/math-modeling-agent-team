@@ -18,7 +18,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-# 依赖路径：.trae/code_templates（visualization_style）+ figure-studio/scripts（visual_qa）
+# 依赖路径：tools/checks（visualization_style）+ figure-studio/scripts（visual_qa）
 _ROOT = Path(__file__).resolve().parents[2]          # skill root
 sys.path.insert(0, str(_ROOT / ".." / "code_templates"))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))

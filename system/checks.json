@@ -6,7 +6,15 @@
     "preferred": "{repo}/.venv/Scripts/python.exe",
     "fallback": "python"
   },
-  "placeholders": ["python", "repo", "root", "profile", "track", "year", "round"],
+  "placeholders": [
+    "python",
+    "repo",
+    "root",
+    "profile",
+    "track",
+    "year",
+    "round"
+  ],
   "execution_order": {
     "rule": "business checks -> check_pipeline_manifest -> check_machine_checks; kernel enforces, model cannot reorder",
     "manifest_check_id": "manifest",
@@ -18,8 +26,15 @@
       "stage": "INTAKE",
       "order": 10,
       "kind": "convert",
-      "command": ["{python}", "{repo}/.trae/code_templates/convert_problem.py", "--project-root", "{root}"],
-      "reports": ["赛题/ingest_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/convert_problem.py",
+        "--project-root",
+        "{root}"
+      ],
+      "reports": [
+        "赛题/ingest_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 300,
       "when": null,
@@ -32,7 +47,12 @@
       "stage": "INTAKE",
       "order": 20,
       "kind": "contract",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_problem_track.py", "--state", "{root}/pipeline_state.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_problem_track.py",
+        "--state",
+        "{root}/pipeline_state.json"
+      ],
       "reports": [],
       "blocking": "ERROR",
       "timeout_seconds": 30,
@@ -48,8 +68,16 @@
       "stage": "INTAKE",
       "order": 30,
       "kind": "hygiene",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_workspace_hygiene.py", "{root}", "--report", "{root}/workspace_hygiene_report.json"],
-      "reports": ["workspace_hygiene_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_workspace_hygiene.py",
+        "{root}",
+        "--report",
+        "{root}/workspace_hygiene_report.json"
+      ],
+      "reports": [
+        "workspace_hygiene_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 60,
       "when": null,
@@ -62,13 +90,28 @@
       "stage": "INTAKE",
       "order": 90,
       "kind": "manifest",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_pipeline_manifest.py", "--project-root", "{root}", "--stage", "intake", "--report", "--registry", "{repo}/.trae/papers/产物注册表.md"],
-      "reports": ["manifest_check_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_pipeline_manifest.py",
+        "--project-root",
+        "{root}",
+        "--stage",
+        "intake",
+        "--report",
+        "--registry",
+        "{repo}/.dsh/skills/paper-writer/references/artifact-registry.md"
+      ],
+      "reports": [
+        "manifest_check_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 60,
       "when": null,
       "report_shape": "error_count",
-      "run_after": ["intake_convert", "intake_hygiene"],
+      "run_after": [
+        "intake_convert",
+        "intake_hygiene"
+      ],
       "description": "artifact completeness gate for intake; must run after business checks"
     },
     {
@@ -76,13 +119,23 @@
       "stage": "INTAKE",
       "order": 100,
       "kind": "audit",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_machine_checks.py", "{root}", "--stage", "intake"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_machine_checks.py",
+        "{root}",
+        "--stage",
+        "intake"
+      ],
       "reports": [],
       "blocking": "ERROR",
       "timeout_seconds": 60,
-      "when": {"mode": "fallback"},
+      "when": {
+        "mode": "fallback"
+      },
       "report_shape": "summary_error",
-      "run_after": ["intake_manifest"],
+      "run_after": [
+        "intake_manifest"
+      ],
       "description": "fallback-mode evidence-chain audit; kernel mode records evidence directly"
     },
     {
@@ -90,11 +143,18 @@
       "stage": "MODELING",
       "order": 5,
       "kind": "kernel-gate",
-      "command": ["kernel", "validate_rework_plan"],
-      "reports": ["decision_logs/rework_plan.json"],
+      "command": [
+        "kernel",
+        "validate_rework_plan"
+      ],
+      "reports": [
+        "decision_logs/rework_plan.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 30,
-      "when": {"freshness": "fresh_dossier"},
+      "when": {
+        "freshness": "fresh_dossier"
+      },
       "report_shape": "exit_code",
       "run_after": [],
       "description": "before coding: every failure mode has a countermeasure and a runnable regression test; structural similarity to the rejected approach is justified"
@@ -104,11 +164,22 @@
       "stage": "MODELING",
       "order": 10,
       "kind": "contract",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_solution_json.py", "{root}/result_bundle/solution.json", "{root}/project/results", "--report", "{root}/contract_check_report.json"],
-      "reports": ["contract_check_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_solution_json.py",
+        "{root}/result_bundle/solution.json",
+        "{root}/project/results",
+        "--report",
+        "{root}/contract_check_report.json"
+      ],
+      "reports": [
+        "contract_check_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 120,
-      "when": {"track": "opt"},
+      "when": {
+        "track": "opt"
+      },
       "report_shape": "finding",
       "run_after": [],
       "description": "opt solution.json contract and semantic checks"
@@ -118,11 +189,22 @@
       "stage": "MODELING",
       "order": 11,
       "kind": "contract",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_solution_json_stats.py", "{root}/result_bundle/solution.json", "{root}/project/results", "--report", "{root}/contract_check_report.json"],
-      "reports": ["contract_check_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_solution_json_stats.py",
+        "{root}/result_bundle/solution.json",
+        "{root}/project/results",
+        "--report",
+        "{root}/contract_check_report.json"
+      ],
+      "reports": [
+        "contract_check_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 120,
-      "when": {"track": "stats"},
+      "when": {
+        "track": "stats"
+      },
       "report_shape": "finding",
       "run_after": [],
       "description": "stats solution.json contract and validation-design checks"
@@ -132,13 +214,25 @@
       "stage": "MODELING",
       "order": 20,
       "kind": "contract",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_modeling_artifacts.py", "{root}", "--scope", "modeling", "--report", "{root}/modeling_artifacts_report.json"],
-      "reports": ["modeling_artifacts_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_modeling_artifacts.py",
+        "{root}",
+        "--scope",
+        "modeling",
+        "--report",
+        "{root}/modeling_artifacts_report.json"
+      ],
+      "reports": [
+        "modeling_artifacts_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 120,
       "when": null,
       "report_shape": "finding",
-      "run_after": ["modeling_solution"],
+      "run_after": [
+        "modeling_solution"
+      ],
       "description": "absolute paths, commercial solvers, fingerprint contract, no premature figures"
     },
     {
@@ -146,8 +240,16 @@
       "stage": "MODELING",
       "order": 30,
       "kind": "hygiene",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_code_hygiene.py", "{root}/project", "--report", "{root}/code_hygiene_report.json"],
-      "reports": ["code_hygiene_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_code_hygiene.py",
+        "{root}/project",
+        "--report",
+        "{root}/code_hygiene_report.json"
+      ],
+      "reports": [
+        "code_hygiene_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 60,
       "when": null,
@@ -160,8 +262,16 @@
       "stage": "MODELING",
       "order": 40,
       "kind": "hygiene",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_workspace_hygiene.py", "{root}", "--report", "{root}/workspace_hygiene_report.json"],
-      "reports": ["workspace_hygiene_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_workspace_hygiene.py",
+        "{root}",
+        "--report",
+        "{root}/workspace_hygiene_report.json"
+      ],
+      "reports": [
+        "workspace_hygiene_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 60,
       "when": null,
@@ -174,13 +284,25 @@
       "stage": "MODELING",
       "order": 50,
       "kind": "heuristic",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_leakage.py", "{root}/project", "--report", "{root}/leakage_check_report.json"],
-      "reports": ["leakage_check_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_leakage.py",
+        "{root}/project",
+        "--report",
+        "{root}/leakage_check_report.json"
+      ],
+      "reports": [
+        "leakage_check_report.json"
+      ],
       "blocking": "WARN",
       "timeout_seconds": 60,
-      "when": {"track": "stats"},
+      "when": {
+        "track": "stats"
+      },
       "report_shape": "finding",
-      "run_after": ["modeling_code_hygiene"],
+      "run_after": [
+        "modeling_code_hygiene"
+      ],
       "description": "stats track leakage heuristic; WARN only, reviewer adjudicates"
     },
     {
@@ -188,13 +310,31 @@
       "stage": "MODELING",
       "order": 90,
       "kind": "manifest",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_pipeline_manifest.py", "--project-root", "{root}", "--stage", "modeling", "--report", "--registry", "{repo}/.trae/papers/产物注册表.md"],
-      "reports": ["manifest_check_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_pipeline_manifest.py",
+        "--project-root",
+        "{root}",
+        "--stage",
+        "modeling",
+        "--report",
+        "--registry",
+        "{repo}/.dsh/skills/paper-writer/references/artifact-registry.md"
+      ],
+      "reports": [
+        "manifest_check_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 60,
       "when": null,
       "report_shape": "error_count",
-      "run_after": ["modeling_solution", "modeling_artifacts", "modeling_code_hygiene", "modeling_hygiene", "modeling_leakage"],
+      "run_after": [
+        "modeling_solution",
+        "modeling_artifacts",
+        "modeling_code_hygiene",
+        "modeling_hygiene",
+        "modeling_leakage"
+      ],
       "description": "artifact completeness gate for modeling"
     },
     {
@@ -202,13 +342,23 @@
       "stage": "MODELING",
       "order": 100,
       "kind": "audit",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_machine_checks.py", "{root}", "--stage", "modeling"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_machine_checks.py",
+        "{root}",
+        "--stage",
+        "modeling"
+      ],
       "reports": [],
       "blocking": "ERROR",
       "timeout_seconds": 60,
-      "when": {"mode": "fallback"},
+      "when": {
+        "mode": "fallback"
+      },
       "report_shape": "summary_error",
-      "run_after": ["modeling_manifest"],
+      "run_after": [
+        "modeling_manifest"
+      ],
       "description": "fallback-mode evidence-chain audit"
     },
     {
@@ -216,8 +366,16 @@
       "stage": "METHOD",
       "order": 10,
       "kind": "hygiene",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_workspace_hygiene.py", "{root}", "--report", "{root}/workspace_hygiene_report.json"],
-      "reports": ["workspace_hygiene_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_workspace_hygiene.py",
+        "{root}",
+        "--report",
+        "{root}/workspace_hygiene_report.json"
+      ],
+      "reports": [
+        "workspace_hygiene_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 60,
       "when": null,
@@ -230,13 +388,27 @@
       "stage": "METHOD",
       "order": 90,
       "kind": "manifest",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_pipeline_manifest.py", "--project-root", "{root}", "--stage", "method", "--report", "--registry", "{repo}/.trae/papers/产物注册表.md"],
-      "reports": ["manifest_check_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_pipeline_manifest.py",
+        "--project-root",
+        "{root}",
+        "--stage",
+        "method",
+        "--report",
+        "--registry",
+        "{repo}/.dsh/skills/paper-writer/references/artifact-registry.md"
+      ],
+      "reports": [
+        "manifest_check_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 60,
       "when": null,
       "report_shape": "error_count",
-      "run_after": ["method_hygiene"],
+      "run_after": [
+        "method_hygiene"
+      ],
       "description": "artifact completeness gate for method"
     },
     {
@@ -244,13 +416,23 @@
       "stage": "METHOD",
       "order": 100,
       "kind": "audit",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_machine_checks.py", "{root}", "--stage", "method"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_machine_checks.py",
+        "{root}",
+        "--stage",
+        "method"
+      ],
       "reports": [],
       "blocking": "ERROR",
       "timeout_seconds": 60,
-      "when": {"mode": "fallback"},
+      "when": {
+        "mode": "fallback"
+      },
       "report_shape": "summary_error",
-      "run_after": ["method_manifest"],
+      "run_after": [
+        "method_manifest"
+      ],
       "description": "fallback-mode evidence-chain audit"
     },
     {
@@ -258,8 +440,18 @@
       "stage": "FIGURES",
       "order": 10,
       "kind": "contract",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_modeling_artifacts.py", "{root}", "--scope", "figures", "--report", "{root}/figures_artifacts_report.json"],
-      "reports": ["figures_artifacts_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_modeling_artifacts.py",
+        "{root}",
+        "--scope",
+        "figures",
+        "--report",
+        "{root}/figures_artifacts_report.json"
+      ],
+      "reports": [
+        "figures_artifacts_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 180,
       "when": null,
@@ -272,8 +464,16 @@
       "stage": "FIGURES",
       "order": 20,
       "kind": "hygiene",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_workspace_hygiene.py", "{root}", "--report", "{root}/workspace_hygiene_report.json"],
-      "reports": ["workspace_hygiene_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_workspace_hygiene.py",
+        "{root}",
+        "--report",
+        "{root}/workspace_hygiene_report.json"
+      ],
+      "reports": [
+        "workspace_hygiene_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 60,
       "when": null,
@@ -286,13 +486,28 @@
       "stage": "FIGURES",
       "order": 90,
       "kind": "manifest",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_pipeline_manifest.py", "--project-root", "{root}", "--stage", "figures", "--report", "--registry", "{repo}/.trae/papers/产物注册表.md"],
-      "reports": ["manifest_check_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_pipeline_manifest.py",
+        "--project-root",
+        "{root}",
+        "--stage",
+        "figures",
+        "--report",
+        "--registry",
+        "{repo}/.dsh/skills/paper-writer/references/artifact-registry.md"
+      ],
+      "reports": [
+        "manifest_check_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 60,
       "when": null,
       "report_shape": "error_count",
-      "run_after": ["figures_artifacts", "figures_hygiene"],
+      "run_after": [
+        "figures_artifacts",
+        "figures_hygiene"
+      ],
       "description": "artifact completeness gate for figures"
     },
     {
@@ -300,13 +515,23 @@
       "stage": "FIGURES",
       "order": 100,
       "kind": "audit",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_machine_checks.py", "{root}", "--stage", "figures"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_machine_checks.py",
+        "{root}",
+        "--stage",
+        "figures"
+      ],
       "reports": [],
       "blocking": "ERROR",
       "timeout_seconds": 60,
-      "when": {"mode": "fallback"},
+      "when": {
+        "mode": "fallback"
+      },
       "report_shape": "summary_error",
-      "run_after": ["figures_manifest"],
+      "run_after": [
+        "figures_manifest"
+      ],
       "description": "fallback-mode evidence-chain audit"
     },
     {
@@ -314,8 +539,16 @@
       "stage": "WRITING",
       "order": 5,
       "kind": "preflight",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_latex_env.py", "--contest-profile={profile}", "--report", "{root}/latex_env_report.json"],
-      "reports": ["latex_env_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_latex_env.py",
+        "--contest-profile={profile}",
+        "--report",
+        "{root}/latex_env_report.json"
+      ],
+      "reports": [
+        "latex_env_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 120,
       "when": null,
@@ -329,14 +562,26 @@
       "stage": "WRITING",
       "order": 10,
       "kind": "compliance",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_latex_compliance.py", "{root}/paper.tex", "{root}/project", "{root}/paper.pdf", "--contest-year={year}", "--contest-profile={profile}"],
-      "reports": ["latex_compliance_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_latex_compliance.py",
+        "{root}/paper.tex",
+        "{root}/project",
+        "{root}/paper.pdf",
+        "--contest-year={year}",
+        "--contest-profile={profile}"
+      ],
+      "reports": [
+        "latex_compliance_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 300,
       "when": null,
       "defer_on": "external_compile",
       "report_shape": "finding",
-      "run_after": ["writing_latex_env"],
+      "run_after": [
+        "writing_latex_env"
+      ],
       "description": "LaTeX compliance, structure, references, page count, abstract, anonymity; deferred until the user returns the external-compile PDF"
     },
     {
@@ -344,13 +589,26 @@
       "stage": "WRITING",
       "order": 20,
       "kind": "consistency",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_tex_numbers.py", "{root}/paper.tex", "{root}/result_bundle/solution.json", "--report", "{root}/tex_number_check_report.json"],
-      "reports": ["tex_number_check_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_tex_numbers.py",
+        "{root}/paper.tex",
+        "{root}/result_bundle/solution.json",
+        "--report",
+        "{root}/tex_number_check_report.json"
+      ],
+      "reports": [
+        "tex_number_check_report.json"
+      ],
       "blocking": "WARN",
       "timeout_seconds": 120,
-      "when": {"artifact": "paper_tex"},
+      "when": {
+        "artifact": "paper_tex"
+      },
       "report_shape": "finding",
-      "run_after": ["writing_compliance"],
+      "run_after": [
+        "writing_compliance"
+      ],
       "description": "paper numbers vs solution.json; WARN only"
     },
     {
@@ -358,13 +616,23 @@
       "stage": "WRITING",
       "order": 30,
       "kind": "consistency",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_abstract_guard.py", "audit", "{root}/paper.tex", "--contest-profile={profile}"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_abstract_guard.py",
+        "audit",
+        "{root}/paper.tex",
+        "--contest-profile={profile}"
+      ],
       "reports": [],
       "blocking": "WARN",
       "timeout_seconds": 60,
-      "when": {"artifact": "paper_tex"},
+      "when": {
+        "artifact": "paper_tex"
+      },
       "report_shape": "finding",
-      "run_after": ["writing_compliance"],
+      "run_after": [
+        "writing_compliance"
+      ],
       "description": "abstract length/structure/keyword warning; verify only after final abstract"
     },
     {
@@ -372,8 +640,18 @@
       "stage": "WRITING",
       "order": 40,
       "kind": "hygiene",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_workspace_hygiene.py", "{root}", "--allow", "paper.aux,paper.log", "--report", "{root}/workspace_hygiene_report.json"],
-      "reports": ["workspace_hygiene_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_workspace_hygiene.py",
+        "{root}",
+        "--allow",
+        "paper.aux,paper.log",
+        "--report",
+        "{root}/workspace_hygiene_report.json"
+      ],
+      "reports": [
+        "workspace_hygiene_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 60,
       "when": null,
@@ -386,13 +664,31 @@
       "stage": "WRITING",
       "order": 90,
       "kind": "manifest",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_pipeline_manifest.py", "--project-root", "{root}", "--stage", "writing", "--report", "--registry", "{repo}/.trae/papers/产物注册表.md"],
-      "reports": ["manifest_check_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_pipeline_manifest.py",
+        "--project-root",
+        "{root}",
+        "--stage",
+        "writing",
+        "--report",
+        "--registry",
+        "{repo}/.dsh/skills/paper-writer/references/artifact-registry.md"
+      ],
+      "reports": [
+        "manifest_check_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 60,
       "when": null,
       "report_shape": "error_count",
-      "run_after": ["writing_latex_env", "writing_compliance", "writing_tex_numbers", "writing_abstract", "writing_hygiene"],
+      "run_after": [
+        "writing_latex_env",
+        "writing_compliance",
+        "writing_tex_numbers",
+        "writing_abstract",
+        "writing_hygiene"
+      ],
       "description": "artifact completeness gate for writing"
     },
     {
@@ -400,13 +696,23 @@
       "stage": "WRITING",
       "order": 100,
       "kind": "audit",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_machine_checks.py", "{root}", "--stage", "writing"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_machine_checks.py",
+        "{root}",
+        "--stage",
+        "writing"
+      ],
       "reports": [],
       "blocking": "ERROR",
       "timeout_seconds": 60,
-      "when": {"mode": "fallback"},
+      "when": {
+        "mode": "fallback"
+      },
       "report_shape": "summary_error",
-      "run_after": ["writing_manifest"],
+      "run_after": [
+        "writing_manifest"
+      ],
       "description": "fallback-mode evidence-chain audit"
     },
     {
@@ -414,8 +720,18 @@
       "stage": "REVIEW",
       "order": 10,
       "kind": "hygiene",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_workspace_hygiene.py", "{root}", "--allow", "paper.aux,paper.log", "--report", "{root}/workspace_hygiene_report.json"],
-      "reports": ["workspace_hygiene_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_workspace_hygiene.py",
+        "{root}",
+        "--allow",
+        "paper.aux,paper.log",
+        "--report",
+        "{root}/workspace_hygiene_report.json"
+      ],
+      "reports": [
+        "workspace_hygiene_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 60,
       "when": null,
@@ -428,13 +744,27 @@
       "stage": "REVIEW",
       "order": 90,
       "kind": "manifest",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_pipeline_manifest.py", "--project-root", "{root}", "--stage", "review", "--report", "--registry", "{repo}/.trae/papers/产物注册表.md"],
-      "reports": ["manifest_check_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_pipeline_manifest.py",
+        "--project-root",
+        "{root}",
+        "--stage",
+        "review",
+        "--report",
+        "--registry",
+        "{repo}/.dsh/skills/paper-writer/references/artifact-registry.md"
+      ],
+      "reports": [
+        "manifest_check_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 60,
       "when": null,
       "report_shape": "error_count",
-      "run_after": ["review_hygiene"],
+      "run_after": [
+        "review_hygiene"
+      ],
       "description": "artifact completeness gate for review rounds"
     },
     {
@@ -442,13 +772,23 @@
       "stage": "REVIEW",
       "order": 100,
       "kind": "audit",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_machine_checks.py", "{root}", "--stage", "review"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_machine_checks.py",
+        "{root}",
+        "--stage",
+        "review"
+      ],
       "reports": [],
       "blocking": "ERROR",
       "timeout_seconds": 60,
-      "when": {"mode": "fallback"},
+      "when": {
+        "mode": "fallback"
+      },
       "report_shape": "summary_error",
-      "run_after": ["review_manifest"],
+      "run_after": [
+        "review_manifest"
+      ],
       "description": "fallback-mode evidence-chain audit"
     },
     {
@@ -456,8 +796,18 @@
       "stage": "COMPLIANCE",
       "order": 10,
       "kind": "hygiene",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_workspace_hygiene.py", "{root}", "--allow", "paper.aux,paper.log", "--report", "{root}/workspace_hygiene_report.json"],
-      "reports": ["workspace_hygiene_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_workspace_hygiene.py",
+        "{root}",
+        "--allow",
+        "paper.aux,paper.log",
+        "--report",
+        "{root}/workspace_hygiene_report.json"
+      ],
+      "reports": [
+        "workspace_hygiene_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 60,
       "when": null,
@@ -470,13 +820,24 @@
       "stage": "COMPLIANCE",
       "order": 20,
       "kind": "package",
-      "command": ["{python}", "{repo}/.trae/code_templates/package_support_materials.py", "--project", "{root}/project", "--out", "{root}/submission/支撑材料.zip"],
-      "reports": ["packaging_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/package_support_materials.py",
+        "--project",
+        "{root}/project",
+        "--out",
+        "{root}/submission/支撑材料.zip"
+      ],
+      "reports": [
+        "packaging_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 300,
       "when": null,
       "report_shape": "error_count",
-      "run_after": ["compliance_hygiene"],
+      "run_after": [
+        "compliance_hygiene"
+      ],
       "description": "package code/data/figures only; final scan; no internal contract JSON"
     },
     {
@@ -484,13 +845,28 @@
       "stage": "COMPLIANCE",
       "order": 90,
       "kind": "manifest",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_pipeline_manifest.py", "--project-root", "{root}", "--stage", "compliance", "--report", "--registry", "{repo}/.trae/papers/产物注册表.md"],
-      "reports": ["manifest_check_report.json"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_pipeline_manifest.py",
+        "--project-root",
+        "{root}",
+        "--stage",
+        "compliance",
+        "--report",
+        "--registry",
+        "{repo}/.dsh/skills/paper-writer/references/artifact-registry.md"
+      ],
+      "reports": [
+        "manifest_check_report.json"
+      ],
       "blocking": "ERROR",
       "timeout_seconds": 60,
       "when": null,
       "report_shape": "error_count",
-      "run_after": ["compliance_hygiene", "compliance_package"],
+      "run_after": [
+        "compliance_hygiene",
+        "compliance_package"
+      ],
       "description": "artifact completeness gate for compliance"
     },
     {
@@ -498,51 +874,58 @@
       "stage": "COMPLIANCE",
       "order": 100,
       "kind": "audit",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_machine_checks.py", "{root}", "--stage", "compliance"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_machine_checks.py",
+        "{root}",
+        "--stage",
+        "compliance"
+      ],
       "reports": [],
       "blocking": "ERROR",
       "timeout_seconds": 60,
-      "when": {"mode": "fallback"},
+      "when": {
+        "mode": "fallback"
+      },
       "report_shape": "summary_error",
-      "run_after": ["compliance_manifest"],
+      "run_after": [
+        "compliance_manifest"
+      ],
       "description": "fallback-mode evidence-chain audit"
     }
   ],
   "asset_maintenance": [
     {
-      "id": "asset_prompt_budget",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_prompt_budget.py", "--agents-dir", "{repo}/.trae/agents"],
-      "when": "asset_changed",
-      "blocking": "WARN",
-      "description": "prompt size budget for legacy agent files; replaced by skill size checks in Phase 2"
-    },
-    {
-      "id": "asset_convention_refs",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_convention_refs.py", "{repo}"],
-      "when": "asset_changed",
-      "blocking": "WARN",
-      "description": "convention cross-reference integrity"
-    },
-    {
       "id": "asset_viz_tests",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_viz_tests.py", "{repo}/.trae/code_templates"],
+      "command": [
+        "{python}",
+        "{repo}/tools/checks/check_viz_tests.py",
+        "{repo}/tools/checks"
+      ],
       "when": "asset_changed",
       "blocking": "WARN",
       "description": "visualization style regression tests"
-    },
-    {
-      "id": "asset_card_refs",
-      "command": ["{python}", "{repo}/.trae/code_templates/check_card_refs.py", "--cards-dir", "{repo}/.trae/papers/优化方法卡片"],
-      "when": "asset_changed",
-      "blocking": "WARN",
-      "description": "method card -> code template reference integrity"
     }
   ],
   "retired": [
-    {"id": "check_reflection", "path": ".trae/code_templates/check_reflection.py", "disposition": "retire", "reason": "S1-S4 reflection logs are no longer live pipeline artifacts"},
-    {"id": "check_isolation", "path": ".trae/code_templates/check_isolation.py", "disposition": "move_to_evolution", "reason": "calibration/extraction isolation audit belongs to the evolution toolkit"},
-    {"id": "check_bc_merge_smoke", "path": ".trae/code_templates/check_bc_merge_smoke.py", "disposition": "retire", "reason": "one-off smoke test, not a pipeline gate"},
-    {"id": "test_family", "path": ".trae/code_templates/test_*.py", "disposition": "move_to_tests", "reason": "unit/regression tests belong under tests/, not the pipeline manifest"}
+    {
+      "id": "check_reflection",
+      "path": "tools/checks/check_reflection.py",
+      "disposition": "retire",
+      "reason": "S1-S4 reflection logs are no longer live pipeline artifacts"
+    },
+    {
+      "id": "check_isolation",
+      "path": "tools/checks/check_isolation.py",
+      "disposition": "move_to_evolution",
+      "reason": "calibration/extraction isolation audit belongs to the evolution toolkit"
+    },
+    {
+      "id": "test_family",
+      "path": "tools/checks/test_*.py",
+      "disposition": "move_to_tests",
+      "reason": "unit/regression tests belong under tests/, not the pipeline manifest"
+    }
   ],
   "report_shapes": {
     "finding": "findings[] with level/rule/location/message; normalize to error_count/warn_count",

@@ -9,4 +9,4 @@
 
 用途：追溯旧规则/细节，**不是运行期 skill 的依赖**。DSH 运行期使用 `.dsh/skills/<role>/SKILL.md + references/`；这些文件中的 `.trae/...` 路径是历史写法。
 
-`.trae/` 本身仍是活流水线资产，未删除、未改写；Phase 3/后续确认后再决定是否退役。
+旧 `.trae/` 资产已整体归档到 `legacy-trae-archive` 分支；当前 `main` 只保留 `tools/checks/` 与 DSH 运行资产。

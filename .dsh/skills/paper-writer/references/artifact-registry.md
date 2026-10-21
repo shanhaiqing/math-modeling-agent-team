@@ -1,7 +1,7 @@
 # 产物注册表（唯一注册源）
 
 > 本表是流水线全部具名产物的唯一注册源：名称 / 规范路径 / 生产者 / 消费者 / 产出阶段 / 必填性。
-> 机查脚本 `.trae/code_templates/check_pipeline_manifest.py` 解析本表执行齐备性检查——**表结构（列名与顺序）不得改动**，产物增删只能增删数据行。
+> 机查脚本 `tools/checks/check_pipeline_manifest.py` 解析本表执行齐备性检查——**表结构（列名与顺序）不得改动**，产物增删只能增删数据行。
 > 路径一律相对项目根。产出阶段序：intake < modeling < method < figures < writing < review < compliance。必填性：必填 / 条件（附条件说明）。
 
 | 名称 | 规范路径 | 生产者 | 消费者 | 产出阶段 | 必填性 |

@@ -14,7 +14,7 @@ whenToUse: The current stage is WRITING, FIX_R1 or FIX_R2; the writer is a durab
 2. 读本岗参考：`references/paper-playbook.md`。
 3. 读 `赛题/题面.md`、`result_bundle/solution.json`、`modeling_plan.json`、`术语表.json`、`result_bundle/图表清单.md`、`result_bundle/figures/`（只看清单，不 Read 生成图）、`handoff_notes_1.md`、`decision_logs/method_critique.md`。
 4. 读 `references/latex-format.md`、`references/abstract-writing.md`、`references/deai-writing.md`、`references/artifact-registry.md`。
-5. `shuwei_en`：读 `赛制/shuwei_en.md`，用 `.trae/code_templates/paper_shuwei_template.tex` + `shuwei/` 文档类（工具路径 Phase 3 迁移）。
+5. `shuwei_en`：读 `赛制/shuwei_en.md`，用 `tools/checks/paper_shuwei_template.tex` + `shuwei/` 文档类（工具路径 Phase 3 迁移）。
 
 ## 写作结构（详见 references/paper-playbook.md）
 

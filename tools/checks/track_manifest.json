@@ -1,0 +1,36 @@
+{
+  "track_switch_enabled": true,
+  "note": "轨道资产映射；DSH 运行期以 .dsh/skills 自包含 references 为准。",
+  "opt": {
+    "status": "live_assets",
+    "solver_agent": "solver-opt",
+    "cards_dir": ".dsh/skills/solver-opt/references/method-cards",
+    "tree": ".dsh/skills/solver-opt/references/optimization-decision-tree.md",
+    "special_convention": ".dsh/skills/solver-opt/references/optimization-conventions.md",
+    "fingerprint_template": "tools/checks/feature_fingerprint_template_opt.json",
+    "solution_check": "tools/checks/check_solution_json.py",
+    "extra_modeling_checks": [],
+    "method_gate": ".dsh/skills/method-critic/references/gate-opt.md",
+    "hg1_card": "system/gates/G2-model-figures.md",
+    "review_12": ".dsh/skills/independent-reviewer/references/checklist-opt.md",
+    "index": ".dsh/skills/solver-opt/references/paper-index.md",
+    "optional_borrow_cards_dir": ".dsh/skills/solver-stats/references/method-cards"
+  },
+  "stats": {
+    "status": "live_assets",
+    "solver_agent": "solver-stats",
+    "cards_dir": ".dsh/skills/solver-stats/references/method-cards",
+    "tree": ".dsh/skills/solver-stats/references/data-decision-tree.md",
+    "special_convention": ".dsh/skills/solver-stats/references/data-conventions.md",
+    "fingerprint_template": "tools/checks/feature_fingerprint_template_stats.json",
+    "solution_check": "tools/checks/check_solution_json_stats.py",
+    "extra_modeling_checks": [
+      "tools/checks/check_leakage.py"
+    ],
+    "method_gate": ".dsh/skills/method-critic/references/gate-stats.md",
+    "hg1_card": "system/gates/G2-model-figures.md",
+    "review_12": ".dsh/skills/independent-reviewer/references/checklist-stats.md",
+    "index": ".dsh/skills/solver-stats/references/paper-index.md",
+    "optional_borrow_cards_dir": ".dsh/skills/solver-opt/references/method-cards"
+  }
+}

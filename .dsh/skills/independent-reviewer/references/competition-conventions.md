@@ -30,7 +30,7 @@
 7. **design_critique 内部消化**（2026-08 批次 2026-08-C1，真实评阅反馈）：批判性讨论题目设计（约束是否完整？参数是否合理？假设是否需要放松？）属建模阶段内部防漏思考，产出必须**转化为显式假设与解读策略**落实到模型假设与问题分析节；**论文正文禁止以任何形式出现"题目设计合理性讨论"独立节或"建议在题目中……"类评点出题人表述**（评阅观感硬伤）。
 8. **solution.json 字段命名准确性规范**（2020B 校准反馈，通用规则）：result_bundle/solution.json 字段命名必须准确反映数值含义，四类语义严格区分、禁止混用：上界（`*_upper_bound` / `perfect_information_upper_bound`，已知全部不确定性信息下的最优值）、期望值（`expected_*` / `*_expectation`，基于随机变量分布的期望）、代表性值（`representative_*` / `*_representative_scenario`，用某代表性场景求得的确定性最优值）、实际值（`actual_*` / `*_actual`，实际发生值）。禁止将上界命名为 expected_objective；若某字段含义可能歧义（如某策略不受随机因素影响导致期望=上界），须在字段注释或 modeling_plan.json 中明确说明"该策略下期望=上界，故字段值同时为两者"。每个易混淆字段附 `_note` 子字段说明数值来源与适用条件。
 9. **枚举法完备性证明或截断依据**：完整要求见 `optimization-conventions.md` 优.5。仅 opt 轨。stats 轨不执行。
-10. **solution.json 字段值语义合理性判定**（自 agent prompt 迁入整合，原为 2020B/2021B 校准落地规则）：打包前对每个 solution.json 字段值做语义合理性判定——字段值是否符合其命名隐含的语义？（机查工具：`.trae/code_templates/check_solution_json.py`，打包前必跑，ERROR 阻塞打包）每字段附"字段名 → 字段值 → 语义合理性 → 判定（✓/✗）"四元组记录，任一 ✗ 当场修复 solution.json 或代码，禁止打包带病字段。典型判例：
+10. **solution.json 字段值语义合理性判定**（自 agent prompt 迁入整合，原为 2020B/2021B 校准落地规则）：打包前对每个 solution.json 字段值做语义合理性判定——字段值是否符合其命名隐含的语义？（机查工具：`tools/checks/check_solution_json.py`，打包前必跑，ERROR 阻塞打包）每字段附"字段名 → 字段值 → 语义合理性 → 判定（✓/✗）"四元组记录，任一 ✗ 当场修复 solution.json 或代码，禁止打包带病字段。典型判例：
     - `monte_carlo.convergence` 字段值必须与 std/mean 一致（不得出现 std/mean>5% 但字段值含 'converged' 的矛盾）；
     - 博弈类 `critical_points.*.deviation_obj` 必须 < 合作收益字段值（偏离收益 < 合作收益才能维持合作均衡，相等或大于均属逻辑错误）；
     - `active_constraints.X.min_observed` 必须取自全路径最小值（不得取初始值或局部极值冒充全路径最小值）；

@@ -1,9 +1,9 @@
 # LaTeX 格式规范（CUMCM 论文）
 
 > 用途：论文写作排版规范（2026-08 批次 2026-08-B1 瘦身版）。
-> **导言区代码、表格/公式/图表示例代码一律以 `.trae/code_templates/paper_minimal_template.tex`
+> **导言区代码、表格/公式/图表示例代码一律以 `tools/checks/paper_minimal_template.tex`
 > （经完整论文实战编译验证）为唯一基准**，本文件只保留无法从模板推断的规范与硬约束。
-> **`contest_profile=shuwei_en`**：改读 `赛制/shuwei_en.md` 与 `.trae/code_templates/paper_shuwei_template.tex`；本文件默认仍是国赛。
+> **`contest_profile=shuwei_en`**：改读 `赛制/shuwei_en.md` 与 `tools/checks/paper_shuwei_template.tex`；本文件默认仍是国赛。
 
 ---
 

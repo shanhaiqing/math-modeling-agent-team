@@ -4,10 +4,19 @@
   "name": "math-modeling-team",
   "status": "phase0-spec",
   "scope": {
-    "mode": ["competition"],
+    "mode": [
+      "competition"
+    ],
     "problem_family": "CUMCM-B",
-    "contest_profiles": ["cumcm", "shuwei_zh", "shuwei_en"],
-    "problem_tracks": ["opt", "stats"],
+    "contest_profiles": [
+      "cumcm",
+      "shuwei_zh",
+      "shuwei_en"
+    ],
+    "problem_tracks": [
+      "opt",
+      "stats"
+    ],
     "time_budget_hours": 72,
     "live_pipeline_changed": false
   },
@@ -58,18 +67,64 @@
     ],
     "route_version": "2026-10-19-v4.1-flash",
     "roles": {
-      "lead": {"model": "deepseek-flash", "effort": "high"},
-      "solver": {"model": "deepseek-flash", "effort": "max"},
-      "method": {"model": "deepseek-flash", "effort": "max"},
-      "figures": {"model": "deepseek-flash", "effort": "high"},
-      "writer": {"model": "deepseek-flash", "effort": "high", "inherits": "lead"},
-      "reviewer": {"model": "deepseek-flash", "effort": "max"},
-      "gate_packet": {"model": "deepseek-flash", "effort": "off"}
+      "lead": {
+        "model": "deepseek-flash",
+        "effort": "high"
+      },
+      "solver": {
+        "model": "deepseek-flash",
+        "effort": "max"
+      },
+      "method": {
+        "model": "deepseek-flash",
+        "effort": "max"
+      },
+      "figures": {
+        "model": "deepseek-flash",
+        "effort": "high"
+      },
+      "writer": {
+        "model": "deepseek-flash",
+        "effort": "high",
+        "inherits": "lead"
+      },
+      "reviewer": {
+        "model": "deepseek-flash",
+        "effort": "max"
+      },
+      "gate_packet": {
+        "model": "deepseek-flash",
+        "effort": "off"
+      }
     },
     "profiles": {
-      "quality": {"lead": "max", "writer": "max", "solver": "max", "method": "max", "figures": "high", "reviewer": "max", "gate_packet": "off"},
-      "balanced": {"lead": "high", "writer": "high", "solver": "max", "method": "max", "figures": "high", "reviewer": "max", "gate_packet": "off"},
-      "economy": {"lead": "high", "writer": "high", "solver": "high", "method": "high", "figures": "high", "reviewer": "high", "gate_packet": "off"}
+      "quality": {
+        "lead": "max",
+        "writer": "max",
+        "solver": "max",
+        "method": "max",
+        "figures": "high",
+        "reviewer": "max",
+        "gate_packet": "off"
+      },
+      "balanced": {
+        "lead": "high",
+        "writer": "high",
+        "solver": "max",
+        "method": "max",
+        "figures": "high",
+        "reviewer": "max",
+        "gate_packet": "off"
+      },
+      "economy": {
+        "lead": "high",
+        "writer": "high",
+        "solver": "high",
+        "method": "high",
+        "figures": "high",
+        "reviewer": "high",
+        "gate_packet": "off"
+      }
     },
     "default_profile": "balanced",
     "recommended_competition_profile": "quality",
@@ -90,13 +145,27 @@
     "availability": "preflight at INTAKE; if any required model/effort is unavailable, pause; never silently downgrade"
   },
   "run_profiles": {
-    "quality": {"description": "formal competition; max effort on critical roles; full verification", "use_for": "final"},
-    "balanced": {"description": "default practice/normal runs; max on solver/method/reviewer, high on lead/writer/figures", "use_for": "practice"},
-    "economy": {"description": "draft/low-risk only; high effort everywhere; not for final", "use_for": "draft"}
+    "quality": {
+      "description": "formal competition; max effort on critical roles; full verification",
+      "use_for": "final"
+    },
+    "balanced": {
+      "description": "default practice/normal runs; max on solver/method/reviewer, high on lead/writer/figures",
+      "use_for": "practice"
+    },
+    "economy": {
+      "description": "draft/low-risk only; high effort everywhere; not for final",
+      "use_for": "draft"
+    }
   },
   "freshness_policy": {
     "principle": "fresh context must inherit the failure dossier, not the old conversation; local fixes resume, root causes go fresh with anti-recurrence evidence",
-    "modes": ["fresh", "resume", "fresh_dossier", "fresh_independent"],
+    "modes": [
+      "fresh",
+      "resume",
+      "fresh_dossier",
+      "fresh_independent"
+    ],
     "defaults": {
       "solver_initial": "fresh",
       "solver_local_rework": "resume",
@@ -109,12 +178,44 @@
       "reviewer_r2_high_failure": "fresh",
       "reviewer_second_opinion": "fresh_independent"
     },
-    "local_triggers": ["numeric_bug", "code_bug", "single_subproblem_fix", "missing_field", "single_constraint_fix", "single_sensitivity_parameter"],
-    "root_cause_triggers": ["method_verdict_BLOCKED", "ticket_changes_conclusion", "model_structure_changed", "algorithm_class_changed", "track_changed", "data_split_or_leakage_fix", "objective_or_constraints_changed", "affected_subproblems>=2", "human_requested", "agent_context_lost"],
-    "reviewer_fresh_triggers": ["root_cause_rework", "fix_failure_rate>=0.30", "new_cross_section_errors", "model_or_numeric_change", "human_requested", "reviewer_context_lost"],
+    "local_triggers": [
+      "numeric_bug",
+      "code_bug",
+      "single_subproblem_fix",
+      "missing_field",
+      "single_constraint_fix",
+      "single_sensitivity_parameter"
+    ],
+    "root_cause_triggers": [
+      "method_verdict_BLOCKED",
+      "ticket_changes_conclusion",
+      "model_structure_changed",
+      "algorithm_class_changed",
+      "track_changed",
+      "data_split_or_leakage_fix",
+      "objective_or_constraints_changed",
+      "affected_subproblems>=2",
+      "human_requested",
+      "agent_context_lost"
+    ],
+    "reviewer_fresh_triggers": [
+      "root_cause_rework",
+      "fix_failure_rate>=0.30",
+      "new_cross_section_errors",
+      "model_or_numeric_change",
+      "human_requested",
+      "reviewer_context_lost"
+    ],
     "anti_recurrence": {
-      "required_for": ["fresh_dossier", "fresh_independent_rework"],
-      "artifacts": ["failure_dossier", "rework_plan", "regression_check_report"],
+      "required_for": [
+        "fresh_dossier",
+        "fresh_independent_rework"
+      ],
+      "artifacts": [
+        "failure_dossier",
+        "rework_plan",
+        "regression_check_report"
+      ],
       "plan_gate": "method_critic_or_kernel_plan_checker",
       "max_plan_revisions": 2,
       "similarity_check": "compare problem_type/algorithm/model_structure/data_split/objective/subproblem_count against rejected_signature; require new evidence if materially the same",
@@ -126,83 +227,974 @@
     "fallback": "if the kernel cannot classify, default to fresh_dossier; the human can downgrade"
   },
   "stages": [
-    {"id": "INIT", "order": 0, "owner": "lead", "human_gate": null, "exit": ["run_created"], "artifacts_out": ["run_state", "gate_decisions", "events"], "checks": [], "budget": {"wall_minutes": 15, "token_share": 0.005}, "on_fail": "BLOCKED", "description": "create run root, state, event log; verify environment"},
-    {"id": "INTAKE", "order": 10, "owner": "lead", "human_gate": "G0", "exit": ["G0_APPROVED"], "artifacts_out": ["statement", "ingest_report", "attachment_transcripts", "statement_images"], "checks": ["intake_convert", "intake_problem_track", "intake_hygiene", "intake_manifest", "intake_machine_checks"], "budget": {"wall_minutes": 120, "token_share": 0.015}, "on_fail": "BLOCKED", "description": "convert statement, inventory data, recommend track/profile, preflight models and LaTeX"},
-    {"id": "MODELING", "order": 20, "owner": "solver", "human_gate": null, "exit": ["checks:modeling=pass", "modeling_rework_done"], "artifacts_out": ["solution", "modeling_plan", "fingerprint", "glossary", "handoff_notes_1", "contract_check_report", "modeling_artifacts_report", "code_hygiene_report", "workspace_hygiene_report", "manifest_check_report"], "checks": ["modeling_rework_plan", "modeling_solution", "modeling_solution_stats", "modeling_artifacts", "modeling_code_hygiene", "modeling_hygiene", "modeling_leakage", "modeling_manifest", "modeling_machine_checks"], "budget": {"wall_minutes": 2040, "token_share": 0.40, "sub_phases": {"read_and_model": 1200, "solve_and_validate": 840}}, "on_fail": "BLOCKED", "description": "modeling, solving, validation, sensitivity, packaging; no figures; local rework resumes, root rework is fresh+dossier and returns to the earliest stale downstream stage"},
-    {"id": "METHOD", "order": 30, "owner": "method", "human_gate": null, "exit": ["method_ready"], "artifacts_out": ["method_critique_md", "method_critique_json"], "checks": ["method_hygiene", "method_manifest", "method_machine_checks"], "budget": {"wall_minutes": 120, "token_share": 0.05}, "on_fail": "BLOCKED", "description": "independent method critique: gate first, then at most two upgrade tickets"},
-    {"id": "METHOD_GATE", "order": 35, "owner": "lead", "human_gate": "G1", "exit": ["G1_DECIDED"], "artifacts_out": ["gate_decisions"], "checks": [], "budget": {"wall_minutes": 30, "token_share": 0.003}, "on_fail": "BLOCKED", "description": "conditional human decision; auto-proceed when clean"},
-    {"id": "FIGURES", "order": 40, "owner": "figures", "human_gate": null, "exit": ["checks:figures=pass"], "artifacts_out": ["figures_dir", "figure_list", "figures_artifacts_report"], "checks": ["figures_artifacts", "figures_hygiene", "figures_manifest", "figures_machine_checks"], "budget": {"wall_minutes": 240, "token_share": 0.08}, "on_fail": "BLOCKED", "description": "design cards, hero figures, visual_qa, export PDF+PNG and chart list"},
-    {"id": "MODEL_REVIEW", "order": 50, "owner": "lead", "human_gate": "G2", "exit": ["G2_DECIDED"], "artifacts_out": ["gate_decisions"], "checks": [], "budget": {"wall_minutes": 60, "token_share": 0.003}, "on_fail": "BLOCKED", "description": "mandatory human review of modeling + method + figures"},
-    {"id": "WRITING", "order": 60, "owner": "writer", "human_gate": null, "exit": ["checks:writing=pass"], "artifacts_out": ["paper_tex", "paper_pdf", "abstract_candidates", "handoff_notes_2", "latex_env_report", "latex_compliance_report", "tex_number_check_report"], "checks": ["writing_latex_env", "writing_compliance", "writing_tex_numbers", "writing_abstract", "writing_hygiene", "writing_manifest", "writing_machine_checks"], "budget": {"wall_minutes": 1080, "token_share": 0.25}, "on_fail": "BLOCKED", "description": "write LaTeX paper, compile PDF, abstract candidates, self-check"},
-    {"id": "DRAFT_REVIEW", "order": 70, "owner": "lead", "human_gate": "G3", "exit": ["G3_DECIDED"], "artifacts_out": ["gate_decisions"], "checks": [], "budget": {"wall_minutes": 30, "token_share": 0.003}, "on_fail": "BLOCKED", "description": "mandatory human review of the draft paper before independent review"},
-    {"id": "REVIEW", "order": 80, "owner": "reviewer", "human_gate": null, "exit": ["review:clean", "review:high_severity"], "artifacts_out": ["review_report", "review_scores", "handoff_notes_3"], "checks": ["review_hygiene", "review_manifest", "review_machine_checks"], "budget": {"wall_minutes": 300, "token_share": 0.10}, "on_fail": "BLOCKED", "description": "independent full-text review: 5 dimensions, 12 track checks, red team"},
-    {"id": "FIX_R1", "order": 90, "owner": "writer", "human_gate": null, "exit": ["fix_submitted"], "artifacts_out": ["fix_round1", "fix_points_round1"], "checks": ["review_hygiene", "review_manifest", "review_machine_checks"], "budget": {"wall_minutes": 240, "token_share": 0.03}, "on_fail": "BLOCKED", "description": "fix R1 high-severity issues; expression/consistency only; figure defects forwarded"},
-    {"id": "RE_REVIEW_R1", "order": 95, "owner": "reviewer", "human_gate": null, "exit": ["review:clean", "review:high_severity"], "artifacts_out": ["review_report", "review_scores"], "checks": ["review_hygiene", "review_manifest", "review_machine_checks"], "budget": {"wall_minutes": 180, "token_share": 0.02}, "on_fail": "BLOCKED", "description": "full re-read after R1; diff anchors, not incremental review"},
-    {"id": "FIX_R2", "order": 100, "owner": "writer", "human_gate": null, "exit": ["fix_submitted"], "artifacts_out": ["fix_round2", "fix_points_round2"], "checks": ["review_hygiene", "review_manifest", "review_machine_checks"], "budget": {"wall_minutes": 180, "token_share": 0.02}, "on_fail": "BLOCKED", "description": "fix R2 high-severity issues"},
-    {"id": "RE_REVIEW_R2", "order": 105, "owner": "reviewer", "human_gate": null, "exit": ["review:clean", "review:residual_high"], "artifacts_out": ["review_report", "review_scores"], "checks": ["review_hygiene", "review_manifest", "review_machine_checks"], "budget": {"wall_minutes": 120, "token_share": 0.01}, "on_fail": "BLOCKED", "description": "full re-read after R2; residual high goes to G4"},
-    {"id": "ADJUDICATION", "order": 110, "owner": "lead", "human_gate": "G4", "exit": ["G4_DECIDED"], "artifacts_out": ["gate_decisions"], "checks": [], "budget": {"wall_minutes": 120, "token_share": 0.003}, "on_fail": "BLOCKED", "description": "conditional human adjudication of residual high severity or compliance waivers"},
-    {"id": "COMPLIANCE", "order": 120, "owner": "lead", "human_gate": null, "exit": ["checks:compliance=pass"], "artifacts_out": ["packaging_report", "workspace_hygiene_report", "manifest_check_report"], "checks": ["compliance_hygiene", "compliance_package", "compliance_manifest", "compliance_machine_checks"], "budget": {"wall_minutes": 600, "token_share": 0.02}, "on_fail": "BLOCKED", "description": "compliance, packaging, MD5, final hygiene; no model judgment"},
-    {"id": "DELIVER", "order": 130, "owner": "lead", "human_gate": "G5", "exit": ["G5_DECIDED"], "artifacts_out": ["gate_decisions"], "checks": [], "budget": {"wall_minutes": 15, "token_share": 0.001}, "on_fail": "BLOCKED", "description": "human delivery confirmation"},
-    {"id": "DELIVERED", "order": 140, "owner": "kernel", "human_gate": null, "exit": ["terminal"], "artifacts_out": ["cost_report", "run_report"], "checks": [], "budget": {"wall_minutes": 0, "token_share": 0.0}, "on_fail": null, "description": "terminal success; run report and cost report"},
-    {"id": "BLOCKED", "order": 900, "owner": "lead", "human_gate": null, "exit": ["human_resume", "human_stop"], "artifacts_out": ["gate_decisions"], "checks": [], "budget": {"wall_minutes": 0, "token_share": 0.0}, "on_fail": null, "description": "blocked; wait for human decision; no automatic resume"},
-    {"id": "STOPPED", "order": 920, "owner": "kernel", "human_gate": null, "exit": ["terminal"], "artifacts_out": ["run_report"], "checks": [], "budget": {"wall_minutes": 0, "token_share": 0.0}, "on_fail": null, "description": "terminal stop; record reason and partial artifacts"}
+    {
+      "id": "INIT",
+      "order": 0,
+      "owner": "lead",
+      "human_gate": null,
+      "exit": [
+        "run_created"
+      ],
+      "artifacts_out": [
+        "run_state",
+        "gate_decisions",
+        "events"
+      ],
+      "checks": [],
+      "budget": {
+        "wall_minutes": 15,
+        "token_share": 0.005
+      },
+      "on_fail": "BLOCKED",
+      "description": "create run root, state, event log; verify environment"
+    },
+    {
+      "id": "INTAKE",
+      "order": 10,
+      "owner": "lead",
+      "human_gate": "G0",
+      "exit": [
+        "G0_APPROVED"
+      ],
+      "artifacts_out": [
+        "statement",
+        "ingest_report",
+        "attachment_transcripts",
+        "statement_images"
+      ],
+      "checks": [
+        "intake_convert",
+        "intake_problem_track",
+        "intake_hygiene",
+        "intake_manifest",
+        "intake_machine_checks"
+      ],
+      "budget": {
+        "wall_minutes": 120,
+        "token_share": 0.015
+      },
+      "on_fail": "BLOCKED",
+      "description": "convert statement, inventory data, recommend track/profile, preflight models and LaTeX"
+    },
+    {
+      "id": "MODELING",
+      "order": 20,
+      "owner": "solver",
+      "human_gate": null,
+      "exit": [
+        "checks:modeling=pass",
+        "modeling_rework_done"
+      ],
+      "artifacts_out": [
+        "solution",
+        "modeling_plan",
+        "fingerprint",
+        "glossary",
+        "handoff_notes_1",
+        "contract_check_report",
+        "modeling_artifacts_report",
+        "code_hygiene_report",
+        "workspace_hygiene_report",
+        "manifest_check_report"
+      ],
+      "checks": [
+        "modeling_rework_plan",
+        "modeling_solution",
+        "modeling_solution_stats",
+        "modeling_artifacts",
+        "modeling_code_hygiene",
+        "modeling_hygiene",
+        "modeling_leakage",
+        "modeling_manifest",
+        "modeling_machine_checks"
+      ],
+      "budget": {
+        "wall_minutes": 2040,
+        "token_share": 0.4,
+        "sub_phases": {
+          "read_and_model": 1200,
+          "solve_and_validate": 840
+        }
+      },
+      "on_fail": "BLOCKED",
+      "description": "modeling, solving, validation, sensitivity, packaging; no figures; local rework resumes, root rework is fresh+dossier and returns to the earliest stale downstream stage"
+    },
+    {
+      "id": "METHOD",
+      "order": 30,
+      "owner": "method",
+      "human_gate": null,
+      "exit": [
+        "method_ready"
+      ],
+      "artifacts_out": [
+        "method_critique_md",
+        "method_critique_json"
+      ],
+      "checks": [
+        "method_hygiene",
+        "method_manifest",
+        "method_machine_checks"
+      ],
+      "budget": {
+        "wall_minutes": 120,
+        "token_share": 0.05
+      },
+      "on_fail": "BLOCKED",
+      "description": "independent method critique: gate first, then at most two upgrade tickets"
+    },
+    {
+      "id": "METHOD_GATE",
+      "order": 35,
+      "owner": "lead",
+      "human_gate": "G1",
+      "exit": [
+        "G1_DECIDED"
+      ],
+      "artifacts_out": [
+        "gate_decisions"
+      ],
+      "checks": [],
+      "budget": {
+        "wall_minutes": 30,
+        "token_share": 0.003
+      },
+      "on_fail": "BLOCKED",
+      "description": "conditional human decision; auto-proceed when clean"
+    },
+    {
+      "id": "FIGURES",
+      "order": 40,
+      "owner": "figures",
+      "human_gate": null,
+      "exit": [
+        "checks:figures=pass"
+      ],
+      "artifacts_out": [
+        "figures_dir",
+        "figure_list",
+        "figures_artifacts_report"
+      ],
+      "checks": [
+        "figures_artifacts",
+        "figures_hygiene",
+        "figures_manifest",
+        "figures_machine_checks"
+      ],
+      "budget": {
+        "wall_minutes": 240,
+        "token_share": 0.08
+      },
+      "on_fail": "BLOCKED",
+      "description": "design cards, hero figures, visual_qa, export PDF+PNG and chart list"
+    },
+    {
+      "id": "MODEL_REVIEW",
+      "order": 50,
+      "owner": "lead",
+      "human_gate": "G2",
+      "exit": [
+        "G2_DECIDED"
+      ],
+      "artifacts_out": [
+        "gate_decisions"
+      ],
+      "checks": [],
+      "budget": {
+        "wall_minutes": 60,
+        "token_share": 0.003
+      },
+      "on_fail": "BLOCKED",
+      "description": "mandatory human review of modeling + method + figures"
+    },
+    {
+      "id": "WRITING",
+      "order": 60,
+      "owner": "writer",
+      "human_gate": null,
+      "exit": [
+        "checks:writing=pass"
+      ],
+      "artifacts_out": [
+        "paper_tex",
+        "paper_pdf",
+        "abstract_candidates",
+        "handoff_notes_2",
+        "latex_env_report",
+        "latex_compliance_report",
+        "tex_number_check_report"
+      ],
+      "checks": [
+        "writing_latex_env",
+        "writing_compliance",
+        "writing_tex_numbers",
+        "writing_abstract",
+        "writing_hygiene",
+        "writing_manifest",
+        "writing_machine_checks"
+      ],
+      "budget": {
+        "wall_minutes": 1080,
+        "token_share": 0.25
+      },
+      "on_fail": "BLOCKED",
+      "description": "write LaTeX paper, compile PDF, abstract candidates, self-check"
+    },
+    {
+      "id": "DRAFT_REVIEW",
+      "order": 70,
+      "owner": "lead",
+      "human_gate": "G3",
+      "exit": [
+        "G3_DECIDED"
+      ],
+      "artifacts_out": [
+        "gate_decisions"
+      ],
+      "checks": [],
+      "budget": {
+        "wall_minutes": 30,
+        "token_share": 0.003
+      },
+      "on_fail": "BLOCKED",
+      "description": "mandatory human review of the draft paper before independent review"
+    },
+    {
+      "id": "REVIEW",
+      "order": 80,
+      "owner": "reviewer",
+      "human_gate": null,
+      "exit": [
+        "review:clean",
+        "review:high_severity"
+      ],
+      "artifacts_out": [
+        "review_report",
+        "review_scores",
+        "handoff_notes_3"
+      ],
+      "checks": [
+        "review_hygiene",
+        "review_manifest",
+        "review_machine_checks"
+      ],
+      "budget": {
+        "wall_minutes": 300,
+        "token_share": 0.1
+      },
+      "on_fail": "BLOCKED",
+      "description": "independent full-text review: 5 dimensions, 12 track checks, red team"
+    },
+    {
+      "id": "FIX_R1",
+      "order": 90,
+      "owner": "writer",
+      "human_gate": null,
+      "exit": [
+        "fix_submitted"
+      ],
+      "artifacts_out": [
+        "fix_round1",
+        "fix_points_round1"
+      ],
+      "checks": [
+        "review_hygiene",
+        "review_manifest",
+        "review_machine_checks"
+      ],
+      "budget": {
+        "wall_minutes": 240,
+        "token_share": 0.03
+      },
+      "on_fail": "BLOCKED",
+      "description": "fix R1 high-severity issues; expression/consistency only; figure defects forwarded"
+    },
+    {
+      "id": "RE_REVIEW_R1",
+      "order": 95,
+      "owner": "reviewer",
+      "human_gate": null,
+      "exit": [
+        "review:clean",
+        "review:high_severity"
+      ],
+      "artifacts_out": [
+        "review_report",
+        "review_scores"
+      ],
+      "checks": [
+        "review_hygiene",
+        "review_manifest",
+        "review_machine_checks"
+      ],
+      "budget": {
+        "wall_minutes": 180,
+        "token_share": 0.02
+      },
+      "on_fail": "BLOCKED",
+      "description": "full re-read after R1; diff anchors, not incremental review"
+    },
+    {
+      "id": "FIX_R2",
+      "order": 100,
+      "owner": "writer",
+      "human_gate": null,
+      "exit": [
+        "fix_submitted"
+      ],
+      "artifacts_out": [
+        "fix_round2",
+        "fix_points_round2"
+      ],
+      "checks": [
+        "review_hygiene",
+        "review_manifest",
+        "review_machine_checks"
+      ],
+      "budget": {
+        "wall_minutes": 180,
+        "token_share": 0.02
+      },
+      "on_fail": "BLOCKED",
+      "description": "fix R2 high-severity issues"
+    },
+    {
+      "id": "RE_REVIEW_R2",
+      "order": 105,
+      "owner": "reviewer",
+      "human_gate": null,
+      "exit": [
+        "review:clean",
+        "review:residual_high"
+      ],
+      "artifacts_out": [
+        "review_report",
+        "review_scores"
+      ],
+      "checks": [
+        "review_hygiene",
+        "review_manifest",
+        "review_machine_checks"
+      ],
+      "budget": {
+        "wall_minutes": 120,
+        "token_share": 0.01
+      },
+      "on_fail": "BLOCKED",
+      "description": "full re-read after R2; residual high goes to G4"
+    },
+    {
+      "id": "ADJUDICATION",
+      "order": 110,
+      "owner": "lead",
+      "human_gate": "G4",
+      "exit": [
+        "G4_DECIDED"
+      ],
+      "artifacts_out": [
+        "gate_decisions"
+      ],
+      "checks": [],
+      "budget": {
+        "wall_minutes": 120,
+        "token_share": 0.003
+      },
+      "on_fail": "BLOCKED",
+      "description": "conditional human adjudication of residual high severity or compliance waivers"
+    },
+    {
+      "id": "COMPLIANCE",
+      "order": 120,
+      "owner": "lead",
+      "human_gate": null,
+      "exit": [
+        "checks:compliance=pass"
+      ],
+      "artifacts_out": [
+        "packaging_report",
+        "workspace_hygiene_report",
+        "manifest_check_report"
+      ],
+      "checks": [
+        "compliance_hygiene",
+        "compliance_package",
+        "compliance_manifest",
+        "compliance_machine_checks"
+      ],
+      "budget": {
+        "wall_minutes": 600,
+        "token_share": 0.02
+      },
+      "on_fail": "BLOCKED",
+      "description": "compliance, packaging, MD5, final hygiene; no model judgment"
+    },
+    {
+      "id": "DELIVER",
+      "order": 130,
+      "owner": "lead",
+      "human_gate": "G5",
+      "exit": [
+        "G5_DECIDED"
+      ],
+      "artifacts_out": [
+        "gate_decisions"
+      ],
+      "checks": [],
+      "budget": {
+        "wall_minutes": 15,
+        "token_share": 0.001
+      },
+      "on_fail": "BLOCKED",
+      "description": "human delivery confirmation"
+    },
+    {
+      "id": "DELIVERED",
+      "order": 140,
+      "owner": "kernel",
+      "human_gate": null,
+      "exit": [
+        "terminal"
+      ],
+      "artifacts_out": [
+        "cost_report",
+        "run_report"
+      ],
+      "checks": [],
+      "budget": {
+        "wall_minutes": 0,
+        "token_share": 0.0
+      },
+      "on_fail": null,
+      "description": "terminal success; run report and cost report"
+    },
+    {
+      "id": "BLOCKED",
+      "order": 900,
+      "owner": "lead",
+      "human_gate": null,
+      "exit": [
+        "human_resume",
+        "human_stop"
+      ],
+      "artifacts_out": [
+        "gate_decisions"
+      ],
+      "checks": [],
+      "budget": {
+        "wall_minutes": 0,
+        "token_share": 0.0
+      },
+      "on_fail": null,
+      "description": "blocked; wait for human decision; no automatic resume"
+    },
+    {
+      "id": "STOPPED",
+      "order": 920,
+      "owner": "kernel",
+      "human_gate": null,
+      "exit": [
+        "terminal"
+      ],
+      "artifacts_out": [
+        "run_report"
+      ],
+      "checks": [],
+      "budget": {
+        "wall_minutes": 0,
+        "token_share": 0.0
+      },
+      "on_fail": null,
+      "description": "terminal stop; record reason and partial artifacts"
+    }
   ],
   "transitions": [
-    {"id": "T01", "from": "INIT", "to": "INTAKE", "on": "run_created", "guard": "environment_preflight_started", "kind": "auto"},
-    {"id": "T02", "from": "INIT", "to": "STOPPED", "on": "human_stop", "guard": "user_cancelled", "kind": "recovery"},
-    {"id": "T03", "from": "INTAKE", "to": "MODELING", "on": "gate:G0=approve", "guard": "intake_checks_pass", "kind": "gate", "gate": "G0"},
-    {"id": "T04", "from": "INTAKE", "to": "INTAKE", "on": "gate:G0=fix", "guard": "fix_requested", "kind": "gate_loop", "gate": "G0", "limit_key": "g0_fix", "max": 2},
-    {"id": "T05", "from": "INTAKE", "to": "STOPPED", "on": "gate:G0=stop", "guard": "user_stopped", "kind": "gate", "gate": "G0"},
-    {"id": "T06", "from": "INTAKE", "to": "BLOCKED", "on": "intake_failure", "guard": "unrecoverable_intake_failure", "kind": "failure"},
-    {"id": "T07", "from": "MODELING", "to": "METHOD", "on": "checks:modeling=pass", "guard": "modeling_redlines_pass", "kind": "auto"},
-    {"id": "T08", "from": "MODELING", "to": "MODELING", "on": "solver_retry", "guard": "retry_available", "kind": "auto_loop", "limit_key": "agent_retries", "max": 2},
-    {"id": "T09", "from": "MODELING", "to": "BLOCKED", "on": "modeling_failure", "guard": "retry_exhausted_or_blocked", "kind": "failure"},
-    {"id": "T10", "from": "METHOD", "to": "METHOD_GATE", "on": "method_ready", "guard": "critique_schema_valid", "kind": "auto"},
-    {"id": "T11", "from": "METHOD", "to": "BLOCKED", "on": "method_failure", "guard": "critique_missing_or_invalid", "kind": "failure"},
-    {"id": "T12", "from": "METHOD_GATE", "to": "FIGURES", "on": "gate:G1=proceed", "guard": "gate1_proceed", "kind": "gate", "gate": "G1"},
-    {"id": "T13", "from": "METHOD_GATE", "to": "MODELING", "on": "gate:G1=rollback", "guard": "rework_brief_written", "kind": "gate", "gate": "G1"},
-    {"id": "T14", "from": "METHOD_GATE", "to": "STOPPED", "on": "gate:G1=stop", "guard": "user_stopped", "kind": "gate", "gate": "G1"},
-    {"id": "T15", "from": "FIGURES", "to": "MODEL_REVIEW", "on": "checks:figures=pass", "guard": "figure_redlines_pass", "kind": "auto"},
-    {"id": "T16", "from": "FIGURES", "to": "FIGURES", "on": "figure_retry", "guard": "retry_available", "kind": "auto_loop", "limit_key": "figure_returns", "max": 2},
-    {"id": "T17", "from": "FIGURES", "to": "BLOCKED", "on": "figures_failure", "guard": "retry_exhausted_or_blocked", "kind": "failure"},
-    {"id": "T18", "from": "MODEL_REVIEW", "to": "WRITING", "on": "gate:G2=approve", "guard": "approved_with_hashes", "kind": "gate", "gate": "G2"},
-    {"id": "T19", "from": "MODEL_REVIEW", "to": "MODELING", "on": "gate:G2=return_modeling", "guard": "rework_brief_written", "kind": "gate", "gate": "G2"},
-    {"id": "T20", "from": "MODEL_REVIEW", "to": "FIGURES", "on": "gate:G2=return_figures", "guard": "figure_feedback_written", "kind": "gate", "gate": "G2"},
-    {"id": "T21", "from": "MODEL_REVIEW", "to": "STOPPED", "on": "gate:G2=stop", "guard": "user_stopped", "kind": "gate", "gate": "G2"},
-    {"id": "T22", "from": "WRITING", "to": "DRAFT_REVIEW", "on": "checks:writing=pass", "guard": "writing_redlines_pass", "kind": "auto"},
-    {"id": "T23", "from": "WRITING", "to": "BLOCKED", "on": "writing_failure", "guard": "unrecoverable_writing_failure", "kind": "failure"},
-    {"id": "T24", "from": "DRAFT_REVIEW", "to": "REVIEW", "on": "gate:G3=approve", "guard": "approved_with_hashes", "kind": "gate", "gate": "G3"},
-    {"id": "T25", "from": "DRAFT_REVIEW", "to": "WRITING", "on": "gate:G3=return_writing", "guard": "return_scope_written", "kind": "gate", "gate": "G3"},
-    {"id": "T26", "from": "DRAFT_REVIEW", "to": "MODELING", "on": "gate:G3=return_modeling", "guard": "rework_brief_written", "kind": "gate", "gate": "G3"},
-    {"id": "T27", "from": "DRAFT_REVIEW", "to": "FIGURES", "on": "gate:G3=return_figures", "guard": "figure_feedback_written", "kind": "gate", "gate": "G3"},
-    {"id": "T28", "from": "DRAFT_REVIEW", "to": "STOPPED", "on": "gate:G3=stop", "guard": "user_stopped", "kind": "gate", "gate": "G3"},
-    {"id": "T29", "from": "REVIEW", "to": "COMPLIANCE", "on": "review:clean", "guard": "no_high_severity", "kind": "auto"},
-    {"id": "T30", "from": "REVIEW", "to": "FIX_R1", "on": "review:high_severity", "guard": "high_severity_present", "kind": "auto"},
-    {"id": "T31", "from": "REVIEW", "to": "BLOCKED", "on": "review_failure", "guard": "review_incomplete_or_blocked", "kind": "failure"},
-    {"id": "T32", "from": "FIX_R1", "to": "RE_REVIEW_R1", "on": "fix_submitted", "guard": "fix_log_valid", "kind": "auto"},
-    {"id": "T33", "from": "FIX_R1", "to": "BLOCKED", "on": "fix_root_cause", "guard": "root_cause_found", "kind": "failure"},
-    {"id": "T34", "from": "RE_REVIEW_R1", "to": "COMPLIANCE", "on": "review:clean", "guard": "no_high_severity", "kind": "auto"},
-    {"id": "T35", "from": "RE_REVIEW_R1", "to": "FIX_R2", "on": "review:high_severity", "guard": "review_rounds_remaining", "kind": "auto"},
-    {"id": "T36", "from": "RE_REVIEW_R1", "to": "ADJUDICATION", "on": "review:residual_high", "guard": "review_rounds_exhausted", "kind": "auto"},
-    {"id": "T37", "from": "FIX_R2", "to": "RE_REVIEW_R2", "on": "fix_submitted", "guard": "fix_log_valid", "kind": "auto"},
-    {"id": "T38", "from": "FIX_R2", "to": "BLOCKED", "on": "fix_root_cause", "guard": "root_cause_found", "kind": "failure"},
-    {"id": "T39", "from": "RE_REVIEW_R2", "to": "COMPLIANCE", "on": "review:clean", "guard": "no_high_severity", "kind": "auto"},
-    {"id": "T40", "from": "RE_REVIEW_R2", "to": "ADJUDICATION", "on": "review:residual_high", "guard": "residual_high_present", "kind": "auto"},
-    {"id": "T41", "from": "ADJUDICATION", "to": "COMPLIANCE", "on": "gate:G4=accept", "guard": "risk_accepted_and_recorded", "kind": "gate", "gate": "G4"},
-    {"id": "T42", "from": "ADJUDICATION", "to": "MODELING", "on": "gate:G4=return_modeling", "guard": "rework_brief_written", "kind": "gate", "gate": "G4"},
-    {"id": "T43", "from": "ADJUDICATION", "to": "WRITING", "on": "gate:G4=return_writing", "guard": "return_scope_written", "kind": "gate", "gate": "G4"},
-    {"id": "T44", "from": "ADJUDICATION", "to": "STOPPED", "on": "gate:G4=stop", "guard": "user_stopped", "kind": "gate", "gate": "G4"},
-    {"id": "T45", "from": "COMPLIANCE", "to": "DELIVER", "on": "checks:compliance=pass", "guard": "compliance_error_zero", "kind": "auto"},
-    {"id": "T46", "from": "COMPLIANCE", "to": "WRITING", "on": "compliance:return_writing", "guard": "compliance_repair_required", "kind": "repair"},
-    {"id": "T47", "from": "COMPLIANCE", "to": "BLOCKED", "on": "compliance_failure", "guard": "unrecoverable_compliance_failure", "kind": "failure"},
-    {"id": "T48", "from": "DELIVER", "to": "DELIVERED", "on": "gate:G5=deliver", "guard": "files_and_md5_confirmed", "kind": "gate", "gate": "G5"},
-    {"id": "T49", "from": "DELIVER", "to": "STOPPED", "on": "gate:G5=stop", "guard": "user_stopped", "kind": "gate", "gate": "G5"},
-    {"id": "T50", "from": "BLOCKED", "to": "$resume_target", "on": "human_resume", "guard": "resume_target_selected", "kind": "recovery", "allowed_targets": ["INIT", "INTAKE", "MODELING", "METHOD", "FIGURES", "WRITING", "REVIEW", "COMPLIANCE", "STOPPED"]},
-    {"id": "T51", "from": "BLOCKED", "to": "STOPPED", "on": "human_stop", "guard": "user_stopped", "kind": "recovery"},
-    {"id": "T52", "from": "WRITING", "to": "COMPLIANCE", "on": "compliance_repair_done", "guard": "repair_scope=compliance", "kind": "repair"},
-    {"id": "T53", "from": "WRITING", "to": "MODEL_REVIEW", "on": "approved_artifact_changed", "guard": "hash_mismatch_on_g2_artifacts", "kind": "repair"},
-    {"id": "T54", "from": "REVIEW", "to": "DRAFT_REVIEW", "on": "draft_artifact_changed_outside_fix", "guard": "paper_changed_outside_fix_loop", "kind": "repair"},
-    {"id": "T55", "from": "MODELING", "to": "$return_target", "on": "modeling_rework_done", "guard": "return_target_recorded", "kind": "repair", "allowed_targets": ["METHOD", "FIGURES", "MODEL_REVIEW", "DRAFT_REVIEW", "WRITING", "REVIEW", "COMPLIANCE"]}
+    {
+      "id": "T01",
+      "from": "INIT",
+      "to": "INTAKE",
+      "on": "run_created",
+      "guard": "environment_preflight_started",
+      "kind": "auto"
+    },
+    {
+      "id": "T02",
+      "from": "INIT",
+      "to": "STOPPED",
+      "on": "human_stop",
+      "guard": "user_cancelled",
+      "kind": "recovery"
+    },
+    {
+      "id": "T03",
+      "from": "INTAKE",
+      "to": "MODELING",
+      "on": "gate:G0=approve",
+      "guard": "intake_checks_pass",
+      "kind": "gate",
+      "gate": "G0"
+    },
+    {
+      "id": "T04",
+      "from": "INTAKE",
+      "to": "INTAKE",
+      "on": "gate:G0=fix",
+      "guard": "fix_requested",
+      "kind": "gate_loop",
+      "gate": "G0",
+      "limit_key": "g0_fix",
+      "max": 2
+    },
+    {
+      "id": "T05",
+      "from": "INTAKE",
+      "to": "STOPPED",
+      "on": "gate:G0=stop",
+      "guard": "user_stopped",
+      "kind": "gate",
+      "gate": "G0"
+    },
+    {
+      "id": "T06",
+      "from": "INTAKE",
+      "to": "BLOCKED",
+      "on": "intake_failure",
+      "guard": "unrecoverable_intake_failure",
+      "kind": "failure"
+    },
+    {
+      "id": "T07",
+      "from": "MODELING",
+      "to": "METHOD",
+      "on": "checks:modeling=pass",
+      "guard": "modeling_redlines_pass",
+      "kind": "auto"
+    },
+    {
+      "id": "T08",
+      "from": "MODELING",
+      "to": "MODELING",
+      "on": "solver_retry",
+      "guard": "retry_available",
+      "kind": "auto_loop",
+      "limit_key": "agent_retries",
+      "max": 2
+    },
+    {
+      "id": "T09",
+      "from": "MODELING",
+      "to": "BLOCKED",
+      "on": "modeling_failure",
+      "guard": "retry_exhausted_or_blocked",
+      "kind": "failure"
+    },
+    {
+      "id": "T10",
+      "from": "METHOD",
+      "to": "METHOD_GATE",
+      "on": "method_ready",
+      "guard": "critique_schema_valid",
+      "kind": "auto"
+    },
+    {
+      "id": "T11",
+      "from": "METHOD",
+      "to": "BLOCKED",
+      "on": "method_failure",
+      "guard": "critique_missing_or_invalid",
+      "kind": "failure"
+    },
+    {
+      "id": "T12",
+      "from": "METHOD_GATE",
+      "to": "FIGURES",
+      "on": "gate:G1=proceed",
+      "guard": "gate1_proceed",
+      "kind": "gate",
+      "gate": "G1"
+    },
+    {
+      "id": "T13",
+      "from": "METHOD_GATE",
+      "to": "MODELING",
+      "on": "gate:G1=rollback",
+      "guard": "rework_brief_written",
+      "kind": "gate",
+      "gate": "G1"
+    },
+    {
+      "id": "T14",
+      "from": "METHOD_GATE",
+      "to": "STOPPED",
+      "on": "gate:G1=stop",
+      "guard": "user_stopped",
+      "kind": "gate",
+      "gate": "G1"
+    },
+    {
+      "id": "T15",
+      "from": "FIGURES",
+      "to": "MODEL_REVIEW",
+      "on": "checks:figures=pass",
+      "guard": "figure_redlines_pass",
+      "kind": "auto"
+    },
+    {
+      "id": "T16",
+      "from": "FIGURES",
+      "to": "FIGURES",
+      "on": "figure_retry",
+      "guard": "retry_available",
+      "kind": "auto_loop",
+      "limit_key": "figure_returns",
+      "max": 2
+    },
+    {
+      "id": "T17",
+      "from": "FIGURES",
+      "to": "BLOCKED",
+      "on": "figures_failure",
+      "guard": "retry_exhausted_or_blocked",
+      "kind": "failure"
+    },
+    {
+      "id": "T18",
+      "from": "MODEL_REVIEW",
+      "to": "WRITING",
+      "on": "gate:G2=approve",
+      "guard": "approved_with_hashes",
+      "kind": "gate",
+      "gate": "G2"
+    },
+    {
+      "id": "T19",
+      "from": "MODEL_REVIEW",
+      "to": "MODELING",
+      "on": "gate:G2=return_modeling",
+      "guard": "rework_brief_written",
+      "kind": "gate",
+      "gate": "G2"
+    },
+    {
+      "id": "T20",
+      "from": "MODEL_REVIEW",
+      "to": "FIGURES",
+      "on": "gate:G2=return_figures",
+      "guard": "figure_feedback_written",
+      "kind": "gate",
+      "gate": "G2"
+    },
+    {
+      "id": "T21",
+      "from": "MODEL_REVIEW",
+      "to": "STOPPED",
+      "on": "gate:G2=stop",
+      "guard": "user_stopped",
+      "kind": "gate",
+      "gate": "G2"
+    },
+    {
+      "id": "T22",
+      "from": "WRITING",
+      "to": "DRAFT_REVIEW",
+      "on": "checks:writing=pass",
+      "guard": "writing_redlines_pass",
+      "kind": "auto"
+    },
+    {
+      "id": "T23",
+      "from": "WRITING",
+      "to": "BLOCKED",
+      "on": "writing_failure",
+      "guard": "unrecoverable_writing_failure",
+      "kind": "failure"
+    },
+    {
+      "id": "T24",
+      "from": "DRAFT_REVIEW",
+      "to": "REVIEW",
+      "on": "gate:G3=approve",
+      "guard": "approved_with_hashes",
+      "kind": "gate",
+      "gate": "G3"
+    },
+    {
+      "id": "T25",
+      "from": "DRAFT_REVIEW",
+      "to": "WRITING",
+      "on": "gate:G3=return_writing",
+      "guard": "return_scope_written",
+      "kind": "gate",
+      "gate": "G3"
+    },
+    {
+      "id": "T26",
+      "from": "DRAFT_REVIEW",
+      "to": "MODELING",
+      "on": "gate:G3=return_modeling",
+      "guard": "rework_brief_written",
+      "kind": "gate",
+      "gate": "G3"
+    },
+    {
+      "id": "T27",
+      "from": "DRAFT_REVIEW",
+      "to": "FIGURES",
+      "on": "gate:G3=return_figures",
+      "guard": "figure_feedback_written",
+      "kind": "gate",
+      "gate": "G3"
+    },
+    {
+      "id": "T28",
+      "from": "DRAFT_REVIEW",
+      "to": "STOPPED",
+      "on": "gate:G3=stop",
+      "guard": "user_stopped",
+      "kind": "gate",
+      "gate": "G3"
+    },
+    {
+      "id": "T29",
+      "from": "REVIEW",
+      "to": "COMPLIANCE",
+      "on": "review:clean",
+      "guard": "no_high_severity",
+      "kind": "auto"
+    },
+    {
+      "id": "T30",
+      "from": "REVIEW",
+      "to": "FIX_R1",
+      "on": "review:high_severity",
+      "guard": "high_severity_present",
+      "kind": "auto"
+    },
+    {
+      "id": "T31",
+      "from": "REVIEW",
+      "to": "BLOCKED",
+      "on": "review_failure",
+      "guard": "review_incomplete_or_blocked",
+      "kind": "failure"
+    },
+    {
+      "id": "T32",
+      "from": "FIX_R1",
+      "to": "RE_REVIEW_R1",
+      "on": "fix_submitted",
+      "guard": "fix_log_valid",
+      "kind": "auto"
+    },
+    {
+      "id": "T33",
+      "from": "FIX_R1",
+      "to": "BLOCKED",
+      "on": "fix_root_cause",
+      "guard": "root_cause_found",
+      "kind": "failure"
+    },
+    {
+      "id": "T34",
+      "from": "RE_REVIEW_R1",
+      "to": "COMPLIANCE",
+      "on": "review:clean",
+      "guard": "no_high_severity",
+      "kind": "auto"
+    },
+    {
+      "id": "T35",
+      "from": "RE_REVIEW_R1",
+      "to": "FIX_R2",
+      "on": "review:high_severity",
+      "guard": "review_rounds_remaining",
+      "kind": "auto"
+    },
+    {
+      "id": "T36",
+      "from": "RE_REVIEW_R1",
+      "to": "ADJUDICATION",
+      "on": "review:residual_high",
+      "guard": "review_rounds_exhausted",
+      "kind": "auto"
+    },
+    {
+      "id": "T37",
+      "from": "FIX_R2",
+      "to": "RE_REVIEW_R2",
+      "on": "fix_submitted",
+      "guard": "fix_log_valid",
+      "kind": "auto"
+    },
+    {
+      "id": "T38",
+      "from": "FIX_R2",
+      "to": "BLOCKED",
+      "on": "fix_root_cause",
+      "guard": "root_cause_found",
+      "kind": "failure"
+    },
+    {
+      "id": "T39",
+      "from": "RE_REVIEW_R2",
+      "to": "COMPLIANCE",
+      "on": "review:clean",
+      "guard": "no_high_severity",
+      "kind": "auto"
+    },
+    {
+      "id": "T40",
+      "from": "RE_REVIEW_R2",
+      "to": "ADJUDICATION",
+      "on": "review:residual_high",
+      "guard": "residual_high_present",
+      "kind": "auto"
+    },
+    {
+      "id": "T41",
+      "from": "ADJUDICATION",
+      "to": "COMPLIANCE",
+      "on": "gate:G4=accept",
+      "guard": "risk_accepted_and_recorded",
+      "kind": "gate",
+      "gate": "G4"
+    },
+    {
+      "id": "T42",
+      "from": "ADJUDICATION",
+      "to": "MODELING",
+      "on": "gate:G4=return_modeling",
+      "guard": "rework_brief_written",
+      "kind": "gate",
+      "gate": "G4"
+    },
+    {
+      "id": "T43",
+      "from": "ADJUDICATION",
+      "to": "WRITING",
+      "on": "gate:G4=return_writing",
+      "guard": "return_scope_written",
+      "kind": "gate",
+      "gate": "G4"
+    },
+    {
+      "id": "T44",
+      "from": "ADJUDICATION",
+      "to": "STOPPED",
+      "on": "gate:G4=stop",
+      "guard": "user_stopped",
+      "kind": "gate",
+      "gate": "G4"
+    },
+    {
+      "id": "T45",
+      "from": "COMPLIANCE",
+      "to": "DELIVER",
+      "on": "checks:compliance=pass",
+      "guard": "compliance_error_zero",
+      "kind": "auto"
+    },
+    {
+      "id": "T46",
+      "from": "COMPLIANCE",
+      "to": "WRITING",
+      "on": "compliance:return_writing",
+      "guard": "compliance_repair_required",
+      "kind": "repair"
+    },
+    {
+      "id": "T47",
+      "from": "COMPLIANCE",
+      "to": "BLOCKED",
+      "on": "compliance_failure",
+      "guard": "unrecoverable_compliance_failure",
+      "kind": "failure"
+    },
+    {
+      "id": "T48",
+      "from": "DELIVER",
+      "to": "DELIVERED",
+      "on": "gate:G5=deliver",
+      "guard": "files_and_md5_confirmed",
+      "kind": "gate",
+      "gate": "G5"
+    },
+    {
+      "id": "T49",
+      "from": "DELIVER",
+      "to": "STOPPED",
+      "on": "gate:G5=stop",
+      "guard": "user_stopped",
+      "kind": "gate",
+      "gate": "G5"
+    },
+    {
+      "id": "T50",
+      "from": "BLOCKED",
+      "to": "$resume_target",
+      "on": "human_resume",
+      "guard": "resume_target_selected",
+      "kind": "recovery",
+      "allowed_targets": [
+        "INIT",
+        "INTAKE",
+        "MODELING",
+        "METHOD",
+        "FIGURES",
+        "WRITING",
+        "REVIEW",
+        "COMPLIANCE",
+        "STOPPED"
+      ]
+    },
+    {
+      "id": "T51",
+      "from": "BLOCKED",
+      "to": "STOPPED",
+      "on": "human_stop",
+      "guard": "user_stopped",
+      "kind": "recovery"
+    },
+    {
+      "id": "T52",
+      "from": "WRITING",
+      "to": "COMPLIANCE",
+      "on": "compliance_repair_done",
+      "guard": "repair_scope=compliance",
+      "kind": "repair"
+    },
+    {
+      "id": "T53",
+      "from": "WRITING",
+      "to": "MODEL_REVIEW",
+      "on": "approved_artifact_changed",
+      "guard": "hash_mismatch_on_g2_artifacts",
+      "kind": "repair"
+    },
+    {
+      "id": "T54",
+      "from": "REVIEW",
+      "to": "DRAFT_REVIEW",
+      "on": "draft_artifact_changed_outside_fix",
+      "guard": "paper_changed_outside_fix_loop",
+      "kind": "repair"
+    },
+    {
+      "id": "T55",
+      "from": "MODELING",
+      "to": "$return_target",
+      "on": "modeling_rework_done",
+      "guard": "return_target_recorded",
+      "kind": "repair",
+      "allowed_targets": [
+        "METHOD",
+        "FIGURES",
+        "MODEL_REVIEW",
+        "DRAFT_REVIEW",
+        "WRITING",
+        "REVIEW",
+        "COMPLIANCE"
+      ]
+    }
   ],
   "gates": [
     {
@@ -211,11 +1203,32 @@
       "mode": "mandatory",
       "owner": "human",
       "timebox_minutes": 15,
-      "packet_sections": ["status", "project_root", "contest_profile", "problem_track", "statement_readiness", "profile", "time_budget", "data_inventory", "model_availability", "recommendation", "decisions"],
+      "packet_sections": [
+        "status",
+        "project_root",
+        "contest_profile",
+        "problem_track",
+        "statement_readiness",
+        "profile",
+        "time_budget",
+        "data_inventory",
+        "model_availability",
+        "recommendation",
+        "decisions"
+      ],
       "options": [
-        {"id": "approve", "to": "MODELING"},
-        {"id": "fix", "to": "INTAKE"},
-        {"id": "stop", "to": "STOPPED"}
+        {
+          "id": "approve",
+          "to": "MODELING"
+        },
+        {
+          "id": "fix",
+          "to": "INTAKE"
+        },
+        {
+          "id": "stop",
+          "to": "STOPPED"
+        }
       ],
       "trigger": "always",
       "auto_rule": null,
@@ -228,13 +1241,33 @@
       "mode": "conditional",
       "owner": "human",
       "timebox_minutes": 10,
-      "packet_sections": ["verdict", "gate_summary", "tickets", "recommendation", "cost_time", "decisions"],
-      "options": [
-        {"id": "proceed", "to": "FIGURES"},
-        {"id": "rollback", "to": "MODELING"},
-        {"id": "stop", "to": "STOPPED"}
+      "packet_sections": [
+        "verdict",
+        "gate_summary",
+        "tickets",
+        "recommendation",
+        "cost_time",
+        "decisions"
       ],
-      "trigger": ["verdict=BLOCKED", "recommend.choice=rollback", "tickets has action=optional"],
+      "options": [
+        {
+          "id": "proceed",
+          "to": "FIGURES"
+        },
+        {
+          "id": "rollback",
+          "to": "MODELING"
+        },
+        {
+          "id": "stop",
+          "to": "STOPPED"
+        }
+      ],
+      "trigger": [
+        "verdict=BLOCKED",
+        "recommend.choice=rollback",
+        "tickets has action=optional"
+      ],
       "auto_rule": "verdict=PASS OR (verdict=PASS_WITH_NOTES AND all tickets limitations_only AND recommend.choice=proceed)",
       "record": "gate_decisions.jsonl",
       "notes": "auto-proceed is a rule, not a timeout default"
@@ -245,12 +1278,34 @@
       "mode": "mandatory",
       "owner": "human",
       "timebox_minutes": 30,
-      "packet_sections": ["status", "key_results", "method_verdict", "figures", "checks", "top_risks", "cost_time", "recommendation", "decisions"],
+      "packet_sections": [
+        "status",
+        "key_results",
+        "method_verdict",
+        "figures",
+        "checks",
+        "top_risks",
+        "cost_time",
+        "recommendation",
+        "decisions"
+      ],
       "options": [
-        {"id": "approve", "to": "WRITING"},
-        {"id": "return_modeling", "to": "MODELING"},
-        {"id": "return_figures", "to": "FIGURES"},
-        {"id": "stop", "to": "STOPPED"}
+        {
+          "id": "approve",
+          "to": "WRITING"
+        },
+        {
+          "id": "return_modeling",
+          "to": "MODELING"
+        },
+        {
+          "id": "return_figures",
+          "to": "FIGURES"
+        },
+        {
+          "id": "stop",
+          "to": "STOPPED"
+        }
       ],
       "trigger": "always",
       "auto_rule": null,
@@ -263,13 +1318,37 @@
       "mode": "mandatory",
       "owner": "human",
       "timebox_minutes": 30,
-      "packet_sections": ["status", "page_count", "abstract", "compliance_summary", "top_risks", "cost_time", "recommendation", "decisions"],
+      "packet_sections": [
+        "status",
+        "page_count",
+        "abstract",
+        "compliance_summary",
+        "top_risks",
+        "cost_time",
+        "recommendation",
+        "decisions"
+      ],
       "options": [
-        {"id": "approve", "to": "REVIEW"},
-        {"id": "return_writing", "to": "WRITING"},
-        {"id": "return_modeling", "to": "MODELING"},
-        {"id": "return_figures", "to": "FIGURES"},
-        {"id": "stop", "to": "STOPPED"}
+        {
+          "id": "approve",
+          "to": "REVIEW"
+        },
+        {
+          "id": "return_writing",
+          "to": "WRITING"
+        },
+        {
+          "id": "return_modeling",
+          "to": "MODELING"
+        },
+        {
+          "id": "return_figures",
+          "to": "FIGURES"
+        },
+        {
+          "id": "stop",
+          "to": "STOPPED"
+        }
       ],
       "trigger": "always",
       "auto_rule": null,
@@ -282,14 +1361,38 @@
       "mode": "conditional",
       "owner": "human",
       "timebox_minutes": 20,
-      "packet_sections": ["status", "residual_issues", "fix_history", "evidence", "cost_time", "recommendation", "decisions"],
-      "options": [
-        {"id": "accept", "to": "COMPLIANCE"},
-        {"id": "return_modeling", "to": "MODELING"},
-        {"id": "return_writing", "to": "WRITING"},
-        {"id": "stop", "to": "STOPPED"}
+      "packet_sections": [
+        "status",
+        "residual_issues",
+        "fix_history",
+        "evidence",
+        "cost_time",
+        "recommendation",
+        "decisions"
       ],
-      "trigger": ["review.residual_high", "compliance.waiver_required", "human_request"],
+      "options": [
+        {
+          "id": "accept",
+          "to": "COMPLIANCE"
+        },
+        {
+          "id": "return_modeling",
+          "to": "MODELING"
+        },
+        {
+          "id": "return_writing",
+          "to": "WRITING"
+        },
+        {
+          "id": "stop",
+          "to": "STOPPED"
+        }
+      ],
+      "trigger": [
+        "review.residual_high",
+        "compliance.waiver_required",
+        "human_request"
+      ],
       "auto_rule": "review.clean AND no waiver -> COMPLIANCE without G4",
       "record": "gate_decisions.jsonl",
       "notes": "accept records explicit residual risk and waiver"
@@ -300,10 +1403,21 @@
       "mode": "mandatory",
       "owner": "human",
       "timebox_minutes": 10,
-      "packet_sections": ["files", "md5", "compliance_checklist", "decisions"],
+      "packet_sections": [
+        "files",
+        "md5",
+        "compliance_checklist",
+        "decisions"
+      ],
       "options": [
-        {"id": "deliver", "to": "DELIVERED"},
-        {"id": "stop", "to": "STOPPED"}
+        {
+          "id": "deliver",
+          "to": "DELIVERED"
+        },
+        {
+          "id": "stop",
+          "to": "STOPPED"
+        }
       ],
       "trigger": "always",
       "auto_rule": null,
@@ -318,12 +1432,49 @@
       "context": "persistent",
       "model_route": "lead",
       "skill": "pipeline-protocol",
-      "stage_owner": ["INIT", "INTAKE", "METHOD_GATE", "MODEL_REVIEW", "DRAFT_REVIEW", "ADJUDICATION", "COMPLIANCE", "DELIVER", "BLOCKED"],
-      "support_roles": ["kernel"],
-      "writes": ["gate_packet", "run_status.md", "decision_logs/lead_notes.md"],
-      "forbidden": ["project/**", "result_bundle/solution.json", "result_bundle/modeling_plan.json", "paper.tex", "paper.pdf", "result_bundle/figures/**", "decision_logs/method_critique.*", "run_state.json", "pipeline_state.json", "knowledge/**", "system/**", ".trae/**"],
-      "must_read": ["run_state_digest", "check_summary", "gate_packet_inputs"],
-      "outputs": ["gate_packet", "routing_decision", "human_decision_record"],
+      "stage_owner": [
+        "INIT",
+        "INTAKE",
+        "METHOD_GATE",
+        "MODEL_REVIEW",
+        "DRAFT_REVIEW",
+        "ADJUDICATION",
+        "COMPLIANCE",
+        "DELIVER",
+        "BLOCKED"
+      ],
+      "support_roles": [
+        "kernel"
+      ],
+      "writes": [
+        "gate_packet",
+        "run_status.md",
+        "decision_logs/lead_notes.md"
+      ],
+      "forbidden": [
+        "project/**",
+        "result_bundle/solution.json",
+        "result_bundle/modeling_plan.json",
+        "paper.tex",
+        "paper.pdf",
+        "result_bundle/figures/**",
+        "decision_logs/method_critique.*",
+        "run_state.json",
+        "pipeline_state.json",
+        "knowledge/**",
+        "system/**",
+        "tools/checks/**"
+      ],
+      "must_read": [
+        "run_state_digest",
+        "check_summary",
+        "gate_packet_inputs"
+      ],
+      "outputs": [
+        "gate_packet",
+        "routing_decision",
+        "human_decision_record"
+      ],
       "notes": "orchestrates by state, not by content; never writes professional artifacts"
     },
     {
@@ -339,11 +1490,46 @@
       },
       "model_route": "solver",
       "skill": "solver-opt|solver-stats",
-      "stage_owner": ["MODELING"],
-      "writes": ["project/**", "result_bundle/solution.json", "result_bundle/modeling_plan.json", "result_bundle/feature_fingerprint.json", "result_bundle/术语表.json", "handoff_notes_1.md", "decision_logs/rework_plan.json"],
-      "forbidden": ["paper.tex", "paper.pdf", "result_bundle/figures/**", "decision_logs/method_critique.*", "run_state.json", "pipeline_state.json", "knowledge/**", "system/**", ".trae/**"],
-      "must_read": ["statement", "attachments", "track_playbook", "cards", "rework_brief_if_any", "failure_dossier_if_any", "rework_plan_if_any"],
-      "outputs": ["solution", "modeling_plan", "fingerprint", "glossary", "handoff_notes_1", "rework_plan"],
+      "stage_owner": [
+        "MODELING"
+      ],
+      "writes": [
+        "project/**",
+        "result_bundle/solution.json",
+        "result_bundle/modeling_plan.json",
+        "result_bundle/feature_fingerprint.json",
+        "result_bundle/术语表.json",
+        "handoff_notes_1.md",
+        "decision_logs/rework_plan.json"
+      ],
+      "forbidden": [
+        "paper.tex",
+        "paper.pdf",
+        "result_bundle/figures/**",
+        "decision_logs/method_critique.*",
+        "run_state.json",
+        "pipeline_state.json",
+        "knowledge/**",
+        "system/**",
+        "tools/checks/**"
+      ],
+      "must_read": [
+        "statement",
+        "attachments",
+        "track_playbook",
+        "cards",
+        "rework_brief_if_any",
+        "failure_dossier_if_any",
+        "rework_plan_if_any"
+      ],
+      "outputs": [
+        "solution",
+        "modeling_plan",
+        "fingerprint",
+        "glossary",
+        "handoff_notes_1",
+        "rework_plan"
+      ],
       "notes": "initial fresh; local rework resumes the same child; root rework is fresh with failure dossier + plan gate + regression checks"
     },
     {
@@ -352,11 +1538,37 @@
       "context": "fresh",
       "model_route": "method",
       "skill": "method-critic",
-      "stage_owner": ["METHOD"],
-      "writes": ["decision_logs/method_critique.md", "decision_logs/method_critique.json"],
-      "forbidden": ["project/**", "result_bundle/**", "paper.tex", "paper.pdf", "run_state.json", "pipeline_state.json", "knowledge/**", "system/**", ".trae/**"],
-      "must_read": ["statement", "fingerprint", "modeling_plan", "solution", "handoff_notes_1", "track_gate", "solver_code"],
-      "outputs": ["method_critique_md", "method_critique_json"],
+      "stage_owner": [
+        "METHOD"
+      ],
+      "writes": [
+        "decision_logs/method_critique.md",
+        "decision_logs/method_critique.json"
+      ],
+      "forbidden": [
+        "project/**",
+        "result_bundle/**",
+        "paper.tex",
+        "paper.pdf",
+        "run_state.json",
+        "pipeline_state.json",
+        "knowledge/**",
+        "system/**",
+        "tools/checks/**"
+      ],
+      "must_read": [
+        "statement",
+        "fingerprint",
+        "modeling_plan",
+        "solution",
+        "handoff_notes_1",
+        "track_gate",
+        "solver_code"
+      ],
+      "outputs": [
+        "method_critique_md",
+        "method_critique_json"
+      ],
       "notes": "gate first, then at most two upgrade tickets; recommendation required"
     },
     {
@@ -365,11 +1577,38 @@
       "context": "fresh",
       "model_route": "figures",
       "skill": "figure-studio",
-      "stage_owner": ["FIGURES"],
-      "writes": ["project/figures/**", "result_bundle/figures/**", "result_bundle/图表清单.md"],
-      "forbidden": ["result_bundle/solution.json", "result_bundle/modeling_plan.json", "paper.tex", "paper.pdf", "run_state.json", "pipeline_state.json", "knowledge/**", "system/**", ".trae/**"],
-      "must_read": ["statement", "results", "solution", "modeling_plan", "handoff_notes_1", "figure_style", "chart_reference"],
-      "outputs": ["figures_dir", "figure_list"],
+      "stage_owner": [
+        "FIGURES"
+      ],
+      "writes": [
+        "project/figures/**",
+        "result_bundle/figures/**",
+        "result_bundle/图表清单.md"
+      ],
+      "forbidden": [
+        "result_bundle/solution.json",
+        "result_bundle/modeling_plan.json",
+        "paper.tex",
+        "paper.pdf",
+        "run_state.json",
+        "pipeline_state.json",
+        "knowledge/**",
+        "system/**",
+        "tools/checks/**"
+      ],
+      "must_read": [
+        "statement",
+        "results",
+        "solution",
+        "modeling_plan",
+        "handoff_notes_1",
+        "figure_style",
+        "chart_reference"
+      ],
+      "outputs": [
+        "figures_dir",
+        "figure_list"
+      ],
       "notes": "design card before drawing; visual_qa; no generated-image reading by the model"
     },
     {
@@ -378,11 +1617,49 @@
       "context": "fresh_then_resume",
       "model_route": "writer",
       "skill": "paper-writer",
-      "stage_owner": ["WRITING", "FIX_R1", "FIX_R2"],
-      "writes": ["paper.tex", "paper.pdf", "decision_logs/abstract_candidates.md", "handoff_notes_2.md", "decision_logs/fix_round1.md", "decision_logs/fix_round2.md"],
-      "forbidden": ["project/**", "result_bundle/solution.json", "result_bundle/modeling_plan.json", "result_bundle/figures/**", "decision_logs/method_critique.*", "run_state.json", "pipeline_state.json", "knowledge/**", "system/**", ".trae/**"],
-      "must_read": ["statement", "result_bundle_digest", "solution", "modeling_plan", "figures", "chart_list", "method_critique", "handoff_notes_1", "writing_playbook"],
-      "outputs": ["paper_tex", "paper_pdf", "abstract_candidates", "handoff_notes_2", "fix_rounds"],
+      "stage_owner": [
+        "WRITING",
+        "FIX_R1",
+        "FIX_R2"
+      ],
+      "writes": [
+        "paper.tex",
+        "paper.pdf",
+        "decision_logs/abstract_candidates.md",
+        "handoff_notes_2.md",
+        "decision_logs/fix_round1.md",
+        "decision_logs/fix_round2.md"
+      ],
+      "forbidden": [
+        "project/**",
+        "result_bundle/solution.json",
+        "result_bundle/modeling_plan.json",
+        "result_bundle/figures/**",
+        "decision_logs/method_critique.*",
+        "run_state.json",
+        "pipeline_state.json",
+        "knowledge/**",
+        "system/**",
+        "tools/checks/**"
+      ],
+      "must_read": [
+        "statement",
+        "result_bundle_digest",
+        "solution",
+        "modeling_plan",
+        "figures",
+        "chart_list",
+        "method_critique",
+        "handoff_notes_1",
+        "writing_playbook"
+      ],
+      "outputs": [
+        "paper_tex",
+        "paper_pdf",
+        "abstract_candidates",
+        "handoff_notes_2",
+        "fix_rounds"
+      ],
       "notes": "durable for R1/R2 continuation; figure defects forwarded, not redrawn"
     },
     {
@@ -400,11 +1677,49 @@
       },
       "model_route": "reviewer",
       "skill": "independent-reviewer",
-      "stage_owner": ["REVIEW", "RE_REVIEW_R1", "RE_REVIEW_R2"],
-      "writes": ["decision_logs/review_report.json", "decision_logs/review_scores.md", "handoff_notes_3.md"],
-      "forbidden": ["paper.tex", "paper.pdf", "result_bundle/figures/**", "result_bundle/solution.json", "decision_logs/method_critique.*", "run_state.json", "pipeline_state.json", "knowledge/**", "system/**", ".trae/**"],
-      "must_read": ["statement", "paper_tex", "solution", "modeling_plan", "solver_code", "glossary", "chart_list", "whitelisted_pngs", "check_reports", "fix_log_and_diff_round_n", "prior_review_report_if_any", "failure_dossier_if_any", "rework_plan_if_any", "regression_report_if_any"],
-      "outputs": ["review_report", "review_scores", "handoff_notes_3"],
+      "stage_owner": [
+        "REVIEW",
+        "RE_REVIEW_R1",
+        "RE_REVIEW_R2"
+      ],
+      "writes": [
+        "decision_logs/review_report.json",
+        "decision_logs/review_scores.md",
+        "handoff_notes_3.md"
+      ],
+      "forbidden": [
+        "paper.tex",
+        "paper.pdf",
+        "result_bundle/figures/**",
+        "result_bundle/solution.json",
+        "decision_logs/method_critique.*",
+        "run_state.json",
+        "pipeline_state.json",
+        "knowledge/**",
+        "system/**",
+        "tools/checks/**"
+      ],
+      "must_read": [
+        "statement",
+        "paper_tex",
+        "solution",
+        "modeling_plan",
+        "solver_code",
+        "glossary",
+        "chart_list",
+        "whitelisted_pngs",
+        "check_reports",
+        "fix_log_and_diff_round_n",
+        "prior_review_report_if_any",
+        "failure_dossier_if_any",
+        "rework_plan_if_any",
+        "regression_report_if_any"
+      ],
+      "outputs": [
+        "review_report",
+        "review_scores",
+        "handoff_notes_3"
+      ],
       "notes": "initial fresh; R1 resume for local fixes, fresh for root changes; R2 fresh when fix failure rate >=30% or model changed; full read every round; no method_critique"
     },
     {
@@ -415,9 +1730,17 @@
       "skill": null,
       "stage_owner": [],
       "writes": [],
-      "forbidden": ["all professional artifacts"],
-      "must_read": ["run_state_digest", "check_summary", "artifact_digests"],
-      "outputs": ["gate_packet_draft"],
+      "forbidden": [
+        "all professional artifacts"
+      ],
+      "must_read": [
+        "run_state_digest",
+        "check_summary",
+        "artifact_digests"
+      ],
+      "outputs": [
+        "gate_packet_draft"
+      ],
       "notes": "optional summarizer; the kernel template is authoritative; no professional judgment"
     },
     {
@@ -426,11 +1749,29 @@
       "context": "none",
       "model_route": null,
       "skill": null,
-      "stage_owner": ["DELIVERED", "STOPPED"],
-      "writes": ["run_state.json", "events.jsonl", "gate_decisions.jsonl", "cost_report.json", "run_report.json", "pipeline_state.json", "check_report.json"],
-      "forbidden": ["professional artifacts"],
+      "stage_owner": [
+        "DELIVERED",
+        "STOPPED"
+      ],
+      "writes": [
+        "run_state.json",
+        "events.jsonl",
+        "gate_decisions.jsonl",
+        "cost_report.json",
+        "run_report.json",
+        "pipeline_state.json",
+        "check_report.json"
+      ],
+      "forbidden": [
+        "professional artifacts"
+      ],
       "must_read": [],
-      "outputs": ["run_state", "gate_decisions", "cost_report", "run_report"],
+      "outputs": [
+        "run_state",
+        "gate_decisions",
+        "cost_report",
+        "run_report"
+      ],
       "notes": "deterministic; no model; sole writer of state and evidence"
     },
     {
@@ -440,87 +1781,916 @@
       "model_route": null,
       "skill": null,
       "stage_owner": [],
-      "writes": ["gate_decisions.jsonl"],
+      "writes": [
+        "gate_decisions.jsonl"
+      ],
       "forbidden": [],
-      "must_read": ["gate_packet"],
-      "outputs": ["gate_decision", "waiver"],
+      "must_read": [
+        "gate_packet"
+      ],
+      "outputs": [
+        "gate_decision",
+        "waiver"
+      ],
       "notes": "principal; decides G0/G2/G3/G5 and exceptions G1/G4"
     }
   ],
   "artifacts": [
-    {"id": "statement", "path": "赛题/题面.md", "producer": "lead", "consumers": ["solver", "method", "figures", "writer", "reviewer", "human"], "stage": "INTAKE", "required": true, "validators": [".trae/code_templates/check_pipeline_manifest.py"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "ingest_report", "path": "赛题/ingest_report.json", "producer": "lead", "consumers": ["lead", "kernel"], "stage": "INTAKE", "required": true, "validators": ["kernel"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "attachment_transcripts", "path": "赛题/附件/", "producer": "lead", "consumers": ["solver", "method", "figures", "writer", "reviewer"], "stage": "INTAKE", "required": false, "validators": ["kernel"], "blocking": "NONE", "schema": null, "condition": "explanation attachments exist"},
-    {"id": "statement_images", "path": "赛题/题面图/", "producer": "lead", "consumers": ["solver", "figures", "writer", "reviewer"], "stage": "INTAKE", "required": false, "validators": ["kernel"], "blocking": "NONE", "schema": null, "condition": "statement contains figures or scanned pages"},
-    {"id": "run_state", "path": "run_state.json", "producer": "kernel", "consumers": ["lead", "human", "kernel"], "stage": "INIT", "required": true, "validators": ["schema:schemas/run-state.schema.json"], "blocking": "ERROR", "schema": "schemas/run-state.schema.json", "condition": null},
-    {"id": "events", "path": "events.jsonl", "producer": "kernel", "consumers": ["lead", "human"], "stage": "INIT", "required": true, "validators": ["kernel"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "gate_decisions", "path": "gate_decisions.jsonl", "producer": "kernel", "consumers": ["lead", "human"], "stage": "INIT", "required": true, "validators": ["schema:schemas/gate-decision.schema.json"], "blocking": "ERROR", "schema": "schemas/gate-decision.schema.json", "condition": null},
-    {"id": "solution", "path": "result_bundle/solution.json", "producer": "solver", "consumers": ["method", "writer", "reviewer"], "stage": "MODELING", "required": true, "validators": [".trae/code_templates/check_solution_json.py", ".trae/code_templates/check_solution_json_stats.py"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "modeling_plan", "path": "result_bundle/modeling_plan.json", "producer": "solver", "consumers": ["method", "writer", "reviewer"], "stage": "MODELING", "required": true, "validators": [".trae/code_templates/check_modeling_artifacts.py"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "fingerprint", "path": "result_bundle/feature_fingerprint.json", "producer": "solver", "consumers": ["method", "writer", "reviewer"], "stage": "MODELING", "required": true, "validators": [".trae/code_templates/check_modeling_artifacts.py"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "glossary", "path": "result_bundle/术语表.json", "producer": "solver", "consumers": ["writer", "reviewer"], "stage": "MODELING", "required": true, "validators": [".trae/code_templates/check_modeling_artifacts.py"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "handoff_notes_1", "path": "handoff_notes_1.md", "producer": "solver", "consumers": ["method", "figures", "writer", "reviewer"], "stage": "MODELING", "required": true, "validators": [".trae/code_templates/check_pipeline_manifest.py"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "contract_check_report", "path": "contract_check_report.json", "producer": "kernel", "consumers": ["lead", "writer", "reviewer"], "stage": "MODELING", "required": true, "validators": ["schema:schemas/check-report.schema.json"], "blocking": "ERROR", "schema": "schemas/check-report.schema.json", "condition": null},
-    {"id": "modeling_artifacts_report", "path": "modeling_artifacts_report.json", "producer": "kernel", "consumers": ["lead"], "stage": "MODELING", "required": true, "validators": ["schema:schemas/check-report.schema.json"], "blocking": "ERROR", "schema": "schemas/check-report.schema.json", "condition": null},
-    {"id": "code_hygiene_report", "path": "code_hygiene_report.json", "producer": "kernel", "consumers": ["lead", "reviewer"], "stage": "MODELING", "required": true, "validators": ["schema:schemas/check-report.schema.json"], "blocking": "ERROR", "schema": "schemas/check-report.schema.json", "condition": null},
-    {"id": "leakage_check_report", "path": "leakage_check_report.json", "producer": "kernel", "consumers": ["lead", "reviewer"], "stage": "MODELING", "required": false, "validators": ["schema:schemas/check-report.schema.json"], "blocking": "WARN", "schema": "schemas/check-report.schema.json", "condition": "problem_track=stats"},
-    {"id": "workspace_hygiene_report", "path": "workspace_hygiene_report.json", "producer": "kernel", "consumers": ["lead"], "stage": "MULTI", "required": true, "validators": ["schema:schemas/check-report.schema.json"], "blocking": "ERROR", "schema": "schemas/check-report.schema.json", "condition": null},
-    {"id": "manifest_check_report", "path": "manifest_check_report.json", "producer": "kernel", "consumers": ["lead"], "stage": "MULTI", "required": true, "validators": ["schema:schemas/check-report.schema.json"], "blocking": "ERROR", "schema": "schemas/check-report.schema.json", "condition": null},
-    {"id": "machine_checks_audit", "path": "machine_checks_audit_report.json", "producer": "kernel", "consumers": ["lead"], "stage": "MULTI", "required": false, "validators": ["schema:schemas/check-report.schema.json"], "blocking": "ERROR", "schema": "schemas/check-report.schema.json", "condition": "fallback mode only"},
-    {"id": "rework_brief_md", "path": "decision_logs/rework_brief.md", "producer": "kernel", "consumers": ["solver", "lead"], "stage": "MULTI", "required": false, "validators": [".trae/code_templates/check_pipeline_manifest.py"], "blocking": "ERROR", "schema": null, "condition": "rework active"},
-    {"id": "rework_brief_json", "path": "decision_logs/rework_brief.json", "producer": "kernel", "consumers": ["solver", "lead"], "stage": "MULTI", "required": false, "validators": [".trae/code_templates/check_pipeline_manifest.py"], "blocking": "ERROR", "schema": null, "condition": "rework active"},
-    {"id": "failure_dossier", "path": "decision_logs/failure_dossier.json", "producer": "kernel", "consumers": ["solver", "method", "reviewer", "human"], "stage": "MULTI", "required": false, "validators": ["schema:schemas/failure-dossier.schema.json"], "blocking": "ERROR", "schema": "schemas/failure-dossier.schema.json", "condition": "fresh rework or root-cause review finding"},
-    {"id": "rework_plan", "path": "decision_logs/rework_plan.json", "producer": "solver", "consumers": ["method", "kernel", "reviewer"], "stage": "MULTI", "required": false, "validators": ["schema:schemas/rework-plan.schema.json", "kernel"], "blocking": "ERROR", "schema": "schemas/rework-plan.schema.json", "condition": "fresh_dossier rework"},
-    {"id": "regression_check_report", "path": "decision_logs/regression_check_report.json", "producer": "kernel", "consumers": ["method", "reviewer", "human"], "stage": "MULTI", "required": false, "validators": ["schema:schemas/check-report.schema.json"], "blocking": "ERROR", "schema": "schemas/check-report.schema.json", "condition": "fresh_dossier rework"},
-    {"id": "method_critique_md", "path": "decision_logs/method_critique.md", "producer": "method", "consumers": ["lead", "writer", "human"], "stage": "METHOD", "required": true, "validators": [".trae/code_templates/check_pipeline_manifest.py"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "method_critique_json", "path": "decision_logs/method_critique.json", "producer": "method", "consumers": ["lead", "kernel", "human"], "stage": "METHOD", "required": true, "validators": [".trae/code_templates/check_pipeline_manifest.py"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "figures_dir", "path": "result_bundle/figures/", "producer": "figures", "consumers": ["writer", "reviewer", "human"], "stage": "FIGURES", "required": true, "validators": [".trae/code_templates/check_modeling_artifacts.py"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "figure_list", "path": "result_bundle/图表清单.md", "producer": "figures", "consumers": ["writer", "reviewer", "human"], "stage": "FIGURES", "required": true, "validators": [".trae/code_templates/check_modeling_artifacts.py"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "figures_artifacts_report", "path": "figures_artifacts_report.json", "producer": "kernel", "consumers": ["lead"], "stage": "FIGURES", "required": true, "validators": ["schema:schemas/check-report.schema.json"], "blocking": "ERROR", "schema": "schemas/check-report.schema.json", "condition": null},
-    {"id": "paper_tex", "path": "paper.tex", "producer": "writer", "consumers": ["reviewer", "kernel"], "stage": "WRITING", "required": true, "validators": [".trae/code_templates/check_latex_compliance.py"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "paper_pdf", "path": "paper.pdf", "producer": "writer", "consumers": ["reviewer", "human"], "stage": "WRITING", "required": true, "validators": [".trae/code_templates/check_latex_compliance.py"], "blocking": "ERROR", "schema": null, "condition": "compile_mode=external may defer until COMPLIANCE"},
-    {"id": "abstract_candidates", "path": "decision_logs/abstract_candidates.md", "producer": "writer", "consumers": ["reviewer", "human"], "stage": "WRITING", "required": true, "validators": [".trae/code_templates/check_pipeline_manifest.py"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "handoff_notes_2", "path": "handoff_notes_2.md", "producer": "writer", "consumers": ["lead", "reviewer"], "stage": "WRITING", "required": true, "validators": [".trae/code_templates/check_pipeline_manifest.py"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "latex_env_report", "path": "latex_env_report.json", "producer": "kernel", "consumers": ["lead", "writer"], "stage": "WRITING", "required": true, "validators": ["schema:schemas/check-report.schema.json"], "blocking": "ERROR", "schema": "schemas/check-report.schema.json", "condition": null},
-    {"id": "latex_compliance_report", "path": "latex_compliance_report.json", "producer": "kernel", "consumers": ["lead", "reviewer"], "stage": "WRITING", "required": true, "validators": ["schema:schemas/check-report.schema.json"], "blocking": "ERROR", "schema": "schemas/check-report.schema.json", "condition": null},
-    {"id": "tex_number_check_report", "path": "tex_number_check_report.json", "producer": "kernel", "consumers": ["reviewer"], "stage": "WRITING", "required": false, "validators": ["schema:schemas/check-report.schema.json"], "blocking": "WARN", "schema": "schemas/check-report.schema.json", "condition": "WARN-level auxiliary; produced when paper_tex exists"},
-    {"id": "review_report", "path": "decision_logs/review_report.json", "producer": "reviewer", "consumers": ["writer", "lead", "human"], "stage": "REVIEW", "required": true, "validators": [".trae/code_templates/review_scores_template.md"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "review_scores", "path": "decision_logs/review_scores.md", "producer": "reviewer", "consumers": ["lead", "human"], "stage": "REVIEW", "required": true, "validators": [".trae/code_templates/review_scores_template.md"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "handoff_notes_3", "path": "handoff_notes_3.md", "producer": "reviewer", "consumers": ["lead", "writer"], "stage": "REVIEW", "required": true, "validators": [".trae/code_templates/check_pipeline_manifest.py"], "blocking": "ERROR", "schema": null, "condition": null},
-    {"id": "fix_round1", "path": "decision_logs/fix_round1.md", "producer": "writer", "consumers": ["reviewer", "kernel"], "stage": "FIX_R1", "required": false, "validators": ["kernel"], "blocking": "ERROR", "schema": null, "condition": "R1 executed"},
-    {"id": "fix_points_round1", "path": "decision_logs/fix_points_round1.md", "producer": "kernel", "consumers": ["reviewer"], "stage": "FIX_R1", "required": false, "validators": ["kernel"], "blocking": "ERROR", "schema": null, "condition": "R1 executed"},
-    {"id": "fix_round2", "path": "decision_logs/fix_round2.md", "producer": "writer", "consumers": ["reviewer", "kernel"], "stage": "FIX_R2", "required": false, "validators": ["kernel"], "blocking": "ERROR", "schema": null, "condition": "R2 executed"},
-    {"id": "fix_points_round2", "path": "decision_logs/fix_points_round2.md", "producer": "kernel", "consumers": ["reviewer"], "stage": "FIX_R2", "required": false, "validators": ["kernel"], "blocking": "ERROR", "schema": null, "condition": "R2 executed"},
-    {"id": "packaging_report", "path": "packaging_report.json", "producer": "kernel", "consumers": ["lead", "human"], "stage": "COMPLIANCE", "required": true, "validators": ["schema:schemas/check-report.schema.json"], "blocking": "ERROR", "schema": "schemas/check-report.schema.json", "condition": null},
-    {"id": "cost_report", "path": "cost_report.json", "producer": "kernel", "consumers": ["lead", "human"], "stage": "DELIVERED", "required": true, "validators": ["schema:schemas/cost-report.schema.json"], "blocking": "NONE", "schema": "schemas/cost-report.schema.json", "condition": null},
-    {"id": "run_report", "path": "run_report.json", "producer": "kernel", "consumers": ["lead", "human"], "stage": "DELIVERED", "required": true, "validators": ["kernel"], "blocking": "NONE", "schema": null, "condition": null},
-    {"id": "pipeline_state", "path": "pipeline_state.json", "producer": "kernel", "consumers": ["lead", "kernel", "fallback_checkers"], "stage": "MULTI", "required": true, "validators": ["kernel"], "blocking": "ERROR", "schema": null, "condition": "compatibility view"}
+    {
+      "id": "statement",
+      "path": "赛题/题面.md",
+      "producer": "lead",
+      "consumers": [
+        "solver",
+        "method",
+        "figures",
+        "writer",
+        "reviewer",
+        "human"
+      ],
+      "stage": "INTAKE",
+      "required": true,
+      "validators": [
+        "tools/checks/check_pipeline_manifest.py"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "ingest_report",
+      "path": "赛题/ingest_report.json",
+      "producer": "lead",
+      "consumers": [
+        "lead",
+        "kernel"
+      ],
+      "stage": "INTAKE",
+      "required": true,
+      "validators": [
+        "kernel"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "attachment_transcripts",
+      "path": "赛题/附件/",
+      "producer": "lead",
+      "consumers": [
+        "solver",
+        "method",
+        "figures",
+        "writer",
+        "reviewer"
+      ],
+      "stage": "INTAKE",
+      "required": false,
+      "validators": [
+        "kernel"
+      ],
+      "blocking": "NONE",
+      "schema": null,
+      "condition": "explanation attachments exist"
+    },
+    {
+      "id": "statement_images",
+      "path": "赛题/题面图/",
+      "producer": "lead",
+      "consumers": [
+        "solver",
+        "figures",
+        "writer",
+        "reviewer"
+      ],
+      "stage": "INTAKE",
+      "required": false,
+      "validators": [
+        "kernel"
+      ],
+      "blocking": "NONE",
+      "schema": null,
+      "condition": "statement contains figures or scanned pages"
+    },
+    {
+      "id": "run_state",
+      "path": "run_state.json",
+      "producer": "kernel",
+      "consumers": [
+        "lead",
+        "human",
+        "kernel"
+      ],
+      "stage": "INIT",
+      "required": true,
+      "validators": [
+        "schema:schemas/run-state.schema.json"
+      ],
+      "blocking": "ERROR",
+      "schema": "schemas/run-state.schema.json",
+      "condition": null
+    },
+    {
+      "id": "events",
+      "path": "events.jsonl",
+      "producer": "kernel",
+      "consumers": [
+        "lead",
+        "human"
+      ],
+      "stage": "INIT",
+      "required": true,
+      "validators": [
+        "kernel"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "gate_decisions",
+      "path": "gate_decisions.jsonl",
+      "producer": "kernel",
+      "consumers": [
+        "lead",
+        "human"
+      ],
+      "stage": "INIT",
+      "required": true,
+      "validators": [
+        "schema:schemas/gate-decision.schema.json"
+      ],
+      "blocking": "ERROR",
+      "schema": "schemas/gate-decision.schema.json",
+      "condition": null
+    },
+    {
+      "id": "solution",
+      "path": "result_bundle/solution.json",
+      "producer": "solver",
+      "consumers": [
+        "method",
+        "writer",
+        "reviewer"
+      ],
+      "stage": "MODELING",
+      "required": true,
+      "validators": [
+        "tools/checks/check_solution_json.py",
+        "tools/checks/check_solution_json_stats.py"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "modeling_plan",
+      "path": "result_bundle/modeling_plan.json",
+      "producer": "solver",
+      "consumers": [
+        "method",
+        "writer",
+        "reviewer"
+      ],
+      "stage": "MODELING",
+      "required": true,
+      "validators": [
+        "tools/checks/check_modeling_artifacts.py"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "fingerprint",
+      "path": "result_bundle/feature_fingerprint.json",
+      "producer": "solver",
+      "consumers": [
+        "method",
+        "writer",
+        "reviewer"
+      ],
+      "stage": "MODELING",
+      "required": true,
+      "validators": [
+        "tools/checks/check_modeling_artifacts.py"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "glossary",
+      "path": "result_bundle/术语表.json",
+      "producer": "solver",
+      "consumers": [
+        "writer",
+        "reviewer"
+      ],
+      "stage": "MODELING",
+      "required": true,
+      "validators": [
+        "tools/checks/check_modeling_artifacts.py"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "handoff_notes_1",
+      "path": "handoff_notes_1.md",
+      "producer": "solver",
+      "consumers": [
+        "method",
+        "figures",
+        "writer",
+        "reviewer"
+      ],
+      "stage": "MODELING",
+      "required": true,
+      "validators": [
+        "tools/checks/check_pipeline_manifest.py"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "contract_check_report",
+      "path": "contract_check_report.json",
+      "producer": "kernel",
+      "consumers": [
+        "lead",
+        "writer",
+        "reviewer"
+      ],
+      "stage": "MODELING",
+      "required": true,
+      "validators": [
+        "schema:schemas/check-report.schema.json"
+      ],
+      "blocking": "ERROR",
+      "schema": "schemas/check-report.schema.json",
+      "condition": null
+    },
+    {
+      "id": "modeling_artifacts_report",
+      "path": "modeling_artifacts_report.json",
+      "producer": "kernel",
+      "consumers": [
+        "lead"
+      ],
+      "stage": "MODELING",
+      "required": true,
+      "validators": [
+        "schema:schemas/check-report.schema.json"
+      ],
+      "blocking": "ERROR",
+      "schema": "schemas/check-report.schema.json",
+      "condition": null
+    },
+    {
+      "id": "code_hygiene_report",
+      "path": "code_hygiene_report.json",
+      "producer": "kernel",
+      "consumers": [
+        "lead",
+        "reviewer"
+      ],
+      "stage": "MODELING",
+      "required": true,
+      "validators": [
+        "schema:schemas/check-report.schema.json"
+      ],
+      "blocking": "ERROR",
+      "schema": "schemas/check-report.schema.json",
+      "condition": null
+    },
+    {
+      "id": "leakage_check_report",
+      "path": "leakage_check_report.json",
+      "producer": "kernel",
+      "consumers": [
+        "lead",
+        "reviewer"
+      ],
+      "stage": "MODELING",
+      "required": false,
+      "validators": [
+        "schema:schemas/check-report.schema.json"
+      ],
+      "blocking": "WARN",
+      "schema": "schemas/check-report.schema.json",
+      "condition": "problem_track=stats"
+    },
+    {
+      "id": "workspace_hygiene_report",
+      "path": "workspace_hygiene_report.json",
+      "producer": "kernel",
+      "consumers": [
+        "lead"
+      ],
+      "stage": "MULTI",
+      "required": true,
+      "validators": [
+        "schema:schemas/check-report.schema.json"
+      ],
+      "blocking": "ERROR",
+      "schema": "schemas/check-report.schema.json",
+      "condition": null
+    },
+    {
+      "id": "manifest_check_report",
+      "path": "manifest_check_report.json",
+      "producer": "kernel",
+      "consumers": [
+        "lead"
+      ],
+      "stage": "MULTI",
+      "required": true,
+      "validators": [
+        "schema:schemas/check-report.schema.json"
+      ],
+      "blocking": "ERROR",
+      "schema": "schemas/check-report.schema.json",
+      "condition": null
+    },
+    {
+      "id": "machine_checks_audit",
+      "path": "machine_checks_audit_report.json",
+      "producer": "kernel",
+      "consumers": [
+        "lead"
+      ],
+      "stage": "MULTI",
+      "required": false,
+      "validators": [
+        "schema:schemas/check-report.schema.json"
+      ],
+      "blocking": "ERROR",
+      "schema": "schemas/check-report.schema.json",
+      "condition": "fallback mode only"
+    },
+    {
+      "id": "rework_brief_md",
+      "path": "decision_logs/rework_brief.md",
+      "producer": "kernel",
+      "consumers": [
+        "solver",
+        "lead"
+      ],
+      "stage": "MULTI",
+      "required": false,
+      "validators": [
+        "tools/checks/check_pipeline_manifest.py"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": "rework active"
+    },
+    {
+      "id": "rework_brief_json",
+      "path": "decision_logs/rework_brief.json",
+      "producer": "kernel",
+      "consumers": [
+        "solver",
+        "lead"
+      ],
+      "stage": "MULTI",
+      "required": false,
+      "validators": [
+        "tools/checks/check_pipeline_manifest.py"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": "rework active"
+    },
+    {
+      "id": "failure_dossier",
+      "path": "decision_logs/failure_dossier.json",
+      "producer": "kernel",
+      "consumers": [
+        "solver",
+        "method",
+        "reviewer",
+        "human"
+      ],
+      "stage": "MULTI",
+      "required": false,
+      "validators": [
+        "schema:schemas/failure-dossier.schema.json"
+      ],
+      "blocking": "ERROR",
+      "schema": "schemas/failure-dossier.schema.json",
+      "condition": "fresh rework or root-cause review finding"
+    },
+    {
+      "id": "rework_plan",
+      "path": "decision_logs/rework_plan.json",
+      "producer": "solver",
+      "consumers": [
+        "method",
+        "kernel",
+        "reviewer"
+      ],
+      "stage": "MULTI",
+      "required": false,
+      "validators": [
+        "schema:schemas/rework-plan.schema.json",
+        "kernel"
+      ],
+      "blocking": "ERROR",
+      "schema": "schemas/rework-plan.schema.json",
+      "condition": "fresh_dossier rework"
+    },
+    {
+      "id": "regression_check_report",
+      "path": "decision_logs/regression_check_report.json",
+      "producer": "kernel",
+      "consumers": [
+        "method",
+        "reviewer",
+        "human"
+      ],
+      "stage": "MULTI",
+      "required": false,
+      "validators": [
+        "schema:schemas/check-report.schema.json"
+      ],
+      "blocking": "ERROR",
+      "schema": "schemas/check-report.schema.json",
+      "condition": "fresh_dossier rework"
+    },
+    {
+      "id": "method_critique_md",
+      "path": "decision_logs/method_critique.md",
+      "producer": "method",
+      "consumers": [
+        "lead",
+        "writer",
+        "human"
+      ],
+      "stage": "METHOD",
+      "required": true,
+      "validators": [
+        "tools/checks/check_pipeline_manifest.py"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "method_critique_json",
+      "path": "decision_logs/method_critique.json",
+      "producer": "method",
+      "consumers": [
+        "lead",
+        "kernel",
+        "human"
+      ],
+      "stage": "METHOD",
+      "required": true,
+      "validators": [
+        "tools/checks/check_pipeline_manifest.py"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "figures_dir",
+      "path": "result_bundle/figures/",
+      "producer": "figures",
+      "consumers": [
+        "writer",
+        "reviewer",
+        "human"
+      ],
+      "stage": "FIGURES",
+      "required": true,
+      "validators": [
+        "tools/checks/check_modeling_artifacts.py"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "figure_list",
+      "path": "result_bundle/图表清单.md",
+      "producer": "figures",
+      "consumers": [
+        "writer",
+        "reviewer",
+        "human"
+      ],
+      "stage": "FIGURES",
+      "required": true,
+      "validators": [
+        "tools/checks/check_modeling_artifacts.py"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "figures_artifacts_report",
+      "path": "figures_artifacts_report.json",
+      "producer": "kernel",
+      "consumers": [
+        "lead"
+      ],
+      "stage": "FIGURES",
+      "required": true,
+      "validators": [
+        "schema:schemas/check-report.schema.json"
+      ],
+      "blocking": "ERROR",
+      "schema": "schemas/check-report.schema.json",
+      "condition": null
+    },
+    {
+      "id": "paper_tex",
+      "path": "paper.tex",
+      "producer": "writer",
+      "consumers": [
+        "reviewer",
+        "kernel"
+      ],
+      "stage": "WRITING",
+      "required": true,
+      "validators": [
+        "tools/checks/check_latex_compliance.py"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "paper_pdf",
+      "path": "paper.pdf",
+      "producer": "writer",
+      "consumers": [
+        "reviewer",
+        "human"
+      ],
+      "stage": "WRITING",
+      "required": true,
+      "validators": [
+        "tools/checks/check_latex_compliance.py"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": "compile_mode=external may defer until COMPLIANCE"
+    },
+    {
+      "id": "abstract_candidates",
+      "path": "decision_logs/abstract_candidates.md",
+      "producer": "writer",
+      "consumers": [
+        "reviewer",
+        "human"
+      ],
+      "stage": "WRITING",
+      "required": true,
+      "validators": [
+        "tools/checks/check_pipeline_manifest.py"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "handoff_notes_2",
+      "path": "handoff_notes_2.md",
+      "producer": "writer",
+      "consumers": [
+        "lead",
+        "reviewer"
+      ],
+      "stage": "WRITING",
+      "required": true,
+      "validators": [
+        "tools/checks/check_pipeline_manifest.py"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "latex_env_report",
+      "path": "latex_env_report.json",
+      "producer": "kernel",
+      "consumers": [
+        "lead",
+        "writer"
+      ],
+      "stage": "WRITING",
+      "required": true,
+      "validators": [
+        "schema:schemas/check-report.schema.json"
+      ],
+      "blocking": "ERROR",
+      "schema": "schemas/check-report.schema.json",
+      "condition": null
+    },
+    {
+      "id": "latex_compliance_report",
+      "path": "latex_compliance_report.json",
+      "producer": "kernel",
+      "consumers": [
+        "lead",
+        "reviewer"
+      ],
+      "stage": "WRITING",
+      "required": true,
+      "validators": [
+        "schema:schemas/check-report.schema.json"
+      ],
+      "blocking": "ERROR",
+      "schema": "schemas/check-report.schema.json",
+      "condition": null
+    },
+    {
+      "id": "tex_number_check_report",
+      "path": "tex_number_check_report.json",
+      "producer": "kernel",
+      "consumers": [
+        "reviewer"
+      ],
+      "stage": "WRITING",
+      "required": false,
+      "validators": [
+        "schema:schemas/check-report.schema.json"
+      ],
+      "blocking": "WARN",
+      "schema": "schemas/check-report.schema.json",
+      "condition": "WARN-level auxiliary; produced when paper_tex exists"
+    },
+    {
+      "id": "review_report",
+      "path": "decision_logs/review_report.json",
+      "producer": "reviewer",
+      "consumers": [
+        "writer",
+        "lead",
+        "human"
+      ],
+      "stage": "REVIEW",
+      "required": true,
+      "validators": [
+        "tools/checks/review_scores_template.md"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "review_scores",
+      "path": "decision_logs/review_scores.md",
+      "producer": "reviewer",
+      "consumers": [
+        "lead",
+        "human"
+      ],
+      "stage": "REVIEW",
+      "required": true,
+      "validators": [
+        "tools/checks/review_scores_template.md"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "handoff_notes_3",
+      "path": "handoff_notes_3.md",
+      "producer": "reviewer",
+      "consumers": [
+        "lead",
+        "writer"
+      ],
+      "stage": "REVIEW",
+      "required": true,
+      "validators": [
+        "tools/checks/check_pipeline_manifest.py"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "fix_round1",
+      "path": "decision_logs/fix_round1.md",
+      "producer": "writer",
+      "consumers": [
+        "reviewer",
+        "kernel"
+      ],
+      "stage": "FIX_R1",
+      "required": false,
+      "validators": [
+        "kernel"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": "R1 executed"
+    },
+    {
+      "id": "fix_points_round1",
+      "path": "decision_logs/fix_points_round1.md",
+      "producer": "kernel",
+      "consumers": [
+        "reviewer"
+      ],
+      "stage": "FIX_R1",
+      "required": false,
+      "validators": [
+        "kernel"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": "R1 executed"
+    },
+    {
+      "id": "fix_round2",
+      "path": "decision_logs/fix_round2.md",
+      "producer": "writer",
+      "consumers": [
+        "reviewer",
+        "kernel"
+      ],
+      "stage": "FIX_R2",
+      "required": false,
+      "validators": [
+        "kernel"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": "R2 executed"
+    },
+    {
+      "id": "fix_points_round2",
+      "path": "decision_logs/fix_points_round2.md",
+      "producer": "kernel",
+      "consumers": [
+        "reviewer"
+      ],
+      "stage": "FIX_R2",
+      "required": false,
+      "validators": [
+        "kernel"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": "R2 executed"
+    },
+    {
+      "id": "packaging_report",
+      "path": "packaging_report.json",
+      "producer": "kernel",
+      "consumers": [
+        "lead",
+        "human"
+      ],
+      "stage": "COMPLIANCE",
+      "required": true,
+      "validators": [
+        "schema:schemas/check-report.schema.json"
+      ],
+      "blocking": "ERROR",
+      "schema": "schemas/check-report.schema.json",
+      "condition": null
+    },
+    {
+      "id": "cost_report",
+      "path": "cost_report.json",
+      "producer": "kernel",
+      "consumers": [
+        "lead",
+        "human"
+      ],
+      "stage": "DELIVERED",
+      "required": true,
+      "validators": [
+        "schema:schemas/cost-report.schema.json"
+      ],
+      "blocking": "NONE",
+      "schema": "schemas/cost-report.schema.json",
+      "condition": null
+    },
+    {
+      "id": "run_report",
+      "path": "run_report.json",
+      "producer": "kernel",
+      "consumers": [
+        "lead",
+        "human"
+      ],
+      "stage": "DELIVERED",
+      "required": true,
+      "validators": [
+        "kernel"
+      ],
+      "blocking": "NONE",
+      "schema": null,
+      "condition": null
+    },
+    {
+      "id": "pipeline_state",
+      "path": "pipeline_state.json",
+      "producer": "kernel",
+      "consumers": [
+        "lead",
+        "kernel",
+        "fallback_checkers"
+      ],
+      "stage": "MULTI",
+      "required": true,
+      "validators": [
+        "kernel"
+      ],
+      "blocking": "ERROR",
+      "schema": null,
+      "condition": "compatibility view"
+    }
   ],
   "resources": {
     "repo_root": ".",
     "python": ".venv/Scripts/python.exe",
     "fallback_python": "python",
     "shell": "ctx.shell",
-    "latex": {"cumcm": "xelatex", "shuwei_zh": "xelatex", "shuwei_en": "pdflatex", "fallback": "external"},
+    "latex": {
+      "cumcm": "xelatex",
+      "shuwei_zh": "xelatex",
+      "shuwei_en": "pdflatex",
+      "fallback": "external"
+    },
     "skills_root": ".dsh/skills",
     "knowledge_root": "knowledge",
     "tools_root": "tools",
-    "legacy_root": ".trae",
-    "team": {"lead": "lead", "writer": "writer"},
+    "legacy_root": null,
+    "team": {
+      "lead": "lead",
+      "writer": "writer"
+    },
     "specialist_tool": "specialist|subagent|workflow.agent"
   },
   "handoff": {
     "brief_max_bytes": 4096,
     "digest_max_chars": 2000,
     "must_read_max_items": 8,
-    "brief_fields": ["role", "stage", "project_root", "must_read", "outputs", "writes", "forbidden", "budget", "gate", "rework", "freshness", "failure_dossier", "rework_plan", "regression", "constraints"],
-    "digest_sources": ["solution", "modeling_plan", "fingerprint", "glossary", "figure_list", "review_report", "check_summary"]
+    "brief_fields": [
+      "role",
+      "stage",
+      "project_root",
+      "must_read",
+      "outputs",
+      "writes",
+      "forbidden",
+      "budget",
+      "gate",
+      "rework",
+      "freshness",
+      "failure_dossier",
+      "rework_plan",
+      "regression",
+      "constraints"
+    ],
+    "digest_sources": [
+      "solution",
+      "modeling_plan",
+      "fingerprint",
+      "glossary",
+      "figure_list",
+      "review_report",
+      "check_summary"
+    ]
   },
   "budgets": {
-    "run": {"wall_minutes": 4320, "human_minutes": 120, "buffer_minutes": 360, "token_baseline": null, "soft_multiplier": 1.2, "hard_multiplier": 1.5},
+    "run": {
+      "wall_minutes": 4320,
+      "human_minutes": 120,
+      "buffer_minutes": 360,
+      "token_baseline": null,
+      "soft_multiplier": 1.2,
+      "hard_multiplier": 1.5
+    },
     "stage_token_share_note": "initial hypothesis; calibrate after the first run",
-    "thresholds": {"warn": 0.7, "critical": 0.9, "overrun_plan": 1.3},
-    "human_gate_minutes": {"G0": 15, "G1": 10, "G2": 30, "G3": 30, "G4": 20, "G5": 10}
+    "thresholds": {
+      "warn": 0.7,
+      "critical": 0.9,
+      "overrun_plan": 1.3
+    },
+    "human_gate_minutes": {
+      "G0": 15,
+      "G1": 10,
+      "G2": 30,
+      "G3": 30,
+      "G4": 20,
+      "G5": 10
+    }
   },
   "limits": {
     "g0_fix": 2,
@@ -539,26 +2709,67 @@
   },
   "concurrency": {
     "main_line": "serial",
-    "safe_parallel": ["environment_preflight", "latex_template_prep", "reference_candidate_collection", "gate_brief_prep"],
+    "safe_parallel": [
+      "environment_preflight",
+      "latex_template_prep",
+      "reference_candidate_collection",
+      "gate_brief_prep"
+    ],
     "forbidden_parallel": [
-      ["MODELING", "METHOD"],
-      ["MODELING", "FIGURES"],
-      ["METHOD", "FIGURES"],
-      ["WRITING", "REVIEW"],
-      ["REVIEW", "FIX_R1"],
-      ["FIX_R1", "RE_REVIEW_R1"]
+      [
+        "MODELING",
+        "METHOD"
+      ],
+      [
+        "MODELING",
+        "FIGURES"
+      ],
+      [
+        "METHOD",
+        "FIGURES"
+      ],
+      [
+        "WRITING",
+        "REVIEW"
+      ],
+      [
+        "REVIEW",
+        "FIX_R1"
+      ],
+      [
+        "FIX_R1",
+        "RE_REVIEW_R1"
+      ]
     ],
     "rule": "no professional role runs in parallel with its upstream; specialists are serial on the main line"
   },
   "guards": {
-    "protected_paths": ["knowledge/**", "system/**", ".trae/**", "pipeline_state.json", "run_state.json", "gate_decisions.jsonl", "events.jsonl"],
+    "protected_paths": [
+      "knowledge/**",
+      "system/**",
+      "tools/checks/**",
+      "pipeline_state.json",
+      "run_state.json",
+      "gate_decisions.jsonl",
+      "events.jsonl"
+    ],
     "protected_write_policy": "deny during RUNNING; changes require a recorded human waiver or post-run calibration",
     "role_write_scopes": "advisory; gate-time artifact hashes and human diff are the backstop",
     "hash_bound_gates": true,
     "stale_propagation": {
-      "MODELING": ["METHOD", "FIGURES", "WRITING", "REVIEW"],
-      "FIGURES": ["WRITING", "REVIEW"],
-      "WRITING": ["REVIEW"]
+      "MODELING": [
+        "METHOD",
+        "FIGURES",
+        "WRITING",
+        "REVIEW"
+      ],
+      "FIGURES": [
+        "WRITING",
+        "REVIEW"
+      ],
+      "WRITING": [
+        "REVIEW"
+      ]
     },
     "freshness_records": "run_state.freshness_decisions[] records trigger, mode, reason, scope, child_id, plan_gate, regression, repeat_failure",
     "fallback_mode": "manual AGENTS.md protocol with the same check scripts and pipeline_state.json"

@@ -1,8 +1,8 @@
 # 数模 B 题人机协同智能体团队 · 运行框架 v3
 
-> 状态：Phase 0 设计定稿（`framework_version=3.0.0`，`schema_version=2026-10-19`）
+> 状态：v3 已落地（`framework_version=3.0.0`，`schema_version=2026-10-19`）
 > 适用范围：CUMCM B 题（`opt` / `stats`）与 `shuwei_en` 赛制；仅比赛模式。
-> 本文是**目标框架**；现行 Trae 流水线（根目录 `AGENTS.md` + `.trae/`）在新系统通过校准前仍是回退基准。
+> 本文是当前框架；旧 Trae 流水线已归档到 `legacy-trae-archive` 分支；运行以本文件 + `tools/pipeline_kernel.py` 为准。
 > 机器可读规格：`framework.json`；机查清单：`checks.json`；迁移矩阵：`migration-map.md`；场景测试：`tabletop-tests.md`。
 
 ---
@@ -305,7 +305,7 @@ Kernel 自动标记；禁止因旧文件存在而跳过重做。
 | Solver | 论文（尚不存在）、method_critique | paper、figures、method_critique |
 | Lead | 不读全文，只读摘要 | 任何专业产物 |
 
-- Kernel 守卫：`write`/`edit` 对 `knowledge/`、`system/`、`.trae/`、`pipeline_state.json` 在运行期直接拒绝；对 `result_bundle`/`paper.tex` 按角色舞台做 advisory 拒绝；`bash` 无法完全拦截，靠 gate 时 artifact hash + 人工 diff 兜底（**不宣称沙箱**）。
+- Kernel 守卫：`write`/`edit` 对 `knowledge/`、`system/`、`tools/checks/`、`pipeline_state.json` 在运行期直接拒绝；对 `result_bundle`/`paper.tex` 按角色舞台做 advisory 拒绝；`bash` 无法完全拦截，靠 gate 时 artifact hash + 人工 diff 兜底（**不宣称沙箱**）。
 - Lead 不得代写任何专业产出；Kernel 的 `pipeline_submit` 校验 `produced_by` 角色。
 
 ### 5.5 降级模式
@@ -563,7 +563,7 @@ REVIEW → FIX_R1 → RE_REVIEW_R1 → FIX_R2 → RE_REVIEW_R2 → G4（残留�
 
 ### 10.5 防过拟合
 
-- 运行期 Kernel 拒绝写 `knowledge/`、`system/`、`.trae/` 共享文件；变更需人批准并留痕。
+- 运行期 Kernel 拒绝写 `knowledge/`、`system/`、`tools/checks/` 共享文件；变更需人批准并留痕。
 - 同题特定信息不得写入共享文件；校准与比赛隔离。
 - 进化工具箱独立于活流水线；`run_report.json` 供赛后复盘。
 
@@ -645,11 +645,11 @@ pipeline_gate(project_root, gate_id, decision, reason, return_target?, return_sc
 | `.trae/papers/产物注册表.md` | 由 `framework.json` 生成 Markdown 视图 | Phase 2 |
 | `.trae/papers/*` | `knowledge/`，内容保留，加索引 | Phase 2 |
 | `.trae/skills/method-studio` | `skills/method-critic` | Phase 2 |
-| `.trae/code_templates/*.py` | `tools/checkers/`，不改判据 | Phase 1 |
+| `tools/checks/*.py` | `tools/checkers/`，不改判据 | Phase 1 |
 | `pipeline_state.json` 模板 | `schemas/run-state.schema.json` + 兼容视图 | Phase 1 |
 | `系统框架图.png` | 作为 legacy 参照；v3 图见本文 | Phase 0 |
 
-> Phase 2C 已把角色/规范/方法卡复制到 `.dsh/skills/*/references/`；`.trae/` 保留为活流水线与归档，不删除。代码检查器路径仍为 `.trae/code_templates/`，Phase 3 再迁 `tools/`。
+> Phase 2C 已把角色/规范/方法卡复制到 `.dsh/skills/*/references/`；旧 `.trae/` 已归档到 `legacy-trae-archive` 分支。代码检查器现位于 `tools/checks/`。
 
 ---
 
@@ -662,7 +662,7 @@ pipeline_gate(project_root, gate_id, decision, reason, return_target?, return_sc
 | **Phase 1.5（已完成）** | 隔离 profile 验证 + live 插件端到端只读调用 | live `pipeline_status` 返回 `run_id=plugin-test-run/stage=INTAKE/gate=G0`；插件→Kernel 闭环 |
 | **Phase 2A（已完成）** | 7 个 project-local DSH skills（`pipeline-protocol` / `solver-opt` / `solver-stats` / `method-critic` / `figure-studio` / `paper-writer` / `independent-reviewer`）+ Team blueprint；不新建 plugin/preset | skill catalog 可见 7 个；[`system/team/team-blueprint.md`](team/team-blueprint.md) 含编制/派活模板 |
 | **Phase 2B（已完成）** | 真实往年题端到端：技能加载、brief 交接、`pipeline_submit/gate` 顺序、token/cost 基线 | 2024B 全链路 `DELIVERED`：Q1-Q4、10 图、正文 29 页、review 94/100 ACCEPT、R1 high 修复、COMPLIANCE 0 ERROR |
-| **Phase 2C（已完成）** | 技能蒸馏：7 个薄 skill → `SKILL.md + references/`；角色/方法/写作/评审知识本地化 | 运行期 skill 不再引用 `.trae/agents|papers|skills`；旧全文归档；代码检查器待 Phase 3 |
+| **Phase 2C（已完成）** | 技能蒸馏：7 个薄 skill → `SKILL.md + references/`；角色/方法/写作/评审知识本地化 | 运行期 skill 不引用旧 Trae 长文；旧资产归档在 `legacy-trae-archive` 分支；检查器在 `tools/checks/` |
 | **Phase 3（只读 MVP）** | Pipeline Console UI：侧栏 Pipeline + 中央面板；run/stage/gate/checks/rework/figures/paper/gate packet | Host API 200；`main:pipeline` + `sidebar.panellist:pipeline` active |
 | **Phase 3b（已完成）** | 门决策按钮 + 图区域反馈：approve/fix/rollback/return_*/stop/deliver；拖矩形+评论写 `figure_feedback.json` | Gate POST 状态转移通过；反馈 POST 落盘通过 |
 | **Phase 3c（已完成）** | 图 overlay 编辑器：文字框新增/拖动/删除、改内容/字号/颜色/背景、空白加字；保存 `figure_annotations.json`，导出 annotated PNG/PDF | Annotation GET/POST/export 通过；旧 3b 停用；视觉拖拽体验待浏览器确认 |
@@ -796,9 +796,8 @@ tools/
 | DELIVER | DELIVERED | G5=deliver | gate |
 | BLOCKED | $resume_target / STOPPED | human_resume / human_stop | recovery |
 
-## 附录 C · 与现行系统的关系
+## 附录 C · 与旧系统的关系
 
-- 现行 `AGENTS.md` 与 `.trae/` **不变**；本文是目标框架。
-- Kernel 是 Phase 1 才实现的插件；在它可用之前，Lead 仍按现行手工协议执行。
-- 迁移从 Phase 2 开始；Phase 0 只新增 `system/` 和根目录指针，不改运行行为。
-- 任何新规则先进入 `framework.json`/skills/checks，再改提示词；禁止只改提示词。
+- 旧 `.trae/` 已归档到 `legacy-trae-archive` 分支；`main` 只保留运行资产（`system/`、`tools/`、`.dsh/skills/`、`plugin/`）。
+- Kernel 已实现；旧手工协议仅作回溯参考。
+- 迁移已完成到 Phase 3c；Phase 4 校准后再冻结。

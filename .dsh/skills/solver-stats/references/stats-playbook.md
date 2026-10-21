@@ -31,9 +31,9 @@
 - 打包前：
 
 ```powershell
-.venv\Scripts\python.exe .trae\code_templates\check_solution_json_stats.py result_bundle/solution.json project/results --selfcheck
-.venv\Scripts\python.exe .trae\code_templates\check_leakage.py project
-.venv\Scripts\python.exe .trae\code_templates\check_modeling_artifacts.py <项目根> --scope modeling
+.venv\Scripts\python.exe tools\checks\check_solution_json_stats.py result_bundle/solution.json project/results --selfcheck
+.venv\Scripts\python.exe tools\checks\check_leakage.py project
+.venv\Scripts\python.exe tools\checks\check_modeling_artifacts.py <项目根> --scope modeling
 ```
 
 `check_leakage` 只报 WARN，不因此停；ERROR 当场修。不要用 opt 的 `check_solution_json.py` 验收本轨。
@@ -50,4 +50,4 @@
 - 在全数据上拟合预处理/调参后再划分。
 - 出图、写 `result_bundle/figures/`。
 - 写 `method_critique`、论文、`run_state.json`、`pipeline_state.json`。
-- 把同题专有符号/数据写入 `.trae/` 或 skill references。
+- 把同题专有符号/数据写入 `tools/checks/` 或 skill references。
